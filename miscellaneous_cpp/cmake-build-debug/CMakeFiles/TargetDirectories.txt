@@ -1,0 +1,3 @@
+C:/Users/Bansy/CLionProjects/miscellaneous_cpp/cmake-build-debug/CMakeFiles/miscellaneous_cpp.dir
+C:/Users/Bansy/CLionProjects/miscellaneous_cpp/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/Bansy/CLionProjects/miscellaneous_cpp/cmake-build-debug/CMakeFiles/rebuild_cache.dir

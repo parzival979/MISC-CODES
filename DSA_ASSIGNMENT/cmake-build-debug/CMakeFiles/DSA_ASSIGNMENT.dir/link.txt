@@ -1,0 +1,3 @@
+"C:\Program Files\JetBrains\CLion 2021.1\bin\cmake\win\bin\cmake.exe" -E rm -f CMakeFiles\DSA_ASSIGNMENT.dir/objects.a
+C:\PROGRA~1\MINGW-~1\X86_64~1.0-P\mingw64\bin\ar.exe cr CMakeFiles\DSA_ASSIGNMENT.dir/objects.a @CMakeFiles\DSA_ASSIGNMENT.dir\objects1.rsp
+C:\PROGRA~1\MINGW-~1\X86_64~1.0-P\mingw64\bin\gcc.exe -g -Wl,--whole-archive CMakeFiles\DSA_ASSIGNMENT.dir/objects.a -Wl,--no-whole-archive -o DSA_ASSIGNMENT.exe -Wl,--out-implib,libDSA_ASSIGNMENT.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\DSA_ASSIGNMENT.dir\linklibs.rsp

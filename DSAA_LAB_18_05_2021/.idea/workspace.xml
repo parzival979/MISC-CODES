@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
+    <generated>
+      <config projectName="DSAA_LAB_18_05_2021" targetName="DSAA_LAB_18_05_2021" />
+    </generated>
+  </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" ENABLED="true" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="cf435282-ee98-4e58-9d00-3891562491ac" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
+  <component name="ProjectId" id="1shb0NK6sBnW7RkKIwy2PzCfjfK" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="RunOnceActivity.cidr.known.project.marker" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="cf.first.check.clang-format" value="false" />
+    <property name="cidr.known.project.marker" value="true" />
+    <property name="cmake.loaded.for.project" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+  </component>
+  <component name="RunManager">
+    <configuration name="DSAA_LAB_18_05_2021" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="DSAA_LAB_18_05_2021" TARGET_NAME="DSAA_LAB_18_05_2021" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="DSAA_LAB_18_05_2021" RUN_TARGET_NAME="DSAA_LAB_18_05_2021">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="cf435282-ee98-4e58-9d00-3891562491ac" name="Default Changelist" comment="" />
+      <created>1621327545025</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1621327545025</updated>
+      <workItem from="1621327546749" duration="8000" />
+      <workItem from="1621327575889" duration="13083000" />
+      <workItem from="1621353760284" duration="10288000" />
+      <workItem from="1621364143189" duration="792000" />
+      <workItem from="1621385144721" duration="6720000" />
+      <workItem from="1621397071037" duration="1939000" />
+      <workItem from="1621399055037" duration="329000" />
+      <workItem from="1621407534884" duration="1222000" />
+      <workItem from="1621417250230" duration="6367000" />
+      <workItem from="1621496194389" duration="125000" />
+      <workItem from="1621523709130" duration="262000" />
+      <workItem from="1621524305026" duration="1446000" />
+      <workItem from="1621660328107" duration="63000" />
+      <workItem from="1621660403985" duration="49000" />
+      <workItem from="1621873342934" duration="272000" />
+      <workItem from="1621945131420" duration="327000" />
+      <workItem from="1621945751680" duration="21000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

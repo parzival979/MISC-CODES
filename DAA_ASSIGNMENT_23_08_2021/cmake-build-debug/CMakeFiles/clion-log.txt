@@ -1,0 +1,17 @@
+"C:\Program Files\JetBrains\CLion 2021.1\bin\cmake\win\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_DEPENDS_USE_COMPILER=FALSE -G "CodeBlocks - MinGW Makefiles" C:\Users\Bansy\CLionProjects\DAA_ASSIGNMENT_23_08_2021
+CMake Error at CMakeLists.txt:1 (notepadcmake_minimum_required):
+  Unknown CMake command "notepadcmake_minimum_required".
+
+
+CMake Warning (dev) in CMakeLists.txt:
+  No cmake_minimum_required command is present.  A line of code such as
+
+    cmake_minimum_required(VERSION 3.20)
+
+  should be added at the top of the file.  The version specified may be lower
+  if you wish to support older CMake versions for this project.  For more
+  information run "cmake --help-policy CMP0000".
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Configuring incomplete, errors occurred!
+See also "C:/Users/Bansy/CLionProjects/DAA_ASSIGNMENT_23_08_2021/cmake-build-debug/CMakeFiles/CMakeOutput.log".

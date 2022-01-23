@@ -1,0 +1,3 @@
+"C:\Program Files\JetBrains\CLion 2021.2.3\bin\cmake\win\bin\cmake.exe" -E rm -f CMakeFiles\DAA_END_SEM.dir/objects.a
+C:\msys64\mingw64\bin\ar.exe cr CMakeFiles\DAA_END_SEM.dir/objects.a @CMakeFiles\DAA_END_SEM.dir\objects1.rsp
+C:\msys64\mingw64\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\DAA_END_SEM.dir/objects.a -Wl,--no-whole-archive -o DAA_END_SEM.exe -Wl,--out-implib,libDAA_END_SEM.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\DAA_END_SEM.dir\linklibs.rsp
