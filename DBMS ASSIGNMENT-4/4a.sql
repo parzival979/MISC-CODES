@@ -19,7 +19,7 @@ select * from STUDENTACCOUNT where Person_name like '%s%';
 
 select * from STUDENTACCOUNT where Person_name like '_____' ;
 
-select id,Department from STUDENTACCOUNT;
+select * from STUDENTACCOUNT where id % 2 = 1;
 
-select Person_name,DOB from STUDENTACCOUNT;
+select * from STUDENTACCOUNT where id % 2 = 0;
 
