@@ -3,6 +3,7 @@
 
 section .data
 	num dd 123
+	start dd 1
 	strResult db "000"
     rlen equ $ - strResult
     nl db 0xa
@@ -11,16 +12,19 @@ section .text
 	global _start
 
 _start:
+mov ebx,[num]
+inc ebx
+mov [num],ebx
+
 loop:
-	mov eax, [num]	; print the number
+	mov eax, [start]	; print the number
 	call print
 
-	mov eax, [num] 	; store the number in eax
-	dec eax			; decrement the number
-	mov [num], eax	; mov the number back into num
-
-	test eax, eax	
-	jne loop 		; if eax != 0 loop
+	mov eax, [start] 	; store the number in eax
+	inc eax			; increment the number
+	mov [start], eax	; mov the number back into start
+	cmp eax,[num]	
+	jne loop 		; if eax != num loop
 
 	; gracefull exit
 	mov eax, 1
