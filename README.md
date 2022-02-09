@@ -1,2 +1,2 @@
 # MISC-CODES
-This Repository Contains Miscellaneous Codes From Me
+This Repository Contains Miscellaneous Codes By Me
