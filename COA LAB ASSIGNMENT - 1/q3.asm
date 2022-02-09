@@ -1,9 +1,8 @@
-
+; Write ALP by using recursion for finding a factorial
+; of number between 5 and 30 and display the result
 section .data
-	num dd 30
-	start dd 1
-	fact dd 1
-	strResult db "000"
+	num dd 12
+	strResult db "000000000"
     rlen equ $ - strResult
     nl db 0xa
 	
@@ -11,30 +10,18 @@ section .text
 	global _start
 
 _start:
-mov ebx,[num]
-inc ebx
-mov [num],ebx ; num++
 
+mov ebx, [num]     
+mov eax, 1    
 
 loop:
-    
-	mov eax,[start]
-	mul [fact]
-	mov [fact],eax
-	
-	
-	mov ebx,[start]
-	; increment the number
-	inc ebx
-	mov [start], ebx	; mov the number back into start
-	cmp ebx,[num]	
-	jne loop ; if eax != num loop
-	
-	;printing the number
-	mov eax,[fact]
-	call print
-	
-	
+    mul ebx          
+    dec ebx          
+    cmp ebx,0        
+    je print         
+    jmp loop
+
+
 	; gracefull exit
 	mov eax, 1
 	mov ebx, 0
