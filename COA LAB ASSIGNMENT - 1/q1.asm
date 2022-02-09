@@ -3,12 +3,13 @@
 
 
 section .data
+;declaring and initializing the numbers
 	num1 dd 143
 	num2 dd 193
 	num3 dd 100
 	num4 dd 99
 	num5 dd 444
- 
+ ; storing the message
 	msg db "The max of 5 is: "
 	mlen equ $ - msg
  
@@ -20,6 +21,7 @@ section .text
 	global _start
  
 _start:
+;algorithm to compare the numbers
 	mov   eax,4
 	mov   ebx,1
 	mov   ecx, msg

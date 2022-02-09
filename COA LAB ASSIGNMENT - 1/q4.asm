@@ -54,7 +54,7 @@ sum_it:
 	; print the number stored in esi with help of print section in util.asm
 	call print
 
-	; gracefull exit
+	;exit
 	mov eax, 1
 	mov ebx, 0
 	int 0x80 

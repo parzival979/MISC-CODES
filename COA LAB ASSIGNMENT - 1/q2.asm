@@ -2,7 +2,8 @@
 ; R) and display the result as the output.
 
 section .data
-	num dd 123
+;declaring the required data
+	num dd 25
 	start dd 1
 	strResult db "000"
     rlen equ $ - strResult
@@ -17,7 +18,8 @@ inc ebx
 mov [num],ebx
 
 loop:
-	mov eax, [start]	; print the number
+	mov eax, [start]	
+    ; print the number
 	call print
 
 	mov eax, [start] 	; store the number in eax
@@ -26,7 +28,7 @@ loop:
 	cmp eax,[num]	
 	jne loop 		; if eax != num loop
 
-	; gracefull exit
+	;exit
 	mov eax, 1
 	mov ebx, 0
 	int 0x80

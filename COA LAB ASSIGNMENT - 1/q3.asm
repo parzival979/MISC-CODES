@@ -11,10 +11,12 @@ section .text
 
 _start:
 
+;moving the required number for multiplication
 mov ebx, [num]     
 mov eax, 1    
 
 loop:
+;algorithm to find factorial using looping
     mul ebx          
     dec ebx          
     cmp ebx,0        
@@ -22,7 +24,7 @@ loop:
     jmp loop
 
 
-	; gracefull exit
+	;exit
 	mov eax, 1
 	mov ebx, 0
 	int 0x80
