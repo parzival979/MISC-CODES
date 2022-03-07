@@ -81,9 +81,9 @@ select * from Course where CCode like '__5__';
 
 select COUNT(RollNo) from Student where RollNo like '%CS%';
 
-#select RollNo from Enrolled where (select count(RollNo) from Enrolled where YoE = 2020) > 4 ;
+select RollNo from Enrolled where YoE=2020 group by RollNo having count(RollNo)>4;
 
-#select count(CCode) from Enrolled where RollNo = (select RollNo from Student where Gender = 'f' and City = 'delhi') group by CCode;
+select  CCode from Enrolled where RollNo in (select RollNo from Student where Gender='f' and  City ='Delhi') group by CCode order by count(CCode) desc limit 1;
 
 select SName from Student where Student.Email like '%gmail.com' or Student.Email like '%yahoo.com';
 
