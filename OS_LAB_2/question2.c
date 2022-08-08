@@ -24,7 +24,7 @@ int main() {
     }
     for (int i = 0; i < numProcesses; ++i) {
         for (int j = 0; j < numProcesses-i-1; ++j) {
-            if((inputProcesses[j].arrivalTime>inputProcesses[j+1].arrivalTime) || ((inputProcesses[j].arrivalTime>inputProcesses[j+1].arrivalTime) && (inputProcesses[j].pid>inputProcesses[j+1].pid))){
+            if((inputProcesses[j].arrivalTime>inputProcesses[j+1].arrivalTime) || ((inputProcesses[j].arrivalTime=inputProcesses[j+1].arrivalTime) && (inputProcesses[j].pid>inputProcesses[j+1].pid))){
                 int pid,at,bt;
                 pid = inputProcesses[j].pid;
                 at = inputProcesses[j].arrivalTime;
