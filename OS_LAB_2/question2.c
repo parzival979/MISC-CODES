@@ -39,7 +39,7 @@ int main() {
         }
     }
     struct outputDetails outputProcesses[numProcesses];
-    int sumWT=0,sumTCT=0;
+    int sumWT=0,sumTAT=0;
     int prevProcessTime = 0;
     for (int i = 0; i < numProcesses; ++i) {
         if(inputProcesses[i].arrivalTime<=prevProcessTime){
@@ -55,12 +55,12 @@ int main() {
             prevProcessTime = outputProcesses[i].completionTime;
         }
         sumWT+=outputProcesses[i].waitingTime;
-        sumTCT+=outputProcesses[i].turnAroundTime;
+        sumTAT+=outputProcesses[i].turnAroundTime;
     }
-    printf("PID AT BT CT WT TCT\n");
+    printf("PID AT BT CT WT TAT\n");
     for (int i = 0; i < numProcesses; ++i) {
         printf("%d %d %d %d %d %d\n",inputProcesses[i].pid,inputProcesses[i].arrivalTime,inputProcesses[i].burstTime,outputProcesses[i].completionTime,outputProcesses[i].waitingTime,outputProcesses[i].turnAroundTime);
     }
     printf("Average WT %f\n",(double)sumWT/(double)numProcesses);
-    printf("Average WT %f\n",(double)sumTCT/(double)numProcesses);
+    printf("Average TAT %f\n",(double)sumTAT/(double)numProcesses);
 }
