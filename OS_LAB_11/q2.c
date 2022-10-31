@@ -11,6 +11,8 @@
 #define LEFT (phnum + 4) % N
 #define RIGHT (phnum + 1) % N
 
+counter = 10;
+
 int state[N];
 int phil[N] = { 0, 1, 2, 3, 4 };
 
@@ -84,7 +86,7 @@ void put_fork(int phnum)
 void* philosopher(void* num)
 {
 
-    while (1) {
+    while (counter>0) {
 
         int* i = num;
 
@@ -95,6 +97,8 @@ void* philosopher(void* num)
         sleep(0);
 
         put_fork(*i);
+
+        counter--;
     }
 }
 
