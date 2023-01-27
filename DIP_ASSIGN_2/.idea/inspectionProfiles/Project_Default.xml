@@ -1,0 +1,36 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <value>
+          <list size="16">
+            <item index="0" class="java.lang.String" itemvalue="protobuf" />
+            <item index="1" class="java.lang.String" itemvalue="tensorflow-estimator" />
+            <item index="2" class="java.lang.String" itemvalue="Werkzeug" />
+            <item index="3" class="java.lang.String" itemvalue="numpy" />
+            <item index="4" class="java.lang.String" itemvalue="requests" />
+            <item index="5" class="java.lang.String" itemvalue="tensorflow-io-gcs-filesystem" />
+            <item index="6" class="java.lang.String" itemvalue="ipykernel" />
+            <item index="7" class="java.lang.String" itemvalue="psutil" />
+            <item index="8" class="java.lang.String" itemvalue="tensorboard" />
+            <item index="9" class="java.lang.String" itemvalue="Pygments" />
+            <item index="10" class="java.lang.String" itemvalue="pyzmq" />
+            <item index="11" class="java.lang.String" itemvalue="nest-asyncio" />
+            <item index="12" class="java.lang.String" itemvalue="oauthlib" />
+            <item index="13" class="java.lang.String" itemvalue="keras" />
+            <item index="14" class="java.lang.String" itemvalue="prompt-toolkit" />
+            <item index="15" class="java.lang.String" itemvalue="idna" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="object.predict" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
