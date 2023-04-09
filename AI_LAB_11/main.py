@@ -1,10 +1,10 @@
 # Programmed By Sravanth Chowdary Potluri CS20B1006
 import pytholog as pl
 
-new_kb = pl.KnowledgeBase("lab_RR")
+knowledge_base = pl.KnowledgeBase("lab_RR")
 
 # passing the rules and facts into the knowledge base
-new_kb(["child_loves(X) :- child(X), loves(X, santa).",
+knowledge_base(["child_loves(X) :- child(X), loves(X, santa).",
         "loves(X, santa) :- child(X).",
         "loves(X, Y) :- loves(X, santa), reindeer(Y).",
         "reindeer(rudolph).",
@@ -15,4 +15,4 @@ new_kb(["child_loves(X) :- child(X), loves(X, santa).",
         "scrooge(scrooge)."])
 
 # asking a query, and printing the results obtained after logical inference
-print("Is Scrooge a Child?: " + str(new_kb.query(pl.Expr("not(child(scrooge))"))[0]))
+print("Is Scrooge a Child?: " + str(knowledge_base.query(pl.Expr("not(child(scrooge))"))[0]))
