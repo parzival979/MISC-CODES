@@ -1,0 +1,384 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm} % For math symbols and environments
+\usepackage{graphicx} % For including images
+\usepackage{hyperref} % For hyperlinks
+\usepackage{fancyhdr} % For header and footer
+\usepackage{geometry} % For adjusting page dimensions
+\usepackage{cite} % For handling references
+\geometry{margin=1in}
+
+% Header and footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Sravanth Chowdary Potluri}
+\fancyhead[C]{ML On Graphs HW3}
+\fancyhead[R]{\thepage}
+\fancyfoot[L]{CS6501 - 016}
+\fancyfoot[R]{\today}
+
+% Title Page
+\title{Machine Learning On Graphs HW3}
+\author{Sravanth Chowdary Potluri \\ und5uv \\ CS6501 - 016}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section*{1.1 Simplified Objective}
+
+Consider the minimal graph
+\[
+G = \bigl(E = \{A,B\},\; S = \{(A,R,B)\}\bigr)
+\]
+and suppose we embed both entities and the single relation into \(\mathbb{R}^2\) by
+\[
+\mathbf{h}_A = \mathbf{h}_B
+= \begin{pmatrix}0\\0\end{pmatrix},
+\qquad
+\boldsymbol{\ell}_R
+= \begin{pmatrix}0\\0\end{pmatrix}.
+\]
+Under the simplified loss
+\[
+L_{\mathrm{simple}}
+= \sum_{(h,\ell,t)\in S} \bigl\|\mathbf{h}+\boldsymbol{\ell}-\mathbf{t}\bigr\|_2,
+\]
+the single term is
+\[
+\bigl\|\,(0,0)+(0,0)-(0,0)\bigr\|_2 = \|(0,0)\|_2 = 0,
+\]
+so \(L_{\mathrm{simple}}=0\).  Although this achieves the global minimum, it collapses every entity to the same point and uses \(\boldsymbol{\ell}_R=0\), which means all true triples, corrupted triples, and nonexistent triples coincide at the origin.  Consequently, the embedding encodes no information about which node–relation–node triples are present, rendering it entirely useless.
+
+\section*{1.2 Utility of Margin \(\gamma\)}
+
+Again take
+\[
+G = (E,S),\quad E=\{A,B\},\quad S=\{(A,R,B)\}
+\]
+and embeddings
+\[
+\mathbf{h}_A=\mathbf{h}_B=(0,0)^\top,
+\quad
+\boldsymbol{\ell}_R=(0,0)^\top.
+\]
+The set of corrupted triples is
+\[
+S'_{(A,R,B)} = \{(B,R,B),\,(A,R,A)\}.
+\]
+In the no‐margin hinge loss
+\[
+L_{\mathrm{no\ margin}}
+= \sum_{(h,R,t)\in S}\sum_{(h',R,t')\in S'}
+\bigl[d(h+\ell,t)-d(h'+\ell,t')\bigr]_+,
+\]
+we have
+\[
+d(\mathbf{h}_A+\boldsymbol{\ell}_R,\mathbf{h}_B)
+=d(\mathbf{h}_{h'}+\boldsymbol{\ell}_R,\mathbf{h}_{t'})=0
+\]
+for every choice of \((h',t')\), so each hinge term vanishes and \(L_{\mathrm{no\ margin}}=0\).  By collapsing all embeddings to the origin, the model again fails to distinguish any positive triple from any negative one.  This shows that without the margin \(\gamma\), the optimizer can trivially drive the loss to zero by collapsing distances, and so \(\gamma\) is essential to enforce a nonzero separation between true and corrupted triples.  
+
+\section*{1.3 Normalizing the Embeddings}
+
+Omitting the unit–length constraint on the entity vectors allows the optimizer to drive all entity embeddings to arbitrarily large norm and thereby satisfy every margin‐based hinge at zero.  Concretely, suppose for a positive triple \((h,\ell,t)\in S\) and one of its corruptions \((h',\ell,t')\in S'\) we have initially
+\[
+d\bigl(\mathbf{h}+\boldsymbol{\ell},\,\mathbf{t}\bigr)
+< 
+d\bigl(\mathbf{h}'+\boldsymbol{\ell},\,\mathbf{t}'\bigr).
+\]
+If we replace every entity embedding by \(C\,\mathbf{x}\) for some scalar \(C>1\), then for large \(C\)
+\[
+d\bigl(C\mathbf{h}+\boldsymbol{\ell},\,C\mathbf{t}\bigr)
+\approx
+C\,d(\mathbf{h},\mathbf{t}), 
+\quad
+d\bigl(C\mathbf{h}'+\boldsymbol{\ell},\,C\mathbf{t}'\bigr)
+\approx
+C\,d(\mathbf{h}',\mathbf{t}'),
+\]
+and hence
+\[
+\gamma
++d\bigl(C\mathbf{h}+\boldsymbol{\ell},\,C\mathbf{t}\bigr)
+- d\bigl(C\mathbf{h}'+\boldsymbol{\ell},\,C\mathbf{t}'\bigr)
+\;\approx\;
+\gamma
++ C\bigl(d(\mathbf{h},\mathbf{t}) - d(\mathbf{h}',\mathbf{t}')\bigr).
+\]
+Because \(d(\mathbf{h},\mathbf{t})<d(\mathbf{h}',\mathbf{t}')\), for sufficiently large \(C\) this quantity becomes negative, making each hinge term zero and thus driving the total loss to zero.  In effect, the learned entity embeddings blow up in norm without encoding any relational structure. Essentially, the optimizer can satisfy every margin‐based hinge at zero by driving all entity embeddings to arbitrarily large norm.  This is a consequence of the fact that the hinge loss is not invariant to scaling of the entity embeddings, therefore why we need to normalize the embeddings.  The normalization constraint is a way to enforce that the embeddings are not trivially scaled up or down, which would otherwise lead to a trivial solution where all embeddings are the same. 
+
+
+\section*{1.4 Expressiveness of TransE Embeddings}
+
+Let \(G=(E,S)\) be the graph with
+\[
+E=\{A,B,C\}, 
+\qquad
+S=\{(A,R,B),\;(A,R,C)\}.
+\]
+Suppose, for the sake of contradiction, that there exists a perfect TransE embedding in \(\mathbb R^2\).  Then by definition we must have
+\[
+\mathbf{h}_A + \boldsymbol{\ell}_R \;=\;\mathbf{h}_B,
+\qquad
+\mathbf{h}_A + \boldsymbol{\ell}_R \;=\;\mathbf{h}_C.
+\]
+Subtracting these two equations gives
+\[
+\mathbf{h}_B \;=\;\mathbf{h}_C,
+\]
+which contradicts the requirement that \(B\) and \(C\) be embedded at distinct points (since they are distinct entities).  Hence no choice of entity embeddings \(\{\mathbf{h}_A,\mathbf{h}_B,\mathbf{h}_C\}\subset\mathbb R^2\) and relation embedding \(\boldsymbol{\ell}_R\) can satisfy the TransE constraints perfectly.
+
+This example shows that TransE cannot model “one‑to‑many” relations: when a single head \(A\) under relation \(R\) must point to two different tails \(B\) and \(C\), the translation equation forces \(B\) and \(C\) to coincide.  In other words, the expressiveness of TransE is limited to relations for which each \((h,r)\) pair has at most one correct tail.  
+
+TransE can model antisymmetric, inverse, and transitive relations perfectly, but fails on symmetric relations and one‑to‑many (or many‑to‑one) relations. 
+
+
+\section*{2.1 TransE Modeling}
+
+\noindent\textbf{Symmetric relations.} A relation \(r\) is symmetric if whenever \((h,r,t)\in S\) also \((t,r,h)\in S\).  TransE would require
+\[
+\mathbf{h} + \boldsymbol{\ell}_r = \mathbf{t},
+\quad
+\mathbf{t} + \boldsymbol{\ell}_r = \mathbf{h}.
+\]
+Subtracting gives \(\boldsymbol{\ell}_r = \mathbf{t}-\mathbf{h}\) and \(\boldsymbol{\ell}_r = \mathbf{h}-\mathbf{t}\), forcing \(\boldsymbol{\ell}_r=\mathbf{0}\) and \(\mathbf{h}=\mathbf{t}\).  Since \(\mathbf{h}\neq\mathbf{t}\) for distinct entities and zero relation–vectors are undesirable, TransE cannot model non‐trivial symmetric relations perfectly.
+
+\medskip
+\noindent\textbf{Inverse relations.} If \(r_1\) and \(r_2\) are inverses, then \((h,r_1,t)\in S\) and \((t,r_2,h)\in S\).  TransE imposes
+\[
+\mathbf{h} + \boldsymbol{\ell}_{r_1} = \mathbf{t},
+\quad
+\mathbf{t} + \boldsymbol{\ell}_{r_2} = \mathbf{h},
+\]
+so \(\boldsymbol{\ell}_{r_2} = \mathbf{h}-\mathbf{t} = -\boldsymbol{\ell}_{r_1}\).  This non‐zero choice perfectly realizes inverse relations.
+
+\medskip
+\noindent\textbf{Composition relations.} For relations \(r_1,r_2,r_3\) satisfying 
+\((h,r_1,y),(y,r_2,t),(h,r_3,t)\in S\), TransE demands
+\[
+\mathbf{h} + \boldsymbol{\ell}_{r_1} = \mathbf{y},
+\quad
+\mathbf{y} + \boldsymbol{\ell}_{r_2} = \mathbf{t},
+\quad
+\mathbf{h} + \boldsymbol{\ell}_{r_3} = \mathbf{t}.
+\]
+Combining the first two gives \(\mathbf{h}+\boldsymbol{\ell}_{r_1}+\boldsymbol{\ell}_{r_2}=\mathbf{t}\), so setting \(\boldsymbol{\ell}_{r_3}=\boldsymbol{\ell}_{r_1}+\boldsymbol{\ell}_{r_2}\) yields a perfect composition embedding.
+
+
+\section*{2.2 RotatE Modeling}
+
+\noindent\textbf{Symmetric relations.}  
+A relation \(r\) is symmetric if \((h,r,t)\in S\) and \((t,r,h)\in S\).  RotatE requires  
+\[
+h\circ \ell_r = t
+\quad\text{and}\quad
+t\circ \ell_r = h.
+\]  
+Choosing \(\ell_r=(\pi,\dots,\pi)\) (i.e.\ a \(180^\circ\) rotation in each 2‑D subspace) gives  
+\[
+t = h\circ \ell_r = -\,h,
+\quad
+h = t\circ \ell_r = -\,t = h,
+\]  
+with \(\ell_r\neq0\) and \(h\neq t\).  Thus RotatE can model nontrivial symmetric relations perfectly.
+
+\medskip
+\noindent\textbf{Inverse relations.}  
+If \(r_1\) and \(r_2\) are inverses, we need  
+\[
+h\circ \ell_{r_1} = t
+\quad\text{and}\quad
+t\circ \ell_{r_2} = h.
+\]  
+Setting \(\ell_{r_2}=-\ell_{r_1}\) makes the second equation into  
+\[
+h = t\circ(-\ell_{r_1})
+= (h\circ\ell_{r_1})\circ(-\ell_{r_1}) = h,
+\]  
+so RotatE can represent inverse relations exactly, with \(\ell_{r_1}\neq0\) and \(\ell_{r_2}\neq0\).
+
+\medskip
+\noindent\textbf{Composition relations.}  
+For relations \(r_1,r_2,r_3\) satisfying  
+\((h,r_1,y)\), \((y,r_2,t)\), and \((h,r_3,t)\) in \(S\), RotatE enforces  
+\[
+y = h\circ \ell_{r_1},
+\quad
+t = y\circ \ell_{r_2},
+\quad
+t = h\circ \ell_{r_3}.
+\]  
+Since rotations compose by angle addition, choosing  
+\(\ell_{r_3} \equiv \ell_{r_1} + \ell_{r_2}\pmod{2\pi}\)  
+yields  
+\[
+t = (h\circ \ell_{r_1})\circ \ell_{r_2}
+= h\circ(\ell_{r_1}+\ell_{r_2})
+= h\circ \ell_{r_3},
+\]  
+so RotatE can model composition perfectly as well.
+
+
+
+\section*{2.3 Failure Cases}
+Consider the graph
+\[
+G=(E,S),\quad 
+E=\{A,B,C,D\},\quad
+S=\{(A,R,B),\,(C,R,D)\}.
+\]
+Embed in \(\mathbb R^2\) as follows:
+\[
+\mathbf{h}_A=\begin{pmatrix}-\tfrac12\\[3pt]\tfrac{\sqrt3}{2}\end{pmatrix},\quad
+\mathbf{h}_B=\begin{pmatrix}\tfrac12\\[3pt]\tfrac{\sqrt3}{2}\end{pmatrix},\quad
+\mathbf{h}_C=\begin{pmatrix}-\tfrac12\\[3pt]-\tfrac{\sqrt3}{2}\end{pmatrix},\quad
+\mathbf{h}_D=\begin{pmatrix}\tfrac12\\[3pt]-\tfrac{\sqrt3}{2}\end{pmatrix},
+\qquad
+\boldsymbol{\ell}_R=\begin{pmatrix}1\\0\end{pmatrix}.
+\]
+Under TransE this perfectly satisfies
+\(\mathbf{h}_A+\boldsymbol{\ell}_R=\mathbf{h}_B\) and
+\(\mathbf{h}_C+\boldsymbol{\ell}_R=\mathbf{h}_D\), so the loss can be driven to zero.
+
+Under RotatE, entities lie on the unit circle and a single relation \(R\) must rotate every head by the same angle.  To send \(A\mapsto B\) one needs a clockwise rotation of \(-60^\circ\), whereas sending \(C\mapsto D\) requires \(+60^\circ\).  No single nonzero rotation angle can satisfy both, so RotatE cannot model this graph, while TransE can.  
+
+
+\section*{3.1 Path Queries on Complete KGs}
+
+Natural language: What proteins are associated with diseases treated by Arimidex?\\
+
+Query: 
+\[
+(e:\mathrm{Arimidex},\,(r:\mathrm{Treat},\,r:\mathrm{Assoc}))
+\]
+Answer:
+\[
+\{\mathrm{ESR1},\;\mathrm{ESR2},\;\mathrm{BIRC2},\;\mathrm{BRCA1}\}.
+\]
+
+
+
+\section*{3.2 Conjunctive Queries on Complete KGs}
+
+
+Conjunctive Query:
+\[
+(e:\mathrm{Arimidex},\,(r:\mathrm{Treat},\,r:\mathrm{Assoc})),\quad
+(e:\mathrm{Fulvestrant},\,(r:\mathrm{Causes},\,r:\mathrm{Assoc}))
+\]
+
+Natural language: Which protein is both associated with a disease treated by Arimidex and associated with an adverse event caused by Fulvestrant?\\
+
+
+Answer:
+\[
+\{\mathrm{BIRC2}\}.
+\]
+
+
+
+\section*{3.3 Incomplete KGs}
+
+In TransE, a two‐hop query \((e:(r_1,r_2))\) is answered by forming  
+\[
+\mathbf{q}_{\mathrm{TransE}}
+\;=\;\mathbf{h}\;+\;\boldsymbol{\ell}_{r_1}\;+\;\boldsymbol{\ell}_{r_2},
+\]
+and ranking candidate tails \(t\) by the negative Euclidean distance
+\(-\|\mathbf{q}_{\mathrm{TransE}} - \mathbf{t}\|_2\).  
+By contrast, with DistMult we answer the same query via  
+\[
+\mathbf{q}_{\mathrm{DistMult}}
+\;=\;\mathbf{h}
+\;\circ\;\boldsymbol{\ell}_{r_1}
+\;\circ\;\boldsymbol{\ell}_{r_2},
+\]
+where \(\circ\) denotes the element‐wise (Hadamard) product, and we score \(t\) by the bilinear inner product  
+\[
+f(\mathbf{q}_{\mathrm{DistMult}},\,\mathbf{t})
+\;=\;
+\langle \mathbf{q}_{\mathrm{DistMult}},\,\mathbf{t}\rangle
+\;=\;\sum_i q_i\,t_i.
+\]
+Intuitively, each relation vector \(\boldsymbol{\ell}_{r_i}\) acts as a feature‐wise gate on the head embedding \(\mathbf{h}\), emphasizing the dimensions relevant to \(r_i\).  Successive gating by \(\boldsymbol{\ell}_{r_1}\) and then \(\boldsymbol{\ell}_{r_2}\) yields a query embedding whose high‐value coordinates correspond to features that satisfy both relations.  Candidate tails whose embeddings align strongly in those gated dimensions thus receive high scores, enabling us to retrieve missing two‐hop links by nearest‐neighbor search under the inner‐product metric.
+
+
+\section*{3.4 Query2box}
+
+\section*{Query2box: Conjunctive Query}
+
+We have seven entities with 2‑D embeddings
+\[
+A=(0.5,0.5),\;B=(2.0,0.5),\;C=(2.5,1.0),\;
+\]
+\[
+D=(1.8,3.2),\;E=(1.5,2.5),\;F=(1.5,2.0),\;G=(0.7,3.0),
+\]
+and three relations whose box‐projection parameters are
+\[
+R_1:\;\Delta c=(0.25,2),\;\Delta w=0.5,\;\Delta h=2,
+\quad
+R_2:\;\Delta c=(1,0),\;\Delta w=1,\;\Delta h=0,
+\quad
+R_3:\;\Delta c=(-0.75,1),\;\Delta w=1.5,\;\Delta h=3.
+\]
+Starting from \(A\) with the degenerate box \(B_0(A)=(c=(0.5,0.5),\,w=0,\,h=0)\), one applies \(R_1\) then \(R_2\):
+\begin{align*}
+B_1(A)&=\bigl(c_0+(0.25,2),\,0+0.5,\,0+2\bigr)
+      =\bigl((0.75,2.5),\,0.5,\,2\bigr),\\
+B_{1,2}(A)&=\bigl((0.75,2.5)+(1,0),\,0.5+1,\,2+0\bigr)
+         =\bigl((1.75,2.5),\,1.5,\,2\bigr).
+\end{align*}
+Hence \(B_{1,2}(A)\) covers 
+\[
+\{(x,y)\mid 1.75-0.75 \le x\le 1.75+0.75,\;2.5-1\le y\le 2.5+1\}
+=\{1.0\le x\le2.5,\;1.5\le y\le3.5\}.
+\]
+
+From \(C\) with \(B_0(C)=(2.5,1.0,0,0)\) a single \(R_3\)–projection gives
+\[
+B_3(C)=\bigl((2.5,1.0)+(-0.75,1),\,0+1.5,\,0+3\bigr)
+      =\bigl((1.75,2.0),\,1.5,\,3\bigr),
+\]
+so \(B_3(C)\) covers 
+\(\{1.0\le x\le2.5,\;0.5\le y\le3.5\}.\)
+
+The intersection of these two boxes is 
+\[
+\{(x,y)\mid 1.0\le x\le2.5,\;1.5\le y\le3.5\},
+\]
+and exactly the points 
+\[
+D(1.8,3.2),\;E(1.5,2.5),\;F(1.5,2.0)
+\]
+lie inside this region.  Therefore the answer set to the conjunctive query
+\[
+\bigl((e:A,(r:R_1,r:R_2)),\,(e:C,(r:R_3))\bigr)
+\]
+is
+\[
+\{D,\;E,\;F\}.
+\]
+
+
+
+
+\begin{thebibliography}{9}
+% add a reference to class slides
+\bibitem{slides}
+  CS6501-016 Class Slides.
+\bibitem{Stanford CS224W}
+      Stanford CS224W: Machine Learning with Graphs, Class Notes from different sources.
+\end{thebibliography}
+
+
+
+
+
+% add an acknowledgment section (if applicable)
+\section*{Acknowledgment}
+This Homework Makes use of Generative AI models such as GPT 4o, o1 and o3 to refine the answers and make them better. However all the answers are original and are not plagiarized from any source. I acknowledge that i have not given or received unauthorized assistance on this homework.
+
+\end{document}

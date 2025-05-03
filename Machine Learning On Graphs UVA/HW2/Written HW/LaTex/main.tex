@@ -1,0 +1,545 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm} % For math symbols and environments
+\usepackage{graphicx} % For including images
+\usepackage{hyperref} % For hyperlinks
+\usepackage{fancyhdr} % For header and footer
+\usepackage{geometry} % For adjusting page dimensions
+\usepackage{cite} % For handling references
+\geometry{margin=1in}
+
+% Header and footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Sravanth Chowdary Potluri}
+\fancyhead[C]{ML On Graphs HW2}
+\fancyhead[R]{\thepage}
+\fancyfoot[L]{CS6501 - 016}
+\fancyfoot[R]{\today}
+
+% Title Page
+\title{Machine Learning On Graphs HW2}
+\author{Sravanth Chowdary Potluri \\ und5uv \\ CS6501 - 016}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section*{1.1 Effect of Depth on Expressiveness}
+
+In the given graphs, each node starts with a 1D feature vector \( x = [1] \), and we apply a simplified GNN with \textbf{sum aggregation}, no non-linearity, and no learned transformations.
+
+Each node updates its embedding by summing its own previous embedding and those of its neighbors. The two red nodes have \textbf{different 5-hop neighborhoods}, but their structures start differing at \textbf{3 hops}, where one red node receives information from node \(8\) via a different connection, while the other does not.
+
+Since node embeddings remain the same until their neighborhoods diverge, it takes a minimum of \textbf{3 layers of message passing} for their embeddings to become distinguishable.
+
+\textbf{Final Answer: 3 layers.}
+
+\section*{1.2 Random Walk Matrix}
+\subsection*{1}
+
+The given graph consists of 4 nodes with edges:
+\[
+\{(1,2), (1,3), (2,3), (3,4)\}.
+\]
+The degree of each node is:
+\[
+\deg(1)=2, \quad \deg(2)=2, \quad \deg(3)=3, \quad \deg(4)=1.
+\]
+Since a random walk selects a neighbor uniformly, the transition matrix \(M\) is constructed as follows:
+
+\begin{itemize}
+    \item Node \(1\) has neighbors \(\{2,3\}\), transitioning with probability \(1/2\) each.
+    \item Node \(2\) has neighbors \(\{1,3\}\), transitioning with probability \(1/2\) each.
+    \item Node \(3\) has neighbors \(\{1,2,4\}\), transitioning with probability \(1/3\) each.
+    \item Node \(4\) has only one neighbor \(\{3\}\), transitioning with probability \(1\).
+\end{itemize}
+
+Thus, the random walk transition matrix \(M\) is:
+
+\[
+M =
+\begin{bmatrix}
+0   & \frac{1}{2} & \frac{1}{2} & 0 \\
+\frac{1}{2} & 0   & \frac{1}{2} & 0 \\
+\frac{1}{3} & \frac{1}{3} & 0   & \frac{1}{3} \\
+0   & 0   & 1   & 0
+\end{bmatrix}.
+\]
+
+\subsection*{2}
+
+\textbf{Finding the Eigenvector of \( M \) with Eigenvalue 1 and Normalizing it}
+
+
+We need to find a vector \( \mathbf{r} \) that satisfies the equation:
+
+\[
+M \mathbf{r} = \mathbf{r}
+\]
+
+where \( M \) is the random-walk transition matrix:
+
+\[
+M =
+\begin{bmatrix}
+0 & \frac{1}{2} & \frac{1}{2} & 0 \\[6pt]
+\frac{1}{2} & 0 & \frac{1}{2} & 0 \\[6pt]
+\frac{1}{3} & \frac{1}{3} & 0 & \frac{1}{3} \\[6pt]
+0 & 0 & 1 & 0
+\end{bmatrix}.
+\]
+
+The eigenvector corresponding to eigenvalue \( 1 \) represents the \textbf{stationary distribution}, meaning that if a probability distribution over nodes follows \( \mathbf{r} \), it remains unchanged under the transition matrix \( M \).
+
+
+The eigenvector equation \( M \mathbf{r} = \mathbf{r} \) expands as:
+
+\begin{align}
+    0 \cdot r_1 + \frac{1}{2} r_2 + \frac{1}{2} r_3 + 0 \cdot r_4 &= r_1, \\
+    \frac{1}{2} r_1 + 0 \cdot r_2 + \frac{1}{2} r_3 + 0 \cdot r_4 &= r_2, \\
+    \frac{1}{3} r_1 + \frac{1}{3} r_2 + 0 \cdot r_3 + \frac{1}{3} r_4 &= r_3, \\
+    0 \cdot r_1 + 0 \cdot r_2 + 1 \cdot r_3 + 0 \cdot r_4 &= r_4.
+\end{align}
+
+
+For a random walk on an undirected graph, the stationary distribution is proportional to the degree of each node:
+
+\[
+r_i \propto \deg(i)
+\]
+
+The degrees in the graph are:
+
+\[
+\deg(1) = 2, \quad \deg(2) = 2, \quad \deg(3) = 3, \quad \deg(4) = 1.
+\]
+
+Thus, we set:
+
+\[
+r_1 = 2x, \quad r_2 = 2x, \quad r_3 = 3x, \quad r_4 = x.
+\]
+
+Since \( \mathbf{r} \) must sum to 1, since the probability distribution must sum to 1, we have:
+
+\[
+2x + 2x + 3x + x = 8x = 1 \quad \Rightarrow \quad x = \frac{1}{8}.
+\]
+
+So the stationary distribution (before normalization) is:
+
+\[
+\mathbf{r}_{\ell_1} = \left( \frac{2}{8}, \frac{2}{8}, \frac{3}{8}, \frac{1}{8} \right)
+= (0.25, 0.25, 0.375, 0.125).
+\]
+
+
+The question requires an \( \ell_2 \)-normalized eigenvector. We compute the norm:
+
+\[
+\|\mathbf{r}_{\ell_1}\|_2 = \sqrt{0.25^2 + 0.25^2 + 0.375^2 + 0.125^2}
+\]
+
+\[
+= \sqrt{0.0625 + 0.0625 + 0.140625 + 0.015625}
+\]
+
+\[
+= \sqrt{0.28125} \approx 0.5303.
+\]
+
+Now we divide each component by \( 0.5303 \):
+
+\[
+\mathbf{r} = \left( \frac{0.25}{0.5303}, \frac{0.25}{0.5303}, \frac{0.375}{0.5303}, \frac{0.125}{0.5303} \right)
+\]
+
+\[
+\approx (0.47, 0.47, 0.71, 0.24).
+\]
+
+\[
+\boxed{[0.47, 0.47, 0.71, 0.24]}
+\]
+
+This is the \(\ell_2\)-normalized eigenvector of \( M \) with eigenvalue \( 1 \), confirming that it is the stationary distribution.
+
+\section*{1.3 Relation to Random Walk (i)}
+
+The mean aggregator update rule is given by:
+
+\[
+h_{i}^{(l+1)} = \frac{1}{|N(i)|} \sum_{j \in N(i)} h_{j}^{(l)}.
+\]
+
+Here, \(N(i)\) denotes the set of neighbors of node \(i\). This means that the updated embedding of node \(i\) is the average of the embeddings of its neighbors.
+
+Writing this in matrix form for all nodes:
+
+\[
+h^{(l+1)} = D^{-1} A h^{(l)},
+\]
+
+where:
+
+- \(A\) is the adjacency matrix, where \(A_{i,j} = 1\) if \((i,j)\) is an edge, otherwise \(0\).
+- \(D\) is the diagonal degree matrix, with \(D_{i,i} = \deg(i)\).
+
+Since a uniform random walk moves from node \(i\) to one of its neighbors with equal probability, the probability of transitioning from node \(i\) to node \(j\) is:
+
+\[
+M_{i,j} =
+\begin{cases}
+\frac{1}{\deg(i)}, & \text{if } (i,j) \text{ is an edge}, \\[6pt]
+0, & \text{otherwise}.
+\end{cases}
+\]
+
+Thus, the transition matrix \(M\) for the random walk is:
+
+\[
+M = D^{-1} A.
+\]
+
+This confirms that applying the mean aggregator in a GNN corresponds exactly to multiplying by the random-walk transition matrix \(D^{-1} A\).
+
+
+\section*{1.4 Relation to Random Walk (ii)}
+
+When we add a skip connection and split the update half-and-half between 
+keeping the old embedding and averaging the neighbors, the update rule becomes:
+
+\[
+h_{i}^{(l+1)} = \frac{1}{2}h_{i}^{(l)} \;+\;\frac{1}{2}\Bigl(\frac{1}{|N(i)|}\sum_{j\in N(i)} h_{j}^{(l)}\Bigr).
+\]
+
+In matrix form, for all nodes at once, this is:
+
+\[
+h^{(l+1)} = \Bigl(\tfrac12 I + \tfrac12 D^{-1}A\Bigr)\,h^{(l)},
+\]
+
+where \(A\) is the adjacency matrix, \(D\) is the diagonal degree matrix 
+(\(D_{i,i} = \deg(i)\)), and \(I\) is the identity matrix. Therefore, 
+the \textbf{new random-walk transition matrix} \(M\) corresponding to this 
+skip connection is:
+
+\[
+M = \tfrac12 I + \tfrac12 D^{-1}A.
+\]
+
+\section*{1.5 Over-Smoothing Effect}
+
+The update rule for the node embeddings at each layer is given by:
+
+\[
+h_{i}^{(l+1)} = \frac{1}{|N(i)|} \sum_{j \in N(i)} h_{j}^{(l)}.
+\]
+
+In matrix form, for all nodes simultaneously, this can be written as:
+
+\[
+h^{(l+1)} = D^{-1} A\,h^{(l)},
+\]
+
+where \( A \) is the adjacency matrix and \( D \) is the diagonal degree matrix 
+with \( D_{i,i} = \deg(i) \). The matrix \( D^{-1} A \) is known as the 
+random-walk transition matrix, which describes the probability of moving from 
+one node to another in a single step of a uniform random walk.
+
+This update equation is equivalent to applying the transition matrix \( D^{-1} A \) 
+repeatedly to the initial embeddings. Thus, after \( l \) layers of message passing, 
+the embedding update can be written as:
+
+\[
+h^{(l)} = (D^{-1} A)^l h^{(0)}.
+\]
+
+Since the graph is assumed to be connected, there exists a path between any two nodes, meaning that a random walker can eventually reach any node in the graph starting from any other node. This ensures that the Markov chain defined by \( D^{-1} A \) is \textbf{irreducible}, which means that no subset of nodes is isolated in terms of probability flow; in other words, every node can be reached from any other node in a finite number of steps.
+
+Additionally, because the graph is non-bipartite, it does not exhibit a strict two-set structure where random walkers must alternate between two disjoint groups of nodes at every step. In a bipartite graph, the transition probabilities would cycle between two disjoint node sets, preventing convergence. The absence of this structure guarantees that the Markov chain is \textbf{aperiodic}, meaning that the probability of returning to any node does not follow a fixed periodic cycle and is instead spread over different time steps.
+
+According to the \textbf{Markov Chain Convergence Theorem}, any Markov chain that is both irreducible and aperiodic has a unique \textit{stationary distribution}. This means that as \( l \to \infty \), the probability distribution of a random walker stabilizes to a fixed distribution that no longer depends on the initial node. In the context of a GNN, this implies that repeated applications of the aggregation function will cause all node embeddings to converge to a common limiting distribution, making them indistinguishable from one another.
+
+
+Applying this result to the embedding propagation, we see that as \( l \to \infty \), 
+all node embeddings \( h_{i}^{(l)} \) converge to the same stationary distribution, 
+causing them to become indistinguishable. This phenomenon is 
+\textbf{over-smoothing}, where deep GNN layers cause all node embeddings to 
+collapse to a constant vector, reducing their usefulness for distinguishing between 
+different nodes in downstream tasks.
+
+
+\section*{1.6 Learning BFS with GNN}
+
+To design a Graph Neural Network (GNN) that accurately simulates the breadth-first search (BFS) algorithm, we need to define three key components: the message function, the aggregation function, and the update rule.
+
+The BFS algorithm works by expanding the set of visited nodes at each step. Initially, only the source node is marked as visited (having an embedding of 1), while all other nodes are unvisited (embedding of 0). At each step, a node is marked as visited if it has at least one neighbor that was visited in the previous step. This means that our GNN should propagate the "visited" state from each node to its neighbors iteratively.
+
+The \textbf{message function} is responsible for determining what information a node sends to its neighbors. Since we only care about whether a node has been visited, the simplest and most effective choice is:
+
+\[
+M(h_u^{(t)}, h_v^{(t)}, e_{u,v}) = h_u^{(t)}
+\]
+
+This means that every node \( u \) simply sends its own current embedding \( h_u^{(t)} \) to its neighbors. If a node is visited (\( h_u^{(t)} = 1 \)), it sends a message of 1; otherwise, it sends 0.
+
+The \textbf{aggregation function} determines how a node processes the messages received from its neighbors. To correctly replicate BFS behavior, a node should become visited if at least one of its neighbors was visited in the previous step. This can be achieved using a \textbf{max aggregator}:
+
+\[
+\text{AGGREGATE}(\{h_u^{(t)} : u \in N(v)\}) = \max_{u \in N(v)} h_u^{(t)}
+\]
+
+Since all node features are binary (0 or 1), this function returns 1 if any neighbor was visited in the previous step and 0 otherwise.
+
+The \textbf{update rule} must ensure that once a node is marked as visited, it remains visited in subsequent steps. This is achieved by taking the maximum of the node's previous embedding and the aggregated neighbor embeddings:
+
+\[
+h_v^{(t+1)} = \max\Bigl(h_v^{(t)}, \text{AGGREGATE}(\{h_u^{(t)} : u \in N(v)\})\Bigr).
+\]
+
+This guarantees that a node remains in state 1 after it is visited and that it can transition from 0 to 1 only when a neighbor has been visited.
+
+The overall working of this GNN model follows the BFS traversal mechanism. Initially, only the source node has an embedding of 1, while all other nodes have 0. In the first step, all neighbors of the source node receive messages of 1, causing their embeddings to become 1. In the next step, the neighbors of these newly visited nodes receive messages of 1, and the process continues layer by layer. This mirrors the BFS expansion, where each layer of neighbors is explored in sequential steps.
+
+This approach ensures that after \( t \) steps, all nodes at a distance \( t \) or less from the source node will have an embedding of 1, while all other nodes remain at 0. Since BFS naturally explores nodes level by level, this GNN structure correctly learns to perform BFS without requiring any additional supervision beyond the input features and connectivity structure of the graph.
+
+
+\section*{2.1 Simple Matrix Factorization}
+In a simple matrix factorization model, we approximate the adjacency matrix \(A\)
+by \(Z^{\top}Z\), where each column of \(Z\) is the embedding for one node. In
+the encoder-decoder perspective of node embeddings, each node \(i\) is assigned
+an embedding vector \(\mathbf{z}_i\) by the encoder. To predict \(A_{i,j}\), the
+\textbf{decoder} simply takes the dot product of the two node embeddings:
+\[
+\hat{A}_{i,j} \;=\;\mathbf{z}_i^\top \mathbf{z}_j.
+\]
+Hence, the decoder is precisely the inner (dot) product between the embedding
+vectors of the two nodes.
+
+\section*{2.2 Alternate Matrix Factorization}
+If our \textbf{decoder} is defined as a bilinear form \( \mathbf{z}_i^{\top} \, W \, \mathbf{z}_j \)
+for some matrix \(W\), then each node pair \((i, j)\) is reconstructed by
+\[
+\hat{A}_{i,j} \;=\;\mathbf{z}_i^{\top}\,W\,\mathbf{z}_j.
+\]
+Collecting all node embeddings into the matrix \(Z\), we can write these reconstructions
+in matrix form as
+\[
+\hat{A} \;=\;Z^{\top}\,W\,Z.
+\]
+Hence, the \textbf{objective function} for the corresponding matrix factorization becomes
+\[
+\min_{Z} \Bigl\lVert A \;-\;Z^{\top}\,W\,Z \Bigr\rVert^{2}.
+\]
+
+\section*{2.3 Relation to Eigen-decomposition}
+
+Recall that a symmetric matrix \(A\) can be written in its eigen-decomposition form
+\[
+A \;=\;Q \,\Lambda\,Q^{\top},
+\]
+where \(Q\) is an orthonormal matrix (i.e., \(Q^{\top}Q = I\)) and \(\Lambda\) is a diagonal
+matrix whose diagonal entries are the eigenvalues of \(A\).
+
+When we approximate \(A\) as \(Z^{\top}WZ\) in the bilinear factorization setup, this becomes
+equivalent to learning an eigen-decomposition precisely if
+\[
+\textbf{(1)} \quad W \text{ is diagonal}, 
+\qquad
+\textbf{(2)} \quad Z \text{ is an orthonormal matrix}.
+\]
+Under these two conditions,
+\[
+Z^{\top} \,W \,Z
+\quad\longleftrightarrow\quad
+Q \,\Lambda\,Q^{\top}.
+\]
+
+\section*{2.4 Multi-hop Node Similarity}
+
+Define a new adjacency-like matrix \(M\) that encodes multi-hop connectivity. One approach is to set
+
+\[
+M \;=\; A \;+\; A^{2} \;+\; \cdots \;+\; A^{k},
+\]
+
+so that \(M_{i,j}\) reflects how many paths (or whether there is at least one path)
+between nodes \(i\) and \(j\) of length up to \(k\). To keep it simple, we can
+use a binary version of \(M\), i.e., \(M_{i,j} = 1\) if there is at least one path of
+length \(\le k\) connecting \(i\) and \(j\), and 0 otherwise.
+
+If we continue to use the same encoder (node embedding lookup) and a dot-product
+decoder, then the corresponding matrix factorization problem we want to solve is
+
+\[
+\min_{Z} \;\Bigl\lVert M \;-\;Z^{\top}\,Z\Bigr\rVert^{2}.
+\]
+
+In other words, we replace the usual single-hop adjacency matrix \(A\) with the
+multi-hop adjacency \(M\), and proceed to approximate \(M\) by the embedding dot
+products \(Z^{\top} Z\).
+
+
+
+
+
+\section*{3.1 Isomorphism Check}
+Yes, the two graphs are \textbf{isomorphic}.
+
+We construct a one-to-one correspondence between the nodes of the two graphs as follows:
+
+\[
+\begin{aligned}
+1 &\leftrightarrow A \\
+2 &\leftrightarrow D \\
+3 &\leftrightarrow H \\
+4 &\leftrightarrow E \\
+5 &\leftrightarrow B \\
+6 &\leftrightarrow C \\
+7 &\leftrightarrow G \\
+8 &\leftrightarrow F \\
+\end{aligned}
+\]
+
+We now show that this mapping preserves all edge relationships:
+
+\begin{itemize}
+    \item Node 1 is adjacent to 5, 6, 7 \(\Rightarrow\) A is adjacent to B, C, G
+    \item Node 2 is adjacent to 5, 6, 8 \(\Rightarrow\) D is adjacent to B, C, F
+    \item Node 3 is adjacent to 5, 7, 8 \(\Rightarrow\) H is adjacent to B, G, F
+    \item Node 4 is adjacent to 6, 7, 8 \(\Rightarrow\) E is adjacent to C, G, F
+\end{itemize}
+
+\textbf{Conclusion:} The two graphs are isomorphic because the proposed mapping shows a one-to-one correspondence between their nodes while preserving adjacency relationships and the edges also match up.
+
+
+
+\section*{3.2 Aggregation Choice}
+
+We construct two very simple graphs \(\mathcal{G}_1\) and \(\mathcal{G}_2\), each with one 
+\textquotedblleft target\textquotedblright\ node and some neighbors. Our goal is to show that 
+\(\textbf{mean}\) and \(\textbf{max}\) aggregators produce the same new feature for the two 
+target nodes, while \(\textbf{sum}\) produces different values.
+
+\textbf{Graph \(\mathcal{G}_1\)}:
+\begin{itemize}
+    \item Nodes: \( \{v_1, a, b\} \).
+    \item Edges: \(\{(v_1, a), (v_1, b)\}\).
+    \item Initial features: 
+    \[
+    h^{(0)}_{v_1} = 0,\quad h^{(0)}_{a} = 2,\quad h^{(0)}_{b} = 2.
+    \]
+\end{itemize}
+
+\textbf{Graph \(\mathcal{G}_2\)}:
+\begin{itemize}
+    \item Nodes: \( \{v_2, x, y, z\} \).
+    \item Edges: \(\{(v_2, x), (v_2, y), (v_2, z)\}\).
+    \item Initial features:
+    \[
+    h^{(0)}_{v_2} = 0,\quad h^{(0)}_{x} = 2,\quad h^{(0)}_{y} = 2,\quad h^{(0)}_{z} = 2.
+    \]
+\end{itemize}
+
+We assume that \(h^{(0)}_{v_1} = h^{(0)}_{v_2} = 0\), so both target nodes share 
+the same initial feature value.
+
+\bigskip
+
+\textbf{Case 1: Mean Aggregator}
+
+\[
+\text{AGGREGATEmean} = \frac{1}{|N(v)|}\sum_{u \in N(v)}h^{(0)}_u
+\]
+
+For \(\mathcal{G}_1\), the neighbors of \(v_1\) are \(\{a, b\}\). Thus,
+\[
+h^{(1)}_{v_1} = \frac{h^{(0)}_a + h^{(0)}_b}{2} = \frac{2 + 2}{2} = 2.
+\]
+
+For \(\mathcal{G}_2\), the neighbors of \(v_2\) are \(\{x, y, z\}\). Thus,
+\[
+h^{(1)}_{v_2} = \frac{h^{(0)}_x + h^{(0)}_y + h^{(0)}_z}{3} 
+= \frac{2 + 2 + 2}{3} = 2.
+\]
+
+Hence, with the mean aggregator, both \(\mathcal{G}_1\) and \(\mathcal{G}_2\) yield 
+\(\,2\) for their target nodes \(\,(v_1 \text{ and } v_2)\).
+
+\bigskip
+
+\textbf{Case 2: Max Aggregator}
+
+\[
+\text{AGGREGATEmax} = \max_{u \in N(v)} \{\,h^{(0)}_u\}
+\]
+
+For \(\mathcal{G}_1\), the neighbors of \(v_1\) have features \(\{2, 2\}\), 
+so
+\[
+h^{(1)}_{v_1} = \max\,(2, 2) = 2.
+\]
+
+For \(\mathcal{G}_2\), the neighbors of \(v_2\) have features \(\{2, 2, 2\}\), 
+so
+\[
+h^{(1)}_{v_2} = \max\,(2, 2, 2) = 2.
+\]
+
+Again, both target nodes end up with the same new feature \(\,2\) when using 
+the max aggregator.
+
+\bigskip
+
+\textbf{Case 3: Sum Aggregator}
+
+\[
+\text{AGGREGATEsum} = \sum_{u \in N(v)} h^{(0)}_u
+\]
+
+For \(\mathcal{G}_1\):
+\[
+h^{(1)}_{v_1} = h^{(0)}_a + h^{(0)}_b = 2 + 2 = 4.
+\]
+
+For \(\mathcal{G}_2\):
+\[
+h^{(1)}_{v_2} = h^{(0)}_x + h^{(0)}_y + h^{(0)}_z = 2 + 2 + 2 = 6.
+\]
+
+Now the updated features \(\,4\) and \(\,6\) are clearly different. Hence, with 
+the sum aggregator, we obtain \(\,h^{(1)}_{v_1} \neq h^{(1)}_{v_2}\).
+
+\bigskip
+
+\textbf{Conclusion:} In these simple examples, both the mean and max aggregators 
+produce the same updated feature (2) for the target nodes in \(\mathcal{G}_1\) and 
+\(\mathcal{G}_2\). However, the sum aggregator produces different results (4 in 
+\(\mathcal{G}_1\) vs.\ 6 in \(\mathcal{G}_2\)), thus illustrating that \textbf{sum} 
+can distinguish between the target nodes in the two graphs, while \textbf{mean} 
+and \textbf{max} cannot.
+
+
+
+
+
+
+
+\begin{thebibliography}{9}
+% add a reference to class slides
+\bibitem{slides}
+  CS6501-016 Class Slides.
+\end{thebibliography}
+
+
+
+
+
+% add an acknowledgment section (if applicable)
+\section*{Acknowledgment}
+This Homework Makes use of Generative AI models such as GPT 4o, o1 and o3 to refine the answers and make them better. However all the answers are original and are not plagiarized from any source. I acknowledge that i have not given or received unauthorized assistance on this homework.
+
+\end{document}
