@@ -1,0 +1,283 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm} % For math symbols and environments
+\usepackage{graphicx} % For including images
+\usepackage{hyperref} % For hyperlinks
+\usepackage{fancyhdr} % For header and footer
+\usepackage{geometry} % For adjusting page dimensions
+\usepackage{cite} % For handling references
+\geometry{margin=1in}
+
+% Header and footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Sravanth Chowdary Potluri}
+\fancyhead[C]{MLIA PS1}
+\fancyhead[R]{\thepage}
+\fancyfoot[L]{CS6501 - 005}
+\fancyfoot[R]{\today}
+
+% Title Page
+\title{Machine Learning In Image Analysis PS1}
+\author{Sravanth Chowdary Potluri \\ und5uv \\ CS6501 - 005}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+% Question 1
+\section{Question 1}
+Prove the following properties of convolution. For all continuous functions $f$, $g$, and $h$, the following axioms hold. \textbf{Make sure to lay out all key steps of your proof for full credit}.
+
+\begin{itemize}
+    \item \textbf{Associativity:} $(f \ast g) \ast h = f \ast (g \ast h)$
+    \item \textbf{Distributivity:} $f \ast (g + h) = f \ast g + f \ast h$
+    \item \textbf{Differentiation Rule:} $(f \ast g)' = f' \ast g = f \ast g'$
+    \item \textbf{Convolution Theorem:} $\mathcal{F}(g \ast h) = \mathcal{F}(g) \mathcal{F}(h)$, where $\mathcal{F}$ denotes the Fourier transform.
+\end{itemize}
+
+
+
+\section*{Solution}
+Please note that the functions and notations used here are slightly different to as explained in class, However they are accurate and true.
+
+Let \( f, g, \) and \( h \) be continuous functions. The convolution of two functions is defined as:
+\[
+(f \ast g)(t) = \int_{-\infty}^{\infty} f(\tau) g(t - \tau) \, d\tau.
+\]
+We will prove the following properties using the integral definition of convolution.
+
+---
+
+\subsection*{1. Associativity}
+\textbf{Statement:} \( (f \ast g) \ast h = f \ast (g \ast h) \).
+
+\textbf{Proof:}
+
+First, compute \( (f \ast g) \ast h \):
+\[
+\begin{aligned}
+((f \ast g) \ast h)(t) &= \int_{-\infty}^{\infty} (f \ast g)(\tau) h(t - \tau) \, d\tau \\
+&= \int_{-\infty}^{\infty} \left[ \int_{-\infty}^{\infty} f(u) g(\tau - u) \, du \right] h(t - \tau) \, d\tau.
+\end{aligned}
+\]
+
+Switch the order of integration (by Fubini's theorem):
+\[
+\begin{aligned}
+((f \ast g) \ast h)(t) &= \int_{-\infty}^{\infty} f(u) \left[ \int_{-\infty}^{\infty} g(\tau - u) h(t - \tau) \, d\tau \right] du.
+\end{aligned}
+\]
+
+Let \( s = \tau - u \), so \( \tau = s + u \) and \( d\tau = ds \). Then,
+\[
+\begin{aligned}
+((f \ast g) \ast h)(t) &= \int_{-\infty}^{\infty} f(u) \left[ \int_{-\infty}^{\infty} g(s) h(t - s - u) \, ds \right] du \\
+&= \int_{-\infty}^{\infty} f(u) \left[ (g \ast h)(t - u) \right] du \\
+&= (f \ast (g \ast h))(t).
+\end{aligned}
+\]
+
+\textbf{Conclusion:} \( (f \ast g) \ast h = f \ast (g \ast h) \).
+
+---
+
+\subsection*{2. Distributivity}
+\textbf{Statement:} \( f \ast (g + h) = f \ast g + f \ast h \).
+
+\textbf{Proof:}
+
+Compute \( f \ast (g + h) \):
+\[
+\begin{aligned}
+(f \ast (g + h))(t) &= \int_{-\infty}^{\infty} f(\tau) [g + h](t - \tau) \, d\tau \\
+&= \int_{-\infty}^{\infty} f(\tau) [g(t - \tau) + h(t - \tau)] \, d\tau \\
+&= \int_{-\infty}^{\infty} f(\tau) g(t - \tau) \, d\tau + \int_{-\infty}^{\infty} f(\tau) h(t - \tau) \, d\tau \\
+&= (f \ast g)(t) + (f \ast h)(t).
+\end{aligned}
+\]
+
+\textbf{Conclusion:} \( f \ast (g + h) = f \ast g + f \ast h \).
+
+---
+
+\subsection*{3. Differentiation Rule}
+\textbf{Statement:} \( (f \ast g)' = f' \ast g = f \ast g' \).
+
+\textbf{Proof:}
+
+\textbf{First Part: \( (f \ast g)' = f \ast g' \)}
+
+Compute the derivative of the convolution:
+\[
+\begin{aligned}
+(f \ast g)'(t) &= \frac{d}{dt} \int_{-\infty}^{\infty} f(\tau) g(t - \tau) \, d\tau \\
+&= \int_{-\infty}^{\infty} f(\tau) \frac{d}{dt} g(t - \tau) \, d\tau \\
+&= \int_{-\infty}^{\infty} f(\tau) g'(t - \tau) \, d\tau \\
+&= (f \ast g')(t).
+\end{aligned}
+\]
+
+\textbf{Second Part: \( (f \ast g)' = f' \ast g \)}
+
+Alternatively, consider:
+\[
+\begin{aligned}
+(f \ast g)(t) &= \int_{-\infty}^{\infty} f(\tau) g(t - \tau) \, d\tau \\
+&= \int_{-\infty}^{\infty} f(t - s) g(s) \, ds \quad (\text{Let } s = t - \tau) \\
+&= \int_{-\infty}^{\infty} f(t - s) g(s) \, ds.
+\end{aligned}
+\]
+
+Differentiate with respect to \( t \):
+\[
+\begin{aligned}
+(f \ast g)'(t) &= \int_{-\infty}^{\infty} \frac{d}{dt} f(t - s) g(s) \, ds \\
+&= \int_{-\infty}^{\infty} f'(t - s) g(s) \, ds \\
+&= (f' \ast g)(t).
+\end{aligned}
+\]
+
+\textbf{Conclusion:} \( (f \ast g)' = f' \ast g = f \ast g' \).
+
+---
+
+\subsection*{4. Convolution Theorem}
+\textbf{Statement:} \( \mathcal{F}(g \ast h) = \mathcal{F}(g) \cdot \mathcal{F}(h) \), where \( \mathcal{F} \) denotes the Fourier transform.
+
+\textbf{Proof:}
+
+definition of the Fourier transform:
+\[
+\mathcal{F}(f)(\omega) = \int_{-\infty}^{\infty} f(t) e^{-i \omega t} \, dt.
+\]
+
+Compute \( \mathcal{F}(g \ast h)(\omega) \):
+\[
+\begin{aligned}
+\mathcal{F}(g \ast h)(\omega) &= \int_{-\infty}^{\infty} (g \ast h)(t) e^{-i \omega t} \, dt \\
+&= \int_{-\infty}^{\infty} \left[ \int_{-\infty}^{\infty} g(\tau) h(t - \tau) \, d\tau \right] e^{-i \omega t} \, dt \\
+&= \int_{-\infty}^{\infty} g(\tau) \left[ \int_{-\infty}^{\infty} h(t - \tau) e^{-i \omega t} \, dt \right] d\tau.
+\end{aligned}
+\]
+
+Let \( s = t - \tau \), so \( t = s + \tau \) and \( dt = ds \):
+\[
+\begin{aligned}
+\mathcal{F}(g \ast h)(\omega) &= \int_{-\infty}^{\infty} g(\tau) \left[ \int_{-\infty}^{\infty} h(s) e^{-i \omega (s + \tau)} \, ds \right] d\tau \\
+&= \int_{-\infty}^{\infty} g(\tau) e^{-i \omega \tau} \left[ \int_{-\infty}^{\infty} h(s) e^{-i \omega s} \, ds \right] d\tau \\
+&= \left[ \int_{-\infty}^{\infty} g(\tau) e^{-i \omega \tau} \, d\tau \right] \left[ \int_{-\infty}^{\infty} h(s) e^{-i \omega s} \, ds \right] \\
+&= \mathcal{F}(g)(\omega) \cdot \mathcal{F}(h)(\omega).
+\end{aligned}
+\]
+
+\textbf{Conclusion:} \( \mathcal{F}(g \ast h) = \mathcal{F}(g) \cdot \mathcal{F}(h) \).
+
+\section{Question 2}
+
+Frequency Smoothing
+
+\begin{enumerate}
+    \item[(a)] Compute the Fourier transform of the given image \texttt{lenaNoise.PNG} by using \texttt{numpy.fft.fft2} in Python, and then center the low frequencies (e.g., by using \texttt{fftshift}).
+    
+    \item[(b)] Keep a different number of low frequencies (e.g., 72, 152, 312, and the full dimension), but set all other high frequencies to 0.
+    
+    \item[(c)] Reconstruct the original image (using \texttt{ifft2}) by using the new generated frequencies in step (b).
+\end{enumerate}
+
+\section*{Solution}
+Solution In Jupyter Notebook which is Also Attached After The Report
+
+\section{Question 3}
+
+\subsection{Problem Description}
+
+Image denoising is the process of removing noise from a given noisy image to recover a clean image. Let \( f \in \mathbb{R}^{m \times n} \) be the observed noisy image, where each pixel value contains additive noise. The goal is to find a clean image \( u \in \mathbb{R}^{m \times n} \) that is as close as possible to the noisy image \( f \), while ensuring that the resulting image \( u \) is smooth and free from noise.
+
+One common approach to achieve this is by minimizing an energy function that consists of two terms:
+\begin{itemize}
+    \item A data fidelity term, which ensures that \( u \) stays close to the noisy image \( f \).
+    \item A regularization term, which imposes smoothness on \( u \) while preserving important features like edges.
+\end{itemize}
+
+\subsection{Objective Function}
+
+The objective function to minimize for image denoising is the Total Variation (TV)\cite{rudin_osher_fatemi}
+regularized energy function:
+
+\[
+E(u) = \lambda \| f - u \|^2_{L^2} + \int_{\Omega} \| \nabla u(x) \| \, dx
+\]
+
+where:
+\begin{itemize}
+    \item \( \| f - u \|^2_{L^2} = \int_{\Omega} (f(x) - u(x))^2 \, dx \) is the data fidelity term that measures the difference between the noisy image \( f \) and the clean image \( u \).
+    \item \( \int_{\Omega} \| \nabla u(x) \| \, dx \) is the Total Variation (TV) norm, which enforces smoothness on the image by penalizing large gradients in \( u \).
+    \item \( \lambda > 0 \) is a regularization parameter that controls the trade-off between the data fidelity and smoothness.
+\end{itemize}
+
+In a discrete setting, the objective function becomes:
+
+\[
+E(u) = \lambda \sum_{i,j} (f_{i,j} - u_{i,j})^2 + \sum_{i,j} \sqrt{(D_x u_{i,j})^2 + (D_y u_{i,j})^2}
+\]
+
+where \( D_x u_{i,j} \) and \( D_y u_{i,j} \) are the discrete gradients in the \( x \) and \( y \) directions.
+
+\subsection{Gradient of the Objective Function}
+
+The gradient of the objective function \( E(u) \) with respect to \( u \) is given by:
+
+\[
+\nabla_u E(u) = 2 \lambda (u - f) - \text{div} \left( \frac{\nabla u}{\| \nabla u \|} \right)
+\]
+
+where:
+\begin{itemize}
+    \item \( 2 \lambda (u - f) \) is the gradient of the data fidelity term.
+    \item \( \text{div} \left( \frac{\nabla u}{\| \nabla u \|} \right) \) is the gradient of the Total Variation (TV) regularization term.
+    \item \( \| \nabla u \| = \sqrt{(D_x u)^2 + (D_y u)^2} \) is the magnitude of the image gradient.
+\end{itemize}
+
+\subsection{Gradient Descent Algorithm}
+
+To minimize the objective function \( E(u) \), we use the gradient descent algorithm. The update rule at iteration \( k \) is:
+
+\[
+u^{k+1} = u^k - \alpha \nabla_u E(u^k)
+\]
+
+where:
+\begin{itemize}
+    \item \( \alpha > 0 \) is the learning rate that controls the step size of each update.
+    \item \( \nabla_u E(u^k) \) is the gradient of the objective function evaluated at \( u^k \).
+\end{itemize}
+
+At each iteration, the clean image \( u \) is updated by subtracting the gradient of the objective function scaled by the learning rate \( \alpha \).
+
+\subsection{Results And Discussion}
+Convergence Graphs, Resulting Images After Denoising and Discussion are In The Jupyter Notebook which is also attached after the report.
+
+
+
+
+% References
+\begin{thebibliography}{9}
+
+\bibitem{rudin_osher_fatemi}
+L. I. Rudin, S. Osher, E. Fatemi, 
+\textit{Nonlinear total variation based noise removal algorithms}, 
+Physica D: Nonlinear Phenomena, 
+Volume 60, Issue 1-4, 1992, Pages 259-268.
+
+\bibitem{chatgpt}
+OpenAI, ChatGPT, 
+\textit{ChatGPT: Language Model for Conversations}, 
+OpenAI, 2023. Available at: \texttt{https://openai.com/chatgpt}.
+
+\end{thebibliography}
+
+
+
+\end{document}
