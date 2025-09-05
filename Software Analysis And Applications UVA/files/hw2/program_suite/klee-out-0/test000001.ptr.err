@@ -1,0 +1,11 @@
+Error: memory error: out of bound pointer
+File: program_suite/2-out-of-bounds-sym.c
+Line: 10
+assembly.ll line: 36
+State: 440
+Stack: 
+	#000000036 in main() at program_suite/2-out-of-bounds-sym.c:10
+Info: 
+	address: 93825002898250
+	next: object at 93825002889584 of size 4
+		MO16[4] allocated at main():  %count = alloca i32, align 4

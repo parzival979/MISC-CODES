@@ -1,0 +1,536 @@
+Found 66 issues
+
+libtcc.c:174: error: NULL_DEREFERENCE
+  pointer `p` last assigned on line 173 could be null and is dereferenced at line 174, column 25.
+  172.   {
+  173.       char *p = strchr(name, 0);
+  174. >     while (p > name && !IS_DIRSEP(p[-1]))
+  175.           --p;
+  176.       return p;
+
+libtcc.c:186: error: NULL_DEREFERENCE
+  pointer `b` last assigned on line 185 could be null and is dereferenced by call to `strrchr()` at line 186, column 15.
+  184.   {
+  185.       char *b = tcc_basename(name);
+  186. >     char *e = strrchr(b, '.');
+  187.       return e ? e : strchr(b, 0);
+  188.   }
+
+libtcc.c:217: error: NULL_DEREFERENCE
+  pointer `ptr` last assigned on line 216 could be null and is dereferenced by call to `memset()` at line 217, column 5.
+  215.       void *ptr;
+  216.       ptr = tcc_malloc(size);
+  217. >     memset(ptr, 0, size);
+  218.       return ptr;
+  219.   }
+
+libtcc.c:234: error: NULL_DEREFERENCE
+  pointer `ptr` last assigned on line 233 could be null and is dereferenced by call to `strcpy()` at line 234, column 5.
+  232.       char *ptr;
+  233.       ptr = tcc_malloc(strlen(str) + 1);
+  234. >     strcpy(ptr, str);
+  235.       return ptr;
+  236.   }
+
+tccrun.c:460: error: UNINITIALIZED_VALUE
+  The value read from incl_files[_] was never initialized.
+  458.       i = incl_index;
+  459.       if (i > 0)
+  460. >         fprintf(stderr, "%s:%d: ", incl_files[--i], last_line_num);
+  461.       fprintf(stderr, "%s %p", msg, (void*)wanted_pc);
+  462.       if (last_func_name[0] != '\0')
+
+tccrun.c:467: error: UNINITIALIZED_VALUE
+  The value read from incl_files[_] was never initialized.
+  465.           fprintf(stderr, " (included from ");
+  466.           for (;;) {
+  467. >             fprintf(stderr, "%s", incl_files[i]);
+  468.               if (--i < 0)
+  469.                   break;
+
+libtcc.c:441: error: UNINITIALIZED_VALUE
+  The value read from c was never initialized.
+  439.   
+  440.           cstr_new(&str);
+  441. >         for (p = in; c = *p, c != '\0' && c != PATHSEP[0]; ++p) {
+  442.               if (c == '{' && p[1] && p[2] == '}') {
+  443.                   c = p[1], p += 2;
+
+libtcc.c:441: error: UNINITIALIZED_VALUE
+  The value read from c was never initialized.
+  439.   
+  440.           cstr_new(&str);
+  441. >         for (p = in; c = *p, c != '\0' && c != PATHSEP[0]; ++p) {
+  442.               if (c == '{' && p[1] && p[2] == '}') {
+  443.                   c = p[1], p += 2;
+
+i386-asm.c:659: error: UNINITIALIZED_VALUE
+  The value read from op_vals[_] was never initialized.
+  657.                   for(j=0;j<nb_op_vals;j++) {
+  658.                       //if (pa->op_type[i] == op_vals[j])
+  659. >                     if (pa->instr_type == op_vals[j])
+  660.                           goto found;
+  661.                   }
+
+i386-asm.c:668: error: UNINITIALIZED_VALUE
+  The value read from op_vals[_] was never initialized.
+  666.           }
+  667.           for(i=0;i<nb_op_vals;i++) {
+  668. >             int v = op_vals[i];
+  669.               //if ((v & (v - 1)) != 0)
+  670.                   printf("%3d: %08x\n", i, v);
+
+i386-asm.c:875: error: UNINITIALIZED_VALUE
+  The value read from op_type[_] was never initialized.
+  873.   	   are such opcodes.  */
+  874.           for(i = nb_ops - 1; s == autosize && i >= 0; i--) {
+  875. >             if ((ops[i].type & OP_REG) && !(op_type[i] & (OP_CL | OP_DX)))
+  876.                   s = reg_to_size[ops[i].type & OP_REG];
+  877.           }
+
+i386-asm.c:908: error: UNINITIALIZED_VALUE
+  The value read from op_type[_] was never initialized.
+  906.   	   already SSE insn and needs 0x66/f2/f3 handling.  */
+  907.           for (i = 0; i < nb_ops; i++)
+  908. >             if ((op_type[i] & (OP_MMX | OP_SSE)) == (OP_MMX | OP_SSE)
+  909.   	        && ops[i].type & OP_SSE)
+  910.   	        p66 = 1;
+
+i386-asm.c:922: error: UNINITIALIZED_VALUE
+  The value read from op_type[_] was never initialized.
+  920.   	int default64 = 0;
+  921.   	for(i = 0; i < nb_ops; i++) {
+  922. > 	    if (op_type[i] == OP_REG64 && pa->opcode != 0xb8) {
+  923.   		/* If only 64bit regs are accepted in one operand
+  924.   		   this is a default64 instruction without need for
+
+i386-asm.c:954: error: UNINITIALIZED_VALUE
+  The value read from op_type[_] was never initialized.
+  952.           nb_ops = 3;
+  953.           ops[2] = ops[1];
+  954. >         op_type[2] = op_type[1];
+  955.       } else if (v == 0xcd && ops[0].e.v == 3 && !ops[0].e.sym) {
+  956.           v--; /* int $3 case */
+
+i386-asm.c:989: error: UNINITIALIZED_VALUE
+  The value read from op_type[_] was never initialized.
+  987.           /* first look for an ea operand */
+  988.           for(i = 0;i < nb_ops; i++) {
+  989. >             if (op_type[i] & OP_EA)
+  990.                   goto modrm_found;
+  991.           }
+
+i386-asm.c:994: error: UNINITIALIZED_VALUE
+  The value read from op_type[_] was never initialized.
+  992.           /* then if not found, a register or indirection (shift instructions) */
+  993.           for(i = 0;i < nb_ops; i++) {
+  994. >             if (op_type[i] & (OP_REG | OP_MMX | OP_SSE | OP_INDIR))
+  995.                   goto modrm_found;
+  996.           }
+
+i386-asm.c:1005: error: UNINITIALIZED_VALUE
+  The value read from op_type[_] was never initialized.
+  1003.              used instead of group */
+  1004.           for(i = 0;i < nb_ops; i++) {
+  1005. >             int t = op_type[i];
+  1006.               if (i != modrm_index &&
+  1007.                   (t & (OP_REG | OP_MMX | OP_SSE | OP_CR | OP_TR | OP_DB | OP_SEG))) {
+
+tccpp.c:732: error: DEAD_STORE
+  The value written to &c (type int) is never used.
+  730.                   if (c == '\n') {
+  731.                       file->line_num++;
+  732. >                     PEEKC_EOB(c, p);
+  733.                   } else if (c == '\r') {
+  734.                       PEEKC_EOB(c, p);
+
+tccpp.c:737: error: DEAD_STORE
+  The value written to &c (type int) is never used.
+  735.                       if (c == '\n') {
+  736.                           file->line_num++;
+  737. >                         PEEKC_EOB(c, p);
+  738.                       }
+  739.                   }
+
+tccpp.c:769: error: UNINITIALIZED_VALUE
+  The value read from c was never initialized.
+  767.           }
+  768.           /* now we can handle all the cases */
+  769. >         if (c == '\n') {
+  770.               file->line_num++;
+  771.               p++;
+
+tccpp.c:772: error: UNINITIALIZED_VALUE
+  The value read from c was never initialized.
+  770.               file->line_num++;
+  771.               p++;
+  772. >         } else if (c == '*') {
+  773.               p++;
+  774.               for(;;) {
+
+i386-asm.c:1280: error: UNINITIALIZED_VALUE
+  The value read from sorted_op[_] was never initialized.
+  1278.               p2 = operands[sorted_op[j]].priority;
+  1279.               if (p2 < p1) {
+  1280. >                 tmp = sorted_op[i];
+  1281.                   sorted_op[i] = sorted_op[j];
+  1282.                   sorted_op[j] = tmp;
+
+i386-asm.c:1281: error: UNINITIALIZED_VALUE
+  The value read from sorted_op[_] was never initialized.
+  1279.               if (p2 < p1) {
+  1280.                   tmp = sorted_op[i];
+  1281. >                 sorted_op[i] = sorted_op[j];
+  1282.                   sorted_op[j] = tmp;
+  1283.               }
+
+i386-asm.c:1300: error: UNINITIALIZED_VALUE
+  The value read from sorted_op[_] was never initialized.
+  1298.       /* allocate registers and generate corresponding asm moves */
+  1299.       for(i=0;i<nb_operands;i++) {
+  1300. >         j = sorted_op[i];
+  1301.           op = &operands[j];
+  1302.           str = op->constraint;
+
+x86_64-gen.c:1350: error: UNINITIALIZED_VALUE
+  The value read from onstack was never initialized.
+  1348.   	vpop();
+  1349.   	--nb_args;
+  1350. > 	onstack++;
+  1351.       }
+  1352.   
+
+i386-asm.c:1499: error: DEAD_STORE
+  The value written to &val (type int) is never used.
+  1497.           val = sv->c.i;
+  1498.           if (modifier == 'n')
+  1499. >             val = -val;
+  1500.           snprintf(buf, sizeof(buf), "%d", (int)sv->c.i);
+  1501.           cstr_cat(add_str, buf, -1);
+
+libtcc.c:1608: error: UNINITIALIZED_VALUE
+  The value read from c was never initialized.
+  1606.       CString str;
+  1607.       for(;;) {
+  1608. >         while (c = (unsigned char)*r, c && c <= ' ')
+  1609.   	    ++r;
+  1610.           if (c == 0)
+
+libtcc.c:1608: error: UNINITIALIZED_VALUE
+  The value read from c was never initialized.
+  1606.       CString str;
+  1607.       for(;;) {
+  1608. >         while (c = (unsigned char)*r, c && c <= ' ')
+  1609.   	    ++r;
+  1610.           if (c == 0)
+
+libtcc.c:1655: error: MEMORY_LEAK
+  memory dynamically allocated to `argv` by call to `dynarray_add()` at line 1657, column 13 is not reachable after line 1655, column 13.
+  1653.       for (i = 0; i < *pargc; ++i)
+  1654.           if (i == optind)
+  1655. >             args_parser_make_argv(p, &argc, &argv);
+  1656.           else
+  1657.               dynarray_add(&argv, &argc, tcc_strdup((*pargv)[i]));
+
+libtcc.c:1777: error: UNINITIALIZED_VALUE
+  The value read from *optarg was never initialized.
+  1775.               break;
+  1776.           case TCC_OPTION_d:
+  1777. >             if (*optarg == 'D')
+  1778.                   s->dflag = 3;
+  1779.               else if (*optarg == 'M')
+
+libtcc.c:1779: error: UNINITIALIZED_VALUE
+  The value read from *optarg was never initialized.
+  1777.               if (*optarg == 'D')
+  1778.                   s->dflag = 3;
+  1779. >             else if (*optarg == 'M')
+  1780.                   s->dflag = 7;
+  1781.               else if (*optarg == 't')
+
+libtcc.c:1781: error: UNINITIALIZED_VALUE
+  The value read from *optarg was never initialized.
+  1779.               else if (*optarg == 'M')
+  1780.                   s->dflag = 7;
+  1781. >             else if (*optarg == 't')
+  1782.                   s->dflag = 16;
+  1783.               else if (isnum(*optarg))
+
+libtcc.c:1899: error: UNINITIALIZED_VALUE
+  The value read from *optarg was never initialized.
+  1897.               break;
+  1898.           case TCC_OPTION_x:
+  1899. >             if (*optarg == 'c')
+  1900.                   s->filetype = AFF_TYPE_C;
+  1901.               else if (*optarg == 'a')
+
+libtcc.c:1901: error: UNINITIALIZED_VALUE
+  The value read from *optarg was never initialized.
+  1899.               if (*optarg == 'c')
+  1900.                   s->filetype = AFF_TYPE_C;
+  1901. >             else if (*optarg == 'a')
+  1902.                   s->filetype = AFF_TYPE_ASMPP;
+  1903.               else if (*optarg == 'n')
+
+libtcc.c:1903: error: UNINITIALIZED_VALUE
+  The value read from *optarg was never initialized.
+  1901.               else if (*optarg == 'a')
+  1902.                   s->filetype = AFF_TYPE_ASMPP;
+  1903. >             else if (*optarg == 'n')
+  1904.                   s->filetype = AFF_TYPE_NONE;
+  1905.               else
+
+libtcc.c:1830: error: UNINITIALIZED_VALUE
+  The value read from optarg was never initialized.
+  1828.               tcc_error("-run is not available in a cross compiler");
+  1829.   #endif
+  1830. >             run = optarg;
+  1831.               x = TCC_OUTPUT_MEMORY;
+  1832.               goto set_output_type;
+
+libtcc.c:1834: error: UNINITIALIZED_VALUE
+  The value read from optarg was never initialized.
+  1832.               goto set_output_type;
+  1833.           case TCC_OPTION_v:
+  1834. >             do ++s->verbose; while (*optarg++ == 'v');
+  1835.               ++noaction;
+  1836.               break;
+
+libtcc.c:1880: error: UNINITIALIZED_VALUE
+  The value read from optarg was never initialized.
+  1878.               break;
+  1879.   	case TCC_OPTION_Wp:
+  1880. > 	    r = optarg;
+  1881.   	    goto reparse;
+  1882.           case TCC_OPTION_E:
+
+libtcc.c:1855: error: UNINITIALIZED_VALUE
+  The value read from x was never initialized.
+  1853.           case TCC_OPTION_m:
+  1854.               if (set_flag(s, options_m, optarg) < 0) {
+  1855. >                 if (x = atoi(optarg), x != 32 && x != 64)
+  1856.                       goto unsupported_option;
+  1857.                   if (PTR_SIZE != x/8)
+
+libtcc.c:1855: error: UNINITIALIZED_VALUE
+  The value read from x was never initialized.
+  1853.           case TCC_OPTION_m:
+  1854.               if (set_flag(s, options_m, optarg) < 0) {
+  1855. >                 if (x = atoi(optarg), x != 32 && x != 64)
+  1856.                       goto unsupported_option;
+  1857.                   if (PTR_SIZE != x/8)
+
+tccpp.c:1814: error: UNINITIALIZED_VALUE
+  The value read from buf[_] was never initialized.
+  1812.               if (i == 0) {
+  1813.                   /* check absolute include path */
+  1814. >                 if (!IS_ABSPATH(buf))
+  1815.                       continue;
+  1816.                   buf1[0] = 0;
+
+x86_64-gen.c:1845: error: DEAD_STORE
+  The value written to &r (type int) is never used.
+  1843.           /* XXX: need better constraint for second operand */
+  1844.           gv2(RC_RAX, RC_RCX);
+  1845. >         r = vtop[-1].r;
+  1846.           fr = vtop[0].r;
+  1847.           vtop--;
+
+x86_64-gen.c:1743: error: DEAD_STORE
+  The value written to &uu (type int) is never used.
+  1741.   
+  1742.       ll = is64_type(vtop[-1].type.t);
+  1743. >     uu = (vtop[-1].type.t & VT_UNSIGNED) != 0;
+  1744.       cc = (vtop->r & (VT_VALMASK | VT_LVAL | VT_SYM)) == VT_CONST;
+  1745.   
+
+x86_64-gen.c:1959: error: DEAD_STORE
+  The value written to &fc (type int) is never used.
+  1957.               }
+  1958.               ft = vtop->type.t;
+  1959. >             fc = vtop->c.i;
+  1960.               o(0xde); /* fxxxp %st, %st(1) */
+  1961.               o(0xc1 + (a << 3));
+
+x86_64-gen.c:1958: error: DEAD_STORE
+  The value written to &ft (type int) is never used.
+  1956.                   break;
+  1957.               }
+  1958. >             ft = vtop->type.t;
+  1959.               fc = vtop->c.i;
+  1960.               o(0xde); /* fxxxp %st, %st(1) */
+
+x86_64-gen.c:1937: error: DEAD_STORE
+  The value written to &swapped (type int) is never used.
+  1935.               /* no memory reference possible for long double operations */
+  1936.               load(TREG_ST0, vtop);
+  1937. >             swapped = !swapped;
+  1938.   
+  1939.               switch(op) {
+
+tccpp.c:2382: error: DEAD_STORE
+  The value written to &p (type char const *) is never used.
+  2380.               t = toup(ch);
+  2381.               if (t == 'F') {
+  2382. >                 ch = *p++;
+  2383.                   tok = TOK_CFLOAT;
+  2384.                   /* float : should handle overflow */
+
+tccpp.c:2387: error: DEAD_STORE
+  The value written to &p (type char const *) is never used.
+  2385.                   tokc.f = (float)d;
+  2386.               } else if (t == 'L') {
+  2387. >                 ch = *p++;
+  2388.   #ifdef TCC_TARGET_PE
+  2389.                   tok = TOK_CDOUBLE;
+
+tccpp.c:2439: error: DEAD_STORE
+  The value written to &p (type char const *) is never used.
+  2437.               errno = 0;
+  2438.               if (t == 'F') {
+  2439. >                 ch = *p++;
+  2440.                   tok = TOK_CFLOAT;
+  2441.                   tokc.f = strtof(token_buf, NULL);
+
+tccpp.c:2443: error: DEAD_STORE
+  The value written to &p (type char const *) is never used.
+  2441.                   tokc.f = strtof(token_buf, NULL);
+  2442.               } else if (t == 'L') {
+  2443. >                 ch = *p++;
+  2444.   #ifdef TCC_TARGET_PE
+  2445.                   tok = TOK_CDOUBLE;
+
+tccelf.c:2604: error: NULL_DEREFERENCE
+  pointer `data` last assigned on line 2601 could be null and is dereferenced by call to `get_be32()` at line 2604, column 30.
+  2602.       if (read(fd, data, size) != size)
+  2603.           goto fail;
+  2604. >     nsyms = entrysize == 4 ? get_be32(data) : get_be64(data);
+  2605.       ar_index = data + entrysize;
+  2606.       ar_names = (char *) ar_index + nsyms * entrysize;
+
+tccelf.c:2604: error: NULL_DEREFERENCE
+  pointer `data` last assigned on line 2601 could be null and is dereferenced by call to `get_be32()` at line 2604, column 30.
+  2602.       if (read(fd, data, size) != size)
+  2603.           goto fail;
+  2604. >     nsyms = entrysize == 4 ? get_be32(data) : get_be64(data);
+  2605.       ar_index = data + entrysize;
+  2606.       ar_names = (char *) ar_index + nsyms * entrysize;
+
+tccelf.c:2706: error: UNINITIALIZED_VALUE
+  The value read from ehdr.e_machine was never initialized.
+  2704.       /* test CPU specific stuff */
+  2705.       if (ehdr.e_ident[5] != ELFDATA2LSB ||
+  2706. >         ehdr.e_machine != EM_TCC_TARGET) {
+  2707.           tcc_error_noabort("bad architecture");
+  2708.           return -1;
+
+tccelf.c:2720: error: UNINITIALIZED_VALUE
+  The value read from ehdr.e_shnum was never initialized.
+  2718.       dynsym = NULL; /* avoid warning */
+  2719.       dynstr = NULL; /* avoid warning */
+  2720. >     for(i = 0, sh = shdr; i < ehdr.e_shnum; i++, sh++) {
+  2721.           switch(sh->sh_type) {
+  2722.           case SHT_DYNAMIC:
+
+tccelf.c:2712: error: UNINITIALIZED_VALUE
+  The value read from ehdr.e_shoff was never initialized.
+  2710.   
+  2711.       /* read sections */
+  2712. >     shdr = load_data(fd, ehdr.e_shoff, sizeof(ElfW(Shdr)) * ehdr.e_shnum);
+  2713.   
+  2714.       /* load dynamic section and dynamic symbols */
+
+tccpp.c:3107: error: NULL_DEREFERENCE
+  pointer `&str->str` last assigned on line 3015 could be null and is dereferenced by call to `tok_str_add()` at line 3107, column 17.
+  3105.                       tok_str_add(&str, TOK_PLCHLDR);
+  3106.               } else {
+  3107. >                 tok_str_add(&str, t);
+  3108.               }
+  3109.           } else {
+
+tccgen.c:3737: error: UNINITIALIZED_VALUE
+  The value read from cx was never initialized.
+  3735.           }
+  3736.   
+  3737. >         if (px + bit_size <= s * 8 && cx + s <= c) {
+  3738.               /* update offset and bit position */
+  3739.               f->c = cx;
+
+tccgen.c:3739: error: UNINITIALIZED_VALUE
+  The value read from cx was never initialized.
+  3737.           if (px + bit_size <= s * 8 && cx + s <= c) {
+  3738.               /* update offset and bit position */
+  3739. >             f->c = cx;
+  3740.               bit_pos = px;
+  3741.   	    f->type.t = (f->type.t & ~(0x3f << VT_STRUCT_SHIFT))
+
+tccgen.c:3737: error: UNINITIALIZED_VALUE
+  The value read from px was never initialized.
+  3735.           }
+  3736.   
+  3737. >         if (px + bit_size <= s * 8 && cx + s <= c) {
+  3738.               /* update offset and bit position */
+  3739.               f->c = cx;
+
+tccgen.c:3740: error: UNINITIALIZED_VALUE
+  The value read from px was never initialized.
+  3738.               /* update offset and bit position */
+  3739.               f->c = cx;
+  3740. >             bit_pos = px;
+  3741.   	    f->type.t = (f->type.t & ~(0x3f << VT_STRUCT_SHIFT))
+  3742.   		        | (bit_pos << VT_STRUCT_SHIFT);
+
+tccgen.c:3744: error: UNINITIALIZED_VALUE
+  The value read from t.t was never initialized.
+  3742.   		        | (bit_pos << VT_STRUCT_SHIFT);
+  3743.               if (s != size)
+  3744. >                 f->auxtype = t.t;
+  3745.   #ifdef BF_DEBUG
+  3746.               printf("FIX field %s offset %-2d size %-2d align %-2d "
+
+tccgen.c:4100: error: NULL_DEREFERENCE
+  pointer `type->ref` last assigned on line 4012 could be null and is dereferenced by call to `parse_btype_qualify()` at line 4100, column 13.
+  4098.           case TOK_CONST3:
+  4099.               type->t = t;
+  4100. >             parse_btype_qualify(type, VT_CONSTANT);
+  4101.               t = type->t;
+  4102.               next();
+
+tccgen.c:4108: error: NULL_DEREFERENCE
+  pointer `type->ref` last assigned on line 4012 could be null and is dereferenced by call to `parse_btype_qualify()` at line 4108, column 13.
+  4106.           case TOK_VOLATILE3:
+  4107.               type->t = t;
+  4108. >             parse_btype_qualify(type, VT_VOLATILE);
+  4109.               t = type->t;
+  4110.               next();
+
+tccgen.c:4282: error: UNINITIALIZED_VALUE
+  The value read from pt.t was never initialized.
+  4280.                   /* read param name and compute offset */
+  4281.                   if (l != FUNC_OLD) {
+  4282. >                     if ((pt.t & VT_BTYPE) == VT_VOID && tok == ')')
+  4283.                           break;
+  4284.                       type_decl(&pt, &ad1, &n, TYPE_DIRECT | TYPE_ABSTRACT);
+
+tccgen.c:5252: error: UNINITIALIZED_VALUE
+  The value read from ret.r was never initialized.
+  5250.   
+  5251.               /* return value */
+  5252. >             for (r = ret.r + ret_nregs + !ret_nregs; r-- > ret.r;) {
+  5253.                   vsetc(&ret.type, r, &ret.c);
+  5254.                   vtop->r2 = ret.r2; /* Loop only happens when r2 is VT_CONST */
+
+tccgen.c:5252: error: UNINITIALIZED_VALUE
+  The value read from ret.r was never initialized.
+  5250.   
+  5251.               /* return value */
+  5252. >             for (r = ret.r + ret_nregs + !ret_nregs; r-- > ret.r;) {
+  5253.                   vsetc(&ret.type, r, &ret.c);
+  5254.                   vtop->r2 = ret.r2; /* Loop only happens when r2 is VT_CONST */
+
+Summary of the reports
+
+  UNINITIALIZED_VALUE: 44
+           DEAD_STORE: 12
+     NULL_DEREFERENCE: 9
+          MEMORY_LEAK: 1

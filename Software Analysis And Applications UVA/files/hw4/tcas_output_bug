@@ -1,0 +1,9 @@
+[1mtcas5.c:93:91: [31merror:[39m Array index out of bounds, cannot determine that Alt_Layer_Value is less than 4 [bughuntingArrayIndexOutOfBounds][0m
+    upward_preferred = upward_preferred = Inhibit_Biased_Climb() / Positive_RA_Alt_Thresh[Alt_Layer_Value];
+                                                                                          ^
+[1mtcas5.c:93:91: [31merror:[39m Array index out of bounds, cannot determine that Alt_Layer_Value is not negative [bughuntingArrayIndexNegative][0m
+    upward_preferred = upward_preferred = Inhibit_Biased_Climb() / Positive_RA_Alt_Thresh[Alt_Layer_Value];
+                                                                                          ^
+[1mtcas5.c:93:66: [31merror:[39m There is division, cannot determine that there can't be a division by zero. [bughuntingDivByZero][0m
+    upward_preferred = upward_preferred = Inhibit_Biased_Climb() / Positive_RA_Alt_Thresh[Alt_Layer_Value];
+                                                                 ^

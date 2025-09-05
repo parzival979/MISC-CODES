@@ -1,0 +1,71 @@
+libtcc.c:234: error: NULL_DEREFERENCE
+  pointer `ptr` last assigned on line 233 could be null and is dereferenced by call to `strcpy()` at line 234, column 5.
+Showing all 9 steps of the trace
+
+
+libtcc.c:230:10: start of procedure tcc_strdup()
+228.   }
+229.   
+230.   PUB_FUNC char *tcc_strdup(const char *str)
+                ^
+231.   {
+232.       char *ptr;
+
+libtcc.c:233:5: 
+231.   {
+232.       char *ptr;
+233. >     ptr = tcc_malloc(strlen(str) + 1);
+234.       strcpy(ptr, str);
+235.       return ptr;
+
+libtcc.c:204:10: start of procedure tcc_malloc()
+  202.   }
+  203.   
+  204.   PUB_FUNC void *tcc_malloc(unsigned long size)
+                  ^
+  205.   {
+  206.       void *ptr;
+
+libtcc.c:207:5: 
+  205.   {
+  206.       void *ptr;
+  207. >     ptr = malloc(size);
+  208.       if (!ptr && size)
+  209.           tcc_error("memory full (malloc)");
+
+libtcc.c:208:10: Taking true branch
+  206.       void *ptr;
+  207.       ptr = malloc(size);
+  208.       if (!ptr && size)
+                  ^
+  209.           tcc_error("memory full (malloc)");
+  210.       return ptr;
+
+libtcc.c:208:17: Taking false branch
+  206.       void *ptr;
+  207.       ptr = malloc(size);
+  208.       if (!ptr && size)
+                         ^
+  209.           tcc_error("memory full (malloc)");
+  210.       return ptr;
+
+libtcc.c:210:5: 
+  208.       if (!ptr && size)
+  209.           tcc_error("memory full (malloc)");
+  210. >     return ptr;
+  211.   }
+  212.   
+
+libtcc.c:211:1: return from a call to tcc_malloc
+  209.           tcc_error("memory full (malloc)");
+  210.       return ptr;
+  211. > }
+  212.   
+  213.   PUB_FUNC void *tcc_mallocz(unsigned long size)
+
+libtcc.c:234:5: 
+232.       char *ptr;
+233.       ptr = tcc_malloc(strlen(str) + 1);
+234. >     strcpy(ptr, str);
+235.       return ptr;
+236.   }

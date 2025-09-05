@@ -1,0 +1,12 @@
+i386-asm.c:1499: error: DEAD_STORE
+  The value written to &val (type int) is never used.
+Showing all 1 steps of the trace
+
+
+i386-asm.c:1499:13: Write of unused value
+1497.           val = sv->c.i;
+1498.           if (modifier == 'n')
+1499.               val = -val;
+                    ^
+1500.           snprintf(buf, sizeof(buf), "%d", (int)sv->c.i);
+1501.           cstr_cat(add_str, buf, -1);

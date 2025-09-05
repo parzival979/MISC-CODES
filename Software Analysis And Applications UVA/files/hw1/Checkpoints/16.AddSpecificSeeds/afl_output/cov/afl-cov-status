@@ -1,0 +1,3 @@
+afl_cov_pid     : 23697
+afl_cov_version : 0.6.1
+command_line    : /usr/bin/afl-cov -d afl_output/ --coverage-cmd /root/tcc-cov/bin/tcc -I /root/tcc-cov/include -Wall -Wimplicit-function-declaration -Wunsupported -Wwrite-strings -Werror -funsigned-char -fsigned-char -fno-common -fleading-underscore -fms-extensions -fdollars-in-identifiers -g -b -bt 10 -shared -o hello AFL_FILE --code-dir /root/tinycc/ --lcov-path /usr/bin/lcov --genhtml-path /usr/bin/genhtml --overwrite

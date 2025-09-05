@@ -1,0 +1,135 @@
+tccelf.c:2604: error: NULL_DEREFERENCE
+  pointer `data` last assigned on line 2601 could be null and is dereferenced by call to `get_be32()` at line 2604, column 30.
+Showing all 18 steps of the trace
+
+
+tccelf.c:2593:1: start of procedure tcc_load_alacarte()
+2591.   
+2592.   /* load only the objects which resolve undefined symbols */
+2593. > static int tcc_load_alacarte(TCCState *s1, int fd, int size, int entrysize)
+2594.   {
+2595.       long i, bound, nsyms, sym_index, off, ret;
+
+tccelf.c:2601:5: 
+2599.       ElfW(Sym) *sym;
+2600.   
+2601. >     data = tcc_malloc(size);
+2602.       if (read(fd, data, size) != size)
+2603.           goto fail;
+
+libtcc.c:204:10: start of procedure tcc_malloc()
+  202.   }
+  203.   
+  204.   PUB_FUNC void *tcc_malloc(unsigned long size)
+                  ^
+  205.   {
+  206.       void *ptr;
+
+libtcc.c:207:5: 
+  205.   {
+  206.       void *ptr;
+  207. >     ptr = malloc(size);
+  208.       if (!ptr && size)
+  209.           tcc_error("memory full (malloc)");
+
+libtcc.c:208:10: Taking true branch
+  206.       void *ptr;
+  207.       ptr = malloc(size);
+  208.       if (!ptr && size)
+                  ^
+  209.           tcc_error("memory full (malloc)");
+  210.       return ptr;
+
+libtcc.c:208:17: Taking false branch
+  206.       void *ptr;
+  207.       ptr = malloc(size);
+  208.       if (!ptr && size)
+                         ^
+  209.           tcc_error("memory full (malloc)");
+  210.       return ptr;
+
+libtcc.c:210:5: 
+  208.       if (!ptr && size)
+  209.           tcc_error("memory full (malloc)");
+  210. >     return ptr;
+  211.   }
+  212.   
+
+libtcc.c:211:1: return from a call to tcc_malloc
+  209.           tcc_error("memory full (malloc)");
+  210.       return ptr;
+  211. > }
+  212.   
+  213.   PUB_FUNC void *tcc_mallocz(unsigned long size)
+
+tccelf.c:2602:9: Taking false branch
+2600.   
+2601.       data = tcc_malloc(size);
+2602.       if (read(fd, data, size) != size)
+                ^
+2603.           goto fail;
+2604.       nsyms = entrysize == 4 ? get_be32(data) : get_be64(data);
+
+tccelf.c:2604:13: Condition is false
+2602.       if (read(fd, data, size) != size)
+2603.           goto fail;
+2604.       nsyms = entrysize == 4 ? get_be32(data) : get_be64(data);
+                    ^
+2605.       ar_index = data + entrysize;
+2606.       ar_names = (char *) ar_index + nsyms * entrysize;
+
+tccelf.c:2585:1: start of procedure get_be64()
+  2583.   }
+  2584.   
+  2585. > static long get_be64(const uint8_t *b)
+  2586.   {
+  2587.     long long ret = get_be32(b);
+
+tccelf.c:2587:3: 
+  2585.   static long get_be64(const uint8_t *b)
+  2586.   {
+  2587. >   long long ret = get_be32(b);
+  2588.     ret = (ret << 32) | (unsigned)get_be32(b+4);
+  2589.     return (long)ret;
+
+tccelf.c:2580:1: start of procedure get_be32()
+    2578.   } ArchiveHeader;
+    2579.   
+    2580. > static int get_be32(const uint8_t *b)
+    2581.   {
+    2582.       return b[3] | (b[2] << 8) | (b[1] << 16) | (b[0] << 24);
+
+tccelf.c:2582:5: 
+    2580.   static int get_be32(const uint8_t *b)
+    2581.   {
+    2582. >     return b[3] | (b[2] << 8) | (b[1] << 16) | (b[0] << 24);
+    2583.   }
+    2584.   
+
+tccelf.c:2583:1: return from a call to get_be32
+    2581.   {
+    2582.       return b[3] | (b[2] << 8) | (b[1] << 16) | (b[0] << 24);
+    2583. > }
+    2584.   
+    2585.   static long get_be64(const uint8_t *b)
+
+tccelf.c:2588:3: 
+  2586.   {
+  2587.     long long ret = get_be32(b);
+  2588. >   ret = (ret << 32) | (unsigned)get_be32(b+4);
+  2589.     return (long)ret;
+  2590.   }
+
+tccelf.c:2580:1: start of procedure get_be32()
+    2578.   } ArchiveHeader;
+    2579.   
+    2580. > static int get_be32(const uint8_t *b)
+    2581.   {
+    2582.       return b[3] | (b[2] << 8) | (b[1] << 16) | (b[0] << 24);
+
+tccelf.c:2582:5: 
+    2580.   static int get_be32(const uint8_t *b)
+    2581.   {
+    2582. >     return b[3] | (b[2] << 8) | (b[1] << 16) | (b[0] << 24);
+    2583.   }
+    2584.   

@@ -1,0 +1,22 @@
+diff id:000044,src:000002,op:havoc,rep:64 -> id:000045,src:000002,op:havoc,rep:64
+Src file: /root/tinycc/tccpp.c
+  New 'function' coverage: add_char()
+  New 'line' coverage: 391
+  New 'line' coverage: 393
+  New 'line' coverage: 397
+  New 'line' coverage: 398
+  New 'line' coverage: 400
+  New 'line' coverage: 401
+  New 'line' coverage: 402
+  New 'line' coverage: 409
+  New 'line' coverage: 508
+  New 'line' coverage: 509
+  New 'line' coverage: 510
+  New 'line' coverage: 511
+  New 'line' coverage: 512
+  New 'line' coverage: 513
+  New 'line' coverage: 519
+  New 'line' coverage: 520
+  New 'line' coverage: 521
+  New 'line' coverage: 893
+  New 'line' coverage: 894

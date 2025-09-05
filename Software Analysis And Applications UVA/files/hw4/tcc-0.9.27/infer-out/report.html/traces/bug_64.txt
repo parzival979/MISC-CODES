@@ -1,0 +1,11 @@
+tccgen.c:4282: error: UNINITIALIZED_VALUE
+  The value read from pt.t was never initialized.
+Showing all 1 steps of the trace
+
+
+tccgen.c:4282:25: 
+4280.                   /* read param name and compute offset */
+4281.                   if (l != FUNC_OLD) {
+4282. >                     if ((pt.t & VT_BTYPE) == VT_VOID && tok == ')')
+4283.                           break;
+4284.                       type_decl(&pt, &ad1, &n, TYPE_DIRECT | TYPE_ABSTRACT);

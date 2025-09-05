@@ -1,0 +1,1 @@
+/root/tcc/bin/tcc -I /root/tcc/include -Wall -Wextra -Wshadow -Werror -Wstrict-overflow=5 -funsigned-char -fsigned-char -fno-common -fleading-underscore -fms-extensions -fno-stack-protector -fno-strict-aliasing -ffunction-sections -m64 -masm=intel -mno-sse -DDEBUG -D_GNU_SOURCE -shared -static -fPIC -rdynamic -g -b -bt 10 -o hello @@

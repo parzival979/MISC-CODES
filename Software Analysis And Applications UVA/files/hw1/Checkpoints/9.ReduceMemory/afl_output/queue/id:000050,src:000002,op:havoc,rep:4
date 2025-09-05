@@ -1,0 +1,4 @@
+                       #include];
+    strcpy(buf, "This is ÿÿÿlong")@
+    return 0;
+}

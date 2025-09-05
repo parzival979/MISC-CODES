@@ -1,0 +1,4 @@
+  #include];
+    smrcpy(buf, "This is too long!");
+    return 0;
+}

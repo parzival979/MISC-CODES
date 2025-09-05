@@ -1,0 +1,1799 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - tinycc/i386-asm.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">tinycc</a> - i386-asm.c<span style="font-size: 80%;"> (source / <a href="i386-asm.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">368</td>
+            <td class="headerCovTableEntry">801</td>
+            <td class="headerCovTableEntryLo">45.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2025-02-01 05:58:19</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntryLo">64.7 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *  i386 specific functions for TCC assembler
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *  Copyright (c) 2001, 2002 Fabrice Bellard
+<span class="lineNum">       5 </span>            :  *  Copyright (c) 2009 Frédéric Feret (x86_64 support)
+<span class="lineNum">       6 </span>            :  *
+<span class="lineNum">       7 </span>            :  * This library is free software; you can redistribute it and/or
+<span class="lineNum">       8 </span>            :  * modify it under the terms of the GNU Lesser General Public
+<span class="lineNum">       9 </span>            :  * License as published by the Free Software Foundation; either
+<span class="lineNum">      10 </span>            :  * version 2 of the License, or (at your option) any later version.
+<span class="lineNum">      11 </span>            :  *
+<span class="lineNum">      12 </span>            :  * This library is distributed in the hope that it will be useful,
+<span class="lineNum">      13 </span>            :  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      14 </span>            :  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+<span class="lineNum">      15 </span>            :  * Lesser General Public License for more details.
+<span class="lineNum">      16 </span>            :  *
+<span class="lineNum">      17 </span>            :  * You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      18 </span>            :  * License along with this library; if not, write to the Free Software
+<span class="lineNum">      19 </span>            :  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+<span class="lineNum">      20 </span>            :  */
+<span class="lineNum">      21 </span>            : 
+<span class="lineNum">      22 </span>            : #include &quot;tcc.h&quot;
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : #define MAX_OPERANDS 3
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #define TOK_ASM_first TOK_ASM_clc
+<span class="lineNum">      27 </span>            : #define TOK_ASM_last TOK_ASM_emms
+<span class="lineNum">      28 </span>            : #define TOK_ASM_alllast TOK_ASM_subps
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : #define OPC_B          0x01  /* only used with OPC_WL */
+<span class="lineNum">      31 </span>            : #define OPC_WL         0x02  /* accepts w, l or no suffix */
+<span class="lineNum">      32 </span>            : #define OPC_BWL        (OPC_B | OPC_WL) /* accepts b, w, l or no suffix */
+<span class="lineNum">      33 </span>            : #define OPC_REG        0x04 /* register is added to opcode */
+<span class="lineNum">      34 </span>            : #define OPC_MODRM      0x08 /* modrm encoding */
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            : #define OPCT_MASK      0x70
+<span class="lineNum">      37 </span>            : #define OPC_FWAIT      0x10 /* add fwait opcode */
+<span class="lineNum">      38 </span>            : #define OPC_SHIFT      0x20 /* shift opcodes */
+<span class="lineNum">      39 </span>            : #define OPC_ARITH      0x30 /* arithmetic opcodes */
+<span class="lineNum">      40 </span>            : #define OPC_FARITH     0x40 /* FPU arithmetic opcodes */
+<span class="lineNum">      41 </span>            : #define OPC_TEST       0x50 /* test opcodes */
+<span class="lineNum">      42 </span>            : #define OPCT_IS(v,i) (((v) &amp; OPCT_MASK) == (i))
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            : #define OPC_0F        0x100 /* Is secondary map (0x0f prefix) */
+<span class="lineNum">      45 </span>            : #define OPC_48        0x200 /* Always has REX prefix */
+<span class="lineNum">      46 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">      47 </span>            : # define OPC_WLQ     0x1000  /* accepts w, l, q or no suffix */
+<span class="lineNum">      48 </span>            : # define OPC_BWLQ    (OPC_B | OPC_WLQ) /* accepts b, w, l, q or no suffix */
+<span class="lineNum">      49 </span>            : # define OPC_WLX     OPC_WLQ
+<span class="lineNum">      50 </span>            : # define OPC_BWLX    OPC_BWLQ
+<span class="lineNum">      51 </span>            : #else
+<span class="lineNum">      52 </span>            : # define OPC_WLX     OPC_WL
+<span class="lineNum">      53 </span>            : # define OPC_BWLX    OPC_BWL
+<span class="lineNum">      54 </span>            : #endif
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span>            : #define OPC_GROUP_SHIFT 13
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span>            : /* in order to compress the operand type, we use specific operands and
+<span class="lineNum">      59 </span>            :    we or only with EA  */
+<span class="lineNum">      60 </span>            : enum {
+<span class="lineNum">      61 </span>            :     OPT_REG8=0, /* warning: value is hardcoded from TOK_ASM_xxx */
+<span class="lineNum">      62 </span>            :     OPT_REG16,  /* warning: value is hardcoded from TOK_ASM_xxx */
+<span class="lineNum">      63 </span>            :     OPT_REG32,  /* warning: value is hardcoded from TOK_ASM_xxx */
+<span class="lineNum">      64 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">      65 </span>            :     OPT_REG64,  /* warning: value is hardcoded from TOK_ASM_xxx */
+<span class="lineNum">      66 </span>            : #endif
+<span class="lineNum">      67 </span>            :     OPT_MMX,    /* warning: value is hardcoded from TOK_ASM_xxx */
+<span class="lineNum">      68 </span>            :     OPT_SSE,    /* warning: value is hardcoded from TOK_ASM_xxx */
+<span class="lineNum">      69 </span>            :     OPT_CR,     /* warning: value is hardcoded from TOK_ASM_xxx */
+<span class="lineNum">      70 </span>            :     OPT_TR,     /* warning: value is hardcoded from TOK_ASM_xxx */
+<span class="lineNum">      71 </span>            :     OPT_DB,     /* warning: value is hardcoded from TOK_ASM_xxx */
+<span class="lineNum">      72 </span>            :     OPT_SEG,
+<span class="lineNum">      73 </span>            :     OPT_ST,
+<span class="lineNum">      74 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">      75 </span>            :     OPT_REG8_LOW, /* %spl,%bpl,%sil,%dil, encoded like ah,ch,dh,bh, but
+<span class="lineNum">      76 </span>            :                      with REX prefix, not used in insn templates */
+<span class="lineNum">      77 </span>            : #endif
+<span class="lineNum">      78 </span>            :     OPT_IM8,
+<span class="lineNum">      79 </span>            :     OPT_IM8S,
+<span class="lineNum">      80 </span>            :     OPT_IM16,
+<span class="lineNum">      81 </span>            :     OPT_IM32,
+<span class="lineNum">      82 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">      83 </span>            :     OPT_IM64,
+<span class="lineNum">      84 </span>            : #endif
+<span class="lineNum">      85 </span>            :     OPT_EAX,    /* %al, %ax, %eax or %rax register */
+<span class="lineNum">      86 </span>            :     OPT_ST0,    /* %st(0) register */
+<span class="lineNum">      87 </span>            :     OPT_CL,     /* %cl register */
+<span class="lineNum">      88 </span>            :     OPT_DX,     /* %dx register */
+<span class="lineNum">      89 </span>            :     OPT_ADDR,   /* OP_EA with only offset */
+<span class="lineNum">      90 </span>            :     OPT_INDIR,  /* *(expr) */
+<span class="lineNum">      91 </span>            :     /* composite types */
+<span class="lineNum">      92 </span>            :     OPT_COMPOSITE_FIRST,
+<span class="lineNum">      93 </span>            :     OPT_IM,     /* IM8 | IM16 | IM32 */
+<span class="lineNum">      94 </span>            :     OPT_REG,    /* REG8 | REG16 | REG32 | REG64 */
+<span class="lineNum">      95 </span>            :     OPT_REGW,   /* REG16 | REG32 | REG64 */
+<span class="lineNum">      96 </span>            :     OPT_IMW,    /* IM16 | IM32 */
+<span class="lineNum">      97 </span>            :     OPT_MMXSSE, /* MMX | SSE */
+<span class="lineNum">      98 </span>            :     OPT_DISP,   /* Like OPT_ADDR, but emitted as displacement (for jumps) */
+<span class="lineNum">      99 </span>            :     OPT_DISP8,  /* Like OPT_ADDR, but only 8bit (short jumps) */
+<span class="lineNum">     100 </span>            :     /* can be ored with any OPT_xxx */
+<span class="lineNum">     101 </span>            :     OPT_EA = 0x80
+<span class="lineNum">     102 </span>            : };
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span>            : #define OP_REG8   (1 &lt;&lt; OPT_REG8)
+<span class="lineNum">     105 </span>            : #define OP_REG16  (1 &lt;&lt; OPT_REG16)
+<span class="lineNum">     106 </span>            : #define OP_REG32  (1 &lt;&lt; OPT_REG32)
+<span class="lineNum">     107 </span>            : #define OP_MMX    (1 &lt;&lt; OPT_MMX)
+<span class="lineNum">     108 </span>            : #define OP_SSE    (1 &lt;&lt; OPT_SSE)
+<span class="lineNum">     109 </span>            : #define OP_CR     (1 &lt;&lt; OPT_CR)
+<span class="lineNum">     110 </span>            : #define OP_TR     (1 &lt;&lt; OPT_TR)
+<span class="lineNum">     111 </span>            : #define OP_DB     (1 &lt;&lt; OPT_DB)
+<span class="lineNum">     112 </span>            : #define OP_SEG    (1 &lt;&lt; OPT_SEG)
+<span class="lineNum">     113 </span>            : #define OP_ST     (1 &lt;&lt; OPT_ST)
+<span class="lineNum">     114 </span>            : #define OP_IM8    (1 &lt;&lt; OPT_IM8)
+<span class="lineNum">     115 </span>            : #define OP_IM8S   (1 &lt;&lt; OPT_IM8S)
+<span class="lineNum">     116 </span>            : #define OP_IM16   (1 &lt;&lt; OPT_IM16)
+<span class="lineNum">     117 </span>            : #define OP_IM32   (1 &lt;&lt; OPT_IM32)
+<span class="lineNum">     118 </span>            : #define OP_EAX    (1 &lt;&lt; OPT_EAX)
+<span class="lineNum">     119 </span>            : #define OP_ST0    (1 &lt;&lt; OPT_ST0)
+<span class="lineNum">     120 </span>            : #define OP_CL     (1 &lt;&lt; OPT_CL)
+<span class="lineNum">     121 </span>            : #define OP_DX     (1 &lt;&lt; OPT_DX)
+<span class="lineNum">     122 </span>            : #define OP_ADDR   (1 &lt;&lt; OPT_ADDR)
+<span class="lineNum">     123 </span>            : #define OP_INDIR  (1 &lt;&lt; OPT_INDIR)
+<span class="lineNum">     124 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">     125 </span>            : # define OP_REG64 (1 &lt;&lt; OPT_REG64)
+<span class="lineNum">     126 </span>            : # define OP_REG8_LOW (1 &lt;&lt; OPT_REG8_LOW)
+<span class="lineNum">     127 </span>            : # define OP_IM64  (1 &lt;&lt; OPT_IM64)
+<span class="lineNum">     128 </span>            : # define OP_EA32  (OP_EA &lt;&lt; 1)
+<span class="lineNum">     129 </span>            : #else
+<span class="lineNum">     130 </span>            : # define OP_REG64 0
+<span class="lineNum">     131 </span>            : # define OP_REG8_LOW 0
+<span class="lineNum">     132 </span>            : # define OP_IM64  0
+<span class="lineNum">     133 </span>            : # define OP_EA32  0
+<span class="lineNum">     134 </span>            : #endif
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span>            : #define OP_EA     0x40000000
+<span class="lineNum">     137 </span>            : #define OP_REG    (OP_REG8 | OP_REG16 | OP_REG32 | OP_REG64)
+<span class="lineNum">     138 </span>            : 
+<span class="lineNum">     139 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">     140 </span>            : # define TREG_XAX   TREG_RAX
+<span class="lineNum">     141 </span>            : # define TREG_XCX   TREG_RCX
+<span class="lineNum">     142 </span>            : # define TREG_XDX   TREG_RDX
+<span class="lineNum">     143 </span>            : #else
+<span class="lineNum">     144 </span>            : # define TREG_XAX   TREG_EAX
+<span class="lineNum">     145 </span>            : # define TREG_XCX   TREG_ECX
+<span class="lineNum">     146 </span>            : # define TREG_XDX   TREG_EDX
+<span class="lineNum">     147 </span>            : #endif
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span>            : typedef struct ASMInstr {
+<span class="lineNum">     150 </span>            :     uint16_t sym;
+<span class="lineNum">     151 </span>            :     uint16_t opcode;
+<span class="lineNum">     152 </span>            :     uint16_t instr_type;
+<span class="lineNum">     153 </span>            :     uint8_t nb_ops;
+<span class="lineNum">     154 </span>            :     uint8_t op_type[MAX_OPERANDS]; /* see OP_xxx */
+<span class="lineNum">     155 </span>            : } ASMInstr;
+<span class="lineNum">     156 </span>            : 
+<span class="lineNum">     157 </span>            : typedef struct Operand {
+<span class="lineNum">     158 </span>            :     uint32_t type;
+<span class="lineNum">     159 </span>            :     int8_t  reg; /* register, -1 if none */
+<span class="lineNum">     160 </span>            :     int8_t  reg2; /* second register, -1 if none */
+<span class="lineNum">     161 </span>            :     uint8_t shift;
+<span class="lineNum">     162 </span>            :     ExprValue e;
+<span class="lineNum">     163 </span>            : } Operand;
+<span class="lineNum">     164 </span>            : 
+<span class="lineNum">     165 </span>            : static const uint8_t reg_to_size[9] = {
+<span class="lineNum">     166 </span>            : /*
+<span class="lineNum">     167 </span>            :     [OP_REG8] = 0,
+<span class="lineNum">     168 </span>            :     [OP_REG16] = 1,
+<span class="lineNum">     169 </span>            :     [OP_REG32] = 2,
+<span class="lineNum">     170 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">     171 </span>            :     [OP_REG64] = 3,
+<span class="lineNum">     172 </span>            : #endif
+<span class="lineNum">     173 </span>            : */
+<span class="lineNum">     174 </span>            :     0, 0, 1, 0, 2, 0, 0, 0, 3
+<span class="lineNum">     175 </span>            : };
+<span class="lineNum">     176 </span>            : 
+<span class="lineNum">     177 </span>            : #define NB_TEST_OPCODES 30
+<span class="lineNum">     178 </span>            : 
+<span class="lineNum">     179 </span>            : static const uint8_t test_bits[NB_TEST_OPCODES] = {
+<span class="lineNum">     180 </span>            :  0x00, /* o */
+<span class="lineNum">     181 </span>            :  0x01, /* no */
+<span class="lineNum">     182 </span>            :  0x02, /* b */
+<span class="lineNum">     183 </span>            :  0x02, /* c */
+<span class="lineNum">     184 </span>            :  0x02, /* nae */
+<span class="lineNum">     185 </span>            :  0x03, /* nb */
+<span class="lineNum">     186 </span>            :  0x03, /* nc */
+<span class="lineNum">     187 </span>            :  0x03, /* ae */
+<span class="lineNum">     188 </span>            :  0x04, /* e */
+<span class="lineNum">     189 </span>            :  0x04, /* z */
+<span class="lineNum">     190 </span>            :  0x05, /* ne */
+<span class="lineNum">     191 </span>            :  0x05, /* nz */
+<span class="lineNum">     192 </span>            :  0x06, /* be */
+<span class="lineNum">     193 </span>            :  0x06, /* na */
+<span class="lineNum">     194 </span>            :  0x07, /* nbe */
+<span class="lineNum">     195 </span>            :  0x07, /* a */
+<span class="lineNum">     196 </span>            :  0x08, /* s */
+<span class="lineNum">     197 </span>            :  0x09, /* ns */
+<span class="lineNum">     198 </span>            :  0x0a, /* p */
+<span class="lineNum">     199 </span>            :  0x0a, /* pe */
+<span class="lineNum">     200 </span>            :  0x0b, /* np */
+<span class="lineNum">     201 </span>            :  0x0b, /* po */
+<span class="lineNum">     202 </span>            :  0x0c, /* l */
+<span class="lineNum">     203 </span>            :  0x0c, /* nge */
+<span class="lineNum">     204 </span>            :  0x0d, /* nl */
+<span class="lineNum">     205 </span>            :  0x0d, /* ge */
+<span class="lineNum">     206 </span>            :  0x0e, /* le */
+<span class="lineNum">     207 </span>            :  0x0e, /* ng */
+<span class="lineNum">     208 </span>            :  0x0f, /* nle */
+<span class="lineNum">     209 </span>            :  0x0f, /* g */
+<span class="lineNum">     210 </span>            : };
+<span class="lineNum">     211 </span>            : 
+<span class="lineNum">     212 </span>            : static const uint8_t segment_prefixes[] = {
+<span class="lineNum">     213 </span>            :  0x26, /* es */
+<span class="lineNum">     214 </span>            :  0x2e, /* cs */
+<span class="lineNum">     215 </span>            :  0x36, /* ss */
+<span class="lineNum">     216 </span>            :  0x3e, /* ds */
+<span class="lineNum">     217 </span>            :  0x64, /* fs */
+<span class="lineNum">     218 </span>            :  0x65  /* gs */
+<span class="lineNum">     219 </span>            : };
+<span class="lineNum">     220 </span>            : 
+<span class="lineNum">     221 </span>            : static const ASMInstr asm_instrs[] = {
+<span class="lineNum">     222 </span>            : #define ALT(x) x
+<span class="lineNum">     223 </span>            : /* This removes a 0x0f in the second byte */
+<span class="lineNum">     224 </span>            : #define O(o) ((uint64_t) ((((o) &amp; 0xff00) == 0x0f00) ? ((((o) &gt;&gt; 8) &amp; ~0xff) | ((o) &amp; 0xff)) : (o)))
+<span class="lineNum">     225 </span>            : /* This constructs instr_type from opcode, type and group.  */
+<span class="lineNum">     226 </span>            : #define T(o,i,g) ((i) | ((g) &lt;&lt; OPC_GROUP_SHIFT) | ((((o) &amp; 0xff00) == 0x0f00) ? OPC_0F : 0))
+<span class="lineNum">     227 </span>            : #define DEF_ASM_OP0(name, opcode)
+<span class="lineNum">     228 </span>            : #define DEF_ASM_OP0L(name, opcode, group, instr_type) { TOK_ASM_ ## name, O(opcode), T(opcode, instr_type, group), 0, { 0 } },
+<span class="lineNum">     229 </span>            : #define DEF_ASM_OP1(name, opcode, group, instr_type, op0) { TOK_ASM_ ## name, O(opcode), T(opcode, instr_type, group), 1, { op0 }},
+<span class="lineNum">     230 </span>            : #define DEF_ASM_OP2(name, opcode, group, instr_type, op0, op1) { TOK_ASM_ ## name, O(opcode), T(opcode, instr_type, group), 2, { op0, op1 }},
+<span class="lineNum">     231 </span>            : #define DEF_ASM_OP3(name, opcode, group, instr_type, op0, op1, op2) { TOK_ASM_ ## name, O(opcode), T(opcode, instr_type, group), 3, { op0, op1, op2 }},
+<span class="lineNum">     232 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">     233 </span>            : # include &quot;x86_64-asm.h&quot;
+<span class="lineNum">     234 </span>            : #else
+<span class="lineNum">     235 </span>            : # include &quot;i386-asm.h&quot;
+<span class="lineNum">     236 </span>            : #endif
+<span class="lineNum">     237 </span>            :     /* last operation */
+<span class="lineNum">     238 </span>            :     { 0, },
+<span class="lineNum">     239 </span>            : };
+<span class="lineNum">     240 </span>            : 
+<span class="lineNum">     241 </span>            : static const uint16_t op0_codes[] = {
+<span class="lineNum">     242 </span>            : #define ALT(x)
+<span class="lineNum">     243 </span>            : #define DEF_ASM_OP0(x, opcode) opcode,
+<span class="lineNum">     244 </span>            : #define DEF_ASM_OP0L(name, opcode, group, instr_type)
+<span class="lineNum">     245 </span>            : #define DEF_ASM_OP1(name, opcode, group, instr_type, op0)
+<span class="lineNum">     246 </span>            : #define DEF_ASM_OP2(name, opcode, group, instr_type, op0, op1)
+<span class="lineNum">     247 </span>            : #define DEF_ASM_OP3(name, opcode, group, instr_type, op0, op1, op2)
+<span class="lineNum">     248 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">     249 </span>            : # include &quot;x86_64-asm.h&quot;
+<span class="lineNum">     250 </span>            : #else
+<span class="lineNum">     251 </span>            : # include &quot;i386-asm.h&quot;
+<span class="lineNum">     252 </span>            : #endif
+<a name="253"><span class="lineNum">     253 </span>            : };</a>
+<span class="lineNum">     254 </span>            : 
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 : static inline int get_reg_shift(TCCState *s1)</span>
+<span class="lineNum">     256 </span>            : {
+<span class="lineNum">     257 </span>            :     int shift, v;
+<span class="lineNum">     258 </span><span class="lineNoCov">          0 :     v = asm_int_expr(s1);</span>
+<span class="lineNum">     259 </span><span class="lineNoCov">          0 :     switch(v) {</span>
+<span class="lineNum">     260 </span>            :     case 1:
+<span class="lineNum">     261 </span>            :         shift = 0;
+<span class="lineNum">     262 </span>            :         break;
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 :     case 2:</span>
+<span class="lineNum">     264 </span><span class="lineNoCov">          0 :         shift = 1;</span>
+<span class="lineNum">     265 </span><span class="lineNoCov">          0 :         break;</span>
+<span class="lineNum">     266 </span><span class="lineNoCov">          0 :     case 4:</span>
+<span class="lineNum">     267 </span><span class="lineNoCov">          0 :         shift = 2;</span>
+<span class="lineNum">     268 </span><span class="lineNoCov">          0 :         break;</span>
+<span class="lineNum">     269 </span><span class="lineNoCov">          0 :     case 8:</span>
+<span class="lineNum">     270 </span><span class="lineNoCov">          0 :         shift = 3;</span>
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 :         break;</span>
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :     default:</span>
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 :         expect(&quot;1, 2, 4 or 8 constant&quot;);</span>
+<span class="lineNum">     274 </span>            :         shift = 0;
+<span class="lineNum">     275 </span>            :         break;
+<span class="lineNum">     276 </span>            :     }
+<span class="lineNum">     277 </span><span class="lineNoCov">          0 :     return shift;</span>
+<span class="lineNum">     278 </span>            : }
+<a name="279"><span class="lineNum">     279 </span>            : </a>
+<span class="lineNum">     280 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">     281 </span><span class="lineNoCov">          0 : static int asm_parse_numeric_reg(int t, unsigned int *type)</span>
+<span class="lineNum">     282 </span>            : {
+<span class="lineNum">     283 </span><span class="lineNoCov">          0 :     int reg = -1;</span>
+<span class="lineNum">     284 </span><span class="lineNoCov">          0 :     if (t &gt;= TOK_IDENT &amp;&amp; t &lt; tok_ident) {</span>
+<span class="lineNum">     285 </span><span class="lineNoCov">          0 :         const char *s = table_ident[t - TOK_IDENT]-&gt;str;</span>
+<span class="lineNum">     286 </span>            :         char c;
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :         *type = OP_REG64;</span>
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :         if (*s == 'c') {</span>
+<span class="lineNum">     289 </span><span class="lineNoCov">          0 :             s++;</span>
+<span class="lineNum">     290 </span><span class="lineNoCov">          0 :             *type = OP_CR;</span>
+<span class="lineNum">     291 </span>            :         }
+<span class="lineNum">     292 </span><span class="lineNoCov">          0 :         if (*s++ != 'r')</span>
+<span class="lineNum">     293 </span>            :           return -1;
+<span class="lineNum">     294 </span>            :         /* Don't allow leading '0'.  */
+<span class="lineNum">     295 </span><span class="lineNoCov">          0 :         if ((c = *s++) &gt;= '1' &amp;&amp; c &lt;= '9')</span>
+<span class="lineNum">     296 </span><span class="lineNoCov">          0 :           reg = c - '0';</span>
+<span class="lineNum">     297 </span>            :         else
+<span class="lineNum">     298 </span>            :           return -1;
+<span class="lineNum">     299 </span><span class="lineNoCov">          0 :         if ((c = *s) &gt;= '0' &amp;&amp; c &lt;= '5')</span>
+<span class="lineNum">     300 </span><span class="lineNoCov">          0 :           s++, reg = reg * 10 + c - '0';</span>
+<span class="lineNum">     301 </span><span class="lineNoCov">          0 :         if (reg &gt; 15)</span>
+<span class="lineNum">     302 </span>            :           return -1;
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 :         if ((c = *s) == 0)</span>
+<span class="lineNum">     304 </span>            :           ;
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 :         else if (*type != OP_REG64)</span>
+<span class="lineNum">     306 </span>            :           return -1;
+<span class="lineNum">     307 </span><span class="lineNoCov">          0 :         else if (c == 'b' &amp;&amp; !s[1])</span>
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 :           *type = OP_REG8;</span>
+<span class="lineNum">     309 </span><span class="lineNoCov">          0 :         else if (c == 'w' &amp;&amp; !s[1])</span>
+<span class="lineNum">     310 </span><span class="lineNoCov">          0 :           *type = OP_REG16;</span>
+<span class="lineNum">     311 </span><span class="lineNoCov">          0 :         else if (c == 'd' &amp;&amp; !s[1])</span>
+<span class="lineNum">     312 </span><span class="lineNoCov">          0 :           *type = OP_REG32;</span>
+<span class="lineNum">     313 </span>            :         else
+<span class="lineNum">     314 </span>            :           return -1;
+<span class="lineNum">     315 </span>            :     }
+<span class="lineNum">     316 </span>            :     return reg;
+<span class="lineNum">     317 </span>            : }
+<a name="318"><span class="lineNum">     318 </span>            : #endif</a>
+<span class="lineNum">     319 </span>            : 
+<span class="lineNum">     320 </span><span class="lineCov">          1 : static int asm_parse_reg(unsigned int *type)</span>
+<span class="lineNum">     321 </span>            : {
+<span class="lineNum">     322 </span><span class="lineCov">          1 :     int reg = 0;</span>
+<span class="lineNum">     323 </span><span class="lineCov">          1 :     *type = 0;</span>
+<span class="lineNum">     324 </span><span class="lineCov">          1 :     if (tok != '%')</span>
+<span class="lineNum">     325 </span>            :         goto error_32;
+<span class="lineNum">     326 </span><span class="lineNoCov">          0 :     next();</span>
+<span class="lineNum">     327 </span><span class="lineNoCov">          0 :     if (tok &gt;= TOK_ASM_eax &amp;&amp; tok &lt;= TOK_ASM_edi) {</span>
+<span class="lineNum">     328 </span><span class="lineNoCov">          0 :         reg = tok - TOK_ASM_eax;</span>
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 :         *type = OP_REG32;</span>
+<span class="lineNum">     330 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :     } else if (tok &gt;= TOK_ASM_rax &amp;&amp; tok &lt;= TOK_ASM_rdi) {</span>
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :         reg = tok - TOK_ASM_rax;</span>
+<span class="lineNum">     333 </span><span class="lineNoCov">          0 :         *type = OP_REG64;</span>
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 :     } else if (tok == TOK_ASM_rip) {</span>
+<span class="lineNum">     335 </span><span class="lineNoCov">          0 :         reg = -2; /* Probably should use different escape code. */</span>
+<span class="lineNum">     336 </span><span class="lineNoCov">          0 :         *type = OP_REG64;</span>
+<span class="lineNum">     337 </span><span class="lineNoCov">          0 :     } else if ((reg = asm_parse_numeric_reg(tok, type)) &gt;= 0</span>
+<span class="lineNum">     338 </span><span class="lineNoCov">          0 :                &amp;&amp; (*type == OP_REG32 || *type == OP_REG64)) {</span>
+<span class="lineNum">     339 </span>            :         ;
+<span class="lineNum">     340 </span>            : #endif
+<span class="lineNum">     341 </span>            :     } else {
+<span class="lineNum">     342 </span><span class="lineCov">          1 :     error_32:</span>
+<span class="lineNum">     343 </span><span class="lineCov">          1 :         expect(&quot;register&quot;);</span>
+<span class="lineNum">     344 </span>            :     }
+<span class="lineNum">     345 </span><span class="lineNoCov">          0 :     next();</span>
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 :     return reg;</span>
+<a name="347"><span class="lineNum">     347 </span>            : }</a>
+<span class="lineNum">     348 </span>            : 
+<span class="lineNum">     349 </span><span class="lineCov">         17 : static void parse_operand(TCCState *s1, Operand *op)</span>
+<span class="lineNum">     350 </span>            : {
+<span class="lineNum">     351 </span>            :     ExprValue e;
+<span class="lineNum">     352 </span>            :     int reg, indir;
+<span class="lineNum">     353 </span>            :     const char *p;
+<span class="lineNum">     354 </span>            : 
+<span class="lineNum">     355 </span><span class="lineCov">         17 :     indir = 0;</span>
+<span class="lineNum">     356 </span><span class="lineCov">         17 :     if (tok == '*') {</span>
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 :         next();</span>
+<span class="lineNum">     358 </span><span class="lineNoCov">          0 :         indir = OP_INDIR;</span>
+<span class="lineNum">     359 </span>            :     }
+<span class="lineNum">     360 </span>            : 
+<span class="lineNum">     361 </span><span class="lineCov">         17 :     if (tok == '%') {</span>
+<span class="lineNum">     362 </span><span class="lineCov">          8 :         next();</span>
+<span class="lineNum">     363 </span><span class="lineCov">          8 :         if (tok &gt;= TOK_ASM_al &amp;&amp; tok &lt;= TOK_ASM_db7) {</span>
+<span class="lineNum">     364 </span><span class="lineCov">          8 :             reg = tok - TOK_ASM_al;</span>
+<span class="lineNum">     365 </span><span class="lineCov">          8 :             op-&gt;type = 1 &lt;&lt; (reg &gt;&gt; 3); /* WARNING: do not change constant order */</span>
+<span class="lineNum">     366 </span><span class="lineCov">          8 :             op-&gt;reg = reg &amp; 7;</span>
+<span class="lineNum">     367 </span><span class="lineCov">          8 :             if ((op-&gt;type &amp; OP_REG) &amp;&amp; op-&gt;reg == TREG_XAX)</span>
+<span class="lineNum">     368 </span><span class="lineCov">          8 :                 op-&gt;type |= OP_EAX;</span>
+<span class="lineNum">     369 </span><span class="lineNoCov">          0 :             else if (op-&gt;type == OP_REG8 &amp;&amp; op-&gt;reg == TREG_XCX)</span>
+<span class="lineNum">     370 </span><span class="lineNoCov">          0 :                 op-&gt;type |= OP_CL;</span>
+<span class="lineNum">     371 </span><span class="lineNoCov">          0 :             else if (op-&gt;type == OP_REG16 &amp;&amp; op-&gt;reg == TREG_XDX)</span>
+<span class="lineNum">     372 </span><span class="lineNoCov">          0 :                 op-&gt;type |= OP_DX;</span>
+<span class="lineNum">     373 </span><span class="lineNoCov">          0 :         } else if (tok &gt;= TOK_ASM_dr0 &amp;&amp; tok &lt;= TOK_ASM_dr7) {</span>
+<span class="lineNum">     374 </span><span class="lineNoCov">          0 :             op-&gt;type = OP_DB;</span>
+<span class="lineNum">     375 </span><span class="lineNoCov">          0 :             op-&gt;reg = tok - TOK_ASM_dr0;</span>
+<span class="lineNum">     376 </span><span class="lineNoCov">          0 :         } else if (tok &gt;= TOK_ASM_es &amp;&amp; tok &lt;= TOK_ASM_gs) {</span>
+<span class="lineNum">     377 </span><span class="lineNoCov">          0 :             op-&gt;type = OP_SEG;</span>
+<span class="lineNum">     378 </span><span class="lineNoCov">          0 :             op-&gt;reg = tok - TOK_ASM_es;</span>
+<span class="lineNum">     379 </span><span class="lineNoCov">          0 :         } else if (tok == TOK_ASM_st) {</span>
+<span class="lineNum">     380 </span><span class="lineNoCov">          0 :             op-&gt;type = OP_ST;</span>
+<span class="lineNum">     381 </span><span class="lineNoCov">          0 :             op-&gt;reg = 0;</span>
+<span class="lineNum">     382 </span><span class="lineNoCov">          0 :             next();</span>
+<span class="lineNum">     383 </span><span class="lineNoCov">          0 :             if (tok == '(') {</span>
+<span class="lineNum">     384 </span><span class="lineNoCov">          0 :                 next();</span>
+<span class="lineNum">     385 </span><span class="lineNoCov">          0 :                 if (tok != TOK_PPNUM)</span>
+<span class="lineNum">     386 </span>            :                     goto reg_error;
+<span class="lineNum">     387 </span><span class="lineNoCov">          0 :                 p = tokc.str.data;</span>
+<span class="lineNum">     388 </span><span class="lineNoCov">          0 :                 reg = p[0] - '0';</span>
+<span class="lineNum">     389 </span><span class="lineNoCov">          0 :                 if ((unsigned)reg &gt;= 8 || p[1] != '\0')</span>
+<span class="lineNum">     390 </span>            :                     goto reg_error;
+<span class="lineNum">     391 </span><span class="lineNoCov">          0 :                 op-&gt;reg = reg;</span>
+<span class="lineNum">     392 </span><span class="lineNoCov">          0 :                 next();</span>
+<span class="lineNum">     393 </span><span class="lineNoCov">          0 :                 skip(')');</span>
+<span class="lineNum">     394 </span>            :             }
+<span class="lineNum">     395 </span><span class="lineNoCov">          0 :             if (op-&gt;reg == 0)</span>
+<span class="lineNum">     396 </span><span class="lineNoCov">          0 :                 op-&gt;type |= OP_ST0;</span>
+<span class="lineNum">     397 </span>            :             goto no_skip;
+<span class="lineNum">     398 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">     399 </span><span class="lineNoCov">          0 :         } else if (tok &gt;= TOK_ASM_spl &amp;&amp; tok &lt;= TOK_ASM_dil) {</span>
+<span class="lineNum">     400 </span><span class="lineNoCov">          0 :             op-&gt;type = OP_REG8 | OP_REG8_LOW;</span>
+<span class="lineNum">     401 </span><span class="lineNoCov">          0 :             op-&gt;reg = 4 + tok - TOK_ASM_spl;</span>
+<span class="lineNum">     402 </span><span class="lineNoCov">          0 :         } else if ((op-&gt;reg = asm_parse_numeric_reg(tok, &amp;op-&gt;type)) &gt;= 0) {</span>
+<span class="lineNum">     403 </span>            :             ;
+<span class="lineNum">     404 </span>            : #endif
+<span class="lineNum">     405 </span>            :         } else {
+<span class="lineNum">     406 </span><span class="lineNoCov">          0 :         reg_error:</span>
+<span class="lineNum">     407 </span><span class="lineNoCov">          0 :             tcc_error(&quot;unknown register %%%s&quot;, get_tok_str(tok, &amp;tokc));</span>
+<span class="lineNum">     408 </span>            :         }
+<span class="lineNum">     409 </span><span class="lineCov">          8 :         next();</span>
+<span class="lineNum">     410 </span><span class="lineCov">         16 :     no_skip: ;</span>
+<span class="lineNum">     411 </span><span class="lineCov">          9 :     } else if (tok == '$') {</span>
+<span class="lineNum">     412 </span>            :         /* constant value */
+<span class="lineNum">     413 </span><span class="lineCov">          6 :         next();</span>
+<span class="lineNum">     414 </span><span class="lineCov">          6 :         asm_expr(s1, &amp;e);</span>
+<span class="lineNum">     415 </span><span class="lineCov">          6 :         op-&gt;type = OP_IM32;</span>
+<span class="lineNum">     416 </span><span class="lineCov">          6 :         op-&gt;e = e;</span>
+<span class="lineNum">     417 </span><span class="lineCov">          6 :         if (!op-&gt;e.sym) {</span>
+<span class="lineNum">     418 </span><span class="lineCov">          6 :             if (op-&gt;e.v == (uint8_t)op-&gt;e.v)</span>
+<span class="lineNum">     419 </span><span class="lineCov">          6 :                 op-&gt;type |= OP_IM8;</span>
+<span class="lineNum">     420 </span><span class="lineCov">          6 :             if (op-&gt;e.v == (int8_t)op-&gt;e.v)</span>
+<span class="lineNum">     421 </span><span class="lineCov">          6 :                 op-&gt;type |= OP_IM8S;</span>
+<span class="lineNum">     422 </span><span class="lineCov">          6 :             if (op-&gt;e.v == (uint16_t)op-&gt;e.v)</span>
+<span class="lineNum">     423 </span><span class="lineCov">          6 :                 op-&gt;type |= OP_IM16;</span>
+<span class="lineNum">     424 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">     425 </span><span class="lineCov">          6 :             if (op-&gt;e.v != (int32_t)op-&gt;e.v &amp;&amp; op-&gt;e.v != (uint32_t)op-&gt;e.v)</span>
+<span class="lineNum">     426 </span><span class="lineNoCov">          0 :                 op-&gt;type = OP_IM64;</span>
+<span class="lineNum">     427 </span>            : #endif
+<span class="lineNum">     428 </span>            :         }
+<span class="lineNum">     429 </span>            :     } else {
+<span class="lineNum">     430 </span>            :         /* address(reg,reg2,shift) with all variants */
+<span class="lineNum">     431 </span><span class="lineCov">          3 :         op-&gt;type = OP_EA;</span>
+<span class="lineNum">     432 </span><span class="lineCov">          3 :         op-&gt;reg = -1;</span>
+<span class="lineNum">     433 </span><span class="lineCov">          3 :         op-&gt;reg2 = -1;</span>
+<span class="lineNum">     434 </span><span class="lineCov">          3 :         op-&gt;shift = 0;</span>
+<span class="lineNum">     435 </span><span class="lineCov">          3 :         if (tok != '(') {</span>
+<span class="lineNum">     436 </span><span class="lineCov">          3 :             asm_expr(s1, &amp;e);</span>
+<span class="lineNum">     437 </span><span class="lineCov">          3 :             op-&gt;e = e;</span>
+<span class="lineNum">     438 </span>            :         } else {
+<span class="lineNum">     439 </span><span class="lineNoCov">          0 :             next();</span>
+<span class="lineNum">     440 </span><span class="lineNoCov">          0 :             if (tok == '%') {</span>
+<span class="lineNum">     441 </span><span class="lineNoCov">          0 :                 unget_tok('(');</span>
+<span class="lineNum">     442 </span><span class="lineNoCov">          0 :                 op-&gt;e.v = 0;</span>
+<span class="lineNum">     443 </span><span class="lineNoCov">          0 :                 op-&gt;e.sym = NULL;</span>
+<span class="lineNum">     444 </span>            :             } else {
+<span class="lineNum">     445 </span>            :                 /* bracketed offset expression */
+<span class="lineNum">     446 </span><span class="lineNoCov">          0 :                 asm_expr(s1, &amp;e);</span>
+<span class="lineNum">     447 </span><span class="lineNoCov">          0 :                 if (tok != ')')</span>
+<span class="lineNum">     448 </span><span class="lineNoCov">          0 :                     expect(&quot;)&quot;);</span>
+<span class="lineNum">     449 </span><span class="lineNoCov">          0 :                 next();</span>
+<span class="lineNum">     450 </span><span class="lineNoCov">          0 :                 op-&gt;e.v = e.v;</span>
+<span class="lineNum">     451 </span><span class="lineNoCov">          0 :                 op-&gt;e.sym = e.sym;</span>
+<span class="lineNum">     452 </span>            :             }
+<span class="lineNum">     453 </span><span class="lineNoCov">          0 :             op-&gt;e.pcrel = 0;</span>
+<span class="lineNum">     454 </span>            :         }
+<span class="lineNum">     455 </span><span class="lineCov">          3 :         if (tok == '(') {</span>
+<span class="lineNum">     456 </span><span class="lineCov">          1 :             unsigned int type = 0;</span>
+<span class="lineNum">     457 </span><span class="lineCov">          1 :             next();</span>
+<span class="lineNum">     458 </span><span class="lineCov">          1 :             if (tok != ',') {</span>
+<span class="lineNum">     459 </span><span class="lineCov">          1 :                 op-&gt;reg = asm_parse_reg(&amp;type);</span>
+<span class="lineNum">     460 </span>            :             }
+<span class="lineNum">     461 </span><span class="lineNoCov">          0 :             if (tok == ',') {</span>
+<span class="lineNum">     462 </span><span class="lineNoCov">          0 :                 next();</span>
+<span class="lineNum">     463 </span><span class="lineNoCov">          0 :                 if (tok != ',') {</span>
+<span class="lineNum">     464 </span><span class="lineNoCov">          0 :                     op-&gt;reg2 = asm_parse_reg(&amp;type);</span>
+<span class="lineNum">     465 </span>            :                 }
+<span class="lineNum">     466 </span><span class="lineNoCov">          0 :                 if (tok == ',') {</span>
+<span class="lineNum">     467 </span><span class="lineNoCov">          0 :                     next();</span>
+<span class="lineNum">     468 </span><span class="lineNoCov">          0 :                     op-&gt;shift = get_reg_shift(s1);</span>
+<span class="lineNum">     469 </span>            :                 }
+<span class="lineNum">     470 </span>            :             }
+<span class="lineNum">     471 </span><span class="lineNoCov">          0 :             if (type &amp; OP_REG32)</span>
+<span class="lineNum">     472 </span><span class="lineNoCov">          0 :                 op-&gt;type |= OP_EA32;</span>
+<span class="lineNum">     473 </span><span class="lineNoCov">          0 :             skip(')');</span>
+<span class="lineNum">     474 </span>            :         }
+<span class="lineNum">     475 </span><span class="lineCov">          2 :         if (op-&gt;reg == -1 &amp;&amp; op-&gt;reg2 == -1)</span>
+<span class="lineNum">     476 </span><span class="lineCov">          2 :             op-&gt;type |= OP_ADDR;</span>
+<span class="lineNum">     477 </span>            :     }
+<span class="lineNum">     478 </span><span class="lineCov">         16 :     op-&gt;type |= indir;</span>
+<span class="lineNum">     479 </span><span class="lineCov">         16 : }</span>
+<a name="480"><span class="lineNum">     480 </span>            : </a>
+<span class="lineNum">     481 </span>            : /* XXX: unify with C code output ? */
+<span class="lineNum">     482 </span><span class="lineCov">          5 : ST_FUNC void gen_expr32(ExprValue *pe)</span>
+<span class="lineNum">     483 </span>            : {
+<span class="lineNum">     484 </span><span class="lineCov">          5 :     if (pe-&gt;pcrel)</span>
+<span class="lineNum">     485 </span>            :         /* If PC-relative, always set VT_SYM, even without symbol,
+<span class="lineNum">     486 </span>            :            so as to force a relocation to be emitted.  */
+<span class="lineNum">     487 </span><span class="lineNoCov">          0 :         gen_addrpc32(VT_SYM, pe-&gt;sym, pe-&gt;v);</span>
+<span class="lineNum">     488 </span>            :     else
+<span class="lineNum">     489 </span><span class="lineCov">          5 :         gen_addr32(pe-&gt;sym ? VT_SYM : 0, pe-&gt;sym, pe-&gt;v);</span>
+<span class="lineNum">     490 </span><span class="lineCov">          5 : }</span>
+<a name="491"><span class="lineNum">     491 </span>            : </a>
+<span class="lineNum">     492 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">     493 </span><span class="lineNoCov">          0 : ST_FUNC void gen_expr64(ExprValue *pe)</span>
+<span class="lineNum">     494 </span>            : {
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :     gen_addr64(pe-&gt;sym ? VT_SYM : 0, pe-&gt;sym, pe-&gt;v);</span>
+<span class="lineNum">     496 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     497 </span>            : #endif
+<a name="498"><span class="lineNum">     498 </span>            : </a>
+<span class="lineNum">     499 </span>            : /* XXX: unify with C code output ? */
+<span class="lineNum">     500 </span><span class="lineNoCov">          0 : static void gen_disp32(ExprValue *pe)</span>
+<span class="lineNum">     501 </span>            : {
+<span class="lineNum">     502 </span><span class="lineNoCov">          0 :     Sym *sym = pe-&gt;sym;</span>
+<span class="lineNum">     503 </span><span class="lineNoCov">          0 :     ElfSym *esym = elfsym(sym);</span>
+<span class="lineNum">     504 </span><span class="lineNoCov">          0 :     if (esym &amp;&amp; esym-&gt;st_shndx == cur_text_section-&gt;sh_num) {</span>
+<span class="lineNum">     505 </span>            :         /* same section: we can output an absolute value. Note
+<span class="lineNum">     506 </span>            :            that the TCC compiler behaves differently here because
+<span class="lineNum">     507 </span>            :            it always outputs a relocation to ease (future) code
+<span class="lineNum">     508 </span>            :            elimination in the linker */
+<span class="lineNum">     509 </span><span class="lineNoCov">          0 :         gen_le32(pe-&gt;v + esym-&gt;st_value - ind - 4);</span>
+<span class="lineNum">     510 </span>            :     } else {
+<span class="lineNum">     511 </span><span class="lineNoCov">          0 :         if (sym &amp;&amp; sym-&gt;type.t == VT_VOID) {</span>
+<span class="lineNum">     512 </span><span class="lineNoCov">          0 :             sym-&gt;type.t = VT_FUNC;</span>
+<span class="lineNum">     513 </span><span class="lineNoCov">          0 :             sym-&gt;type.ref = NULL;</span>
+<span class="lineNum">     514 </span>            :         }
+<span class="lineNum">     515 </span><span class="lineNoCov">          0 :         gen_addrpc32(VT_SYM, sym, pe-&gt;v);</span>
+<span class="lineNum">     516 </span>            :     }
+<span class="lineNum">     517 </span><span class="lineNoCov">          0 : }</span>
+<a name="518"><span class="lineNum">     518 </span>            : </a>
+<span class="lineNum">     519 </span>            : /* generate the modrm operand */
+<span class="lineNum">     520 </span><span class="lineCov">          2 : static inline int asm_modrm(int reg, Operand *op)</span>
+<span class="lineNum">     521 </span>            : {
+<span class="lineNum">     522 </span>            :     int mod, reg1, reg2, sib_reg1;
+<span class="lineNum">     523 </span>            : 
+<span class="lineNum">     524 </span><span class="lineCov">          2 :     if (op-&gt;type &amp; (OP_REG | OP_MMX | OP_SSE)) {</span>
+<span class="lineNum">     525 </span><span class="lineCov">          2 :         g(0xc0 + (reg &lt;&lt; 3) + op-&gt;reg);</span>
+<span class="lineNum">     526 </span><span class="lineNoCov">          0 :     } else if (op-&gt;reg == -1 &amp;&amp; op-&gt;reg2 == -1) {</span>
+<span class="lineNum">     527 </span>            :         /* displacement only */
+<span class="lineNum">     528 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">     529 </span><span class="lineNoCov">          0 :         g(0x04 + (reg &lt;&lt; 3));</span>
+<span class="lineNum">     530 </span><span class="lineNoCov">          0 :         g(0x25);</span>
+<span class="lineNum">     531 </span>            : #else
+<span class="lineNum">     532 </span>            :         g(0x05 + (reg &lt;&lt; 3));
+<span class="lineNum">     533 </span>            : #endif
+<span class="lineNum">     534 </span><span class="lineNoCov">          0 :         gen_expr32(&amp;op-&gt;e);</span>
+<span class="lineNum">     535 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">     536 </span><span class="lineNoCov">          0 :     } else if (op-&gt;reg == -2) {</span>
+<span class="lineNum">     537 </span><span class="lineNoCov">          0 :         ExprValue *pe = &amp;op-&gt;e;</span>
+<span class="lineNum">     538 </span><span class="lineNoCov">          0 :         g(0x05 + (reg &lt;&lt; 3));</span>
+<span class="lineNum">     539 </span><span class="lineNoCov">          0 :         gen_addrpc32(pe-&gt;sym ? VT_SYM : 0, pe-&gt;sym, pe-&gt;v);</span>
+<span class="lineNum">     540 </span><span class="lineNoCov">          0 :         return ind;</span>
+<span class="lineNum">     541 </span>            : #endif
+<span class="lineNum">     542 </span>            :     } else {
+<span class="lineNum">     543 </span><span class="lineNoCov">          0 :         sib_reg1 = op-&gt;reg;</span>
+<span class="lineNum">     544 </span>            :         /* fist compute displacement encoding */
+<span class="lineNum">     545 </span><span class="lineNoCov">          0 :         if (sib_reg1 == -1) {</span>
+<span class="lineNum">     546 </span>            :             sib_reg1 = 5;
+<span class="lineNum">     547 </span>            :             mod = 0x00;
+<span class="lineNum">     548 </span><span class="lineNoCov">          0 :         } else if (op-&gt;e.v == 0 &amp;&amp; !op-&gt;e.sym &amp;&amp; op-&gt;reg != 5) {</span>
+<span class="lineNum">     549 </span>            :             mod = 0x00;
+<span class="lineNum">     550 </span><span class="lineNoCov">          0 :         } else if (op-&gt;e.v == (int8_t)op-&gt;e.v &amp;&amp; !op-&gt;e.sym) {</span>
+<span class="lineNum">     551 </span>            :             mod = 0x40;
+<span class="lineNum">     552 </span>            :         } else {
+<span class="lineNum">     553 </span><span class="lineNoCov">          0 :             mod = 0x80;</span>
+<span class="lineNum">     554 </span>            :         }
+<span class="lineNum">     555 </span>            :         /* compute if sib byte needed */
+<span class="lineNum">     556 </span><span class="lineNoCov">          0 :         reg1 = op-&gt;reg;</span>
+<span class="lineNum">     557 </span><span class="lineNoCov">          0 :         if (op-&gt;reg2 != -1)</span>
+<span class="lineNum">     558 </span><span class="lineNoCov">          0 :             reg1 = 4;</span>
+<span class="lineNum">     559 </span><span class="lineNoCov">          0 :         g(mod + (reg &lt;&lt; 3) + reg1);</span>
+<span class="lineNum">     560 </span><span class="lineNoCov">          0 :         if (reg1 == 4) {</span>
+<span class="lineNum">     561 </span>            :             /* add sib byte */
+<span class="lineNum">     562 </span><span class="lineNoCov">          0 :             reg2 = op-&gt;reg2;</span>
+<span class="lineNum">     563 </span><span class="lineNoCov">          0 :             if (reg2 == -1)</span>
+<span class="lineNum">     564 </span><span class="lineNoCov">          0 :                 reg2 = 4; /* indicate no index */</span>
+<span class="lineNum">     565 </span><span class="lineNoCov">          0 :             g((op-&gt;shift &lt;&lt; 6) + (reg2 &lt;&lt; 3) + sib_reg1);</span>
+<span class="lineNum">     566 </span>            :         }
+<span class="lineNum">     567 </span>            :         /* add offset */
+<span class="lineNum">     568 </span><span class="lineNoCov">          0 :         if (mod == 0x40) {</span>
+<span class="lineNum">     569 </span><span class="lineNoCov">          0 :             g(op-&gt;e.v);</span>
+<span class="lineNum">     570 </span><span class="lineNoCov">          0 :         } else if (mod == 0x80 || op-&gt;reg == -1) {</span>
+<span class="lineNum">     571 </span><span class="lineNoCov">          0 :             gen_expr32(&amp;op-&gt;e);</span>
+<span class="lineNum">     572 </span>            :         }
+<span class="lineNum">     573 </span>            :     }
+<span class="lineNum">     574 </span>            :     return 0;
+<span class="lineNum">     575 </span>            : }
+<span class="lineNum">     576 </span>            : 
+<span class="lineNum">     577 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">     578 </span>            : #define REX_W 0x48
+<span class="lineNum">     579 </span>            : #define REX_R 0x44
+<span class="lineNum">     580 </span>            : #define REX_X 0x42
+<a name="581"><span class="lineNum">     581 </span>            : #define REX_B 0x41</a>
+<span class="lineNum">     582 </span>            : 
+<span class="lineNum">     583 </span><span class="lineCov">          8 : static void asm_rex(int width64, Operand *ops, int nb_ops, int *op_type,</span>
+<span class="lineNum">     584 </span>            :                     int regi, int rmi)
+<span class="lineNum">     585 </span>            : {
+<span class="lineNum">     586 </span><span class="lineCov">          8 :   unsigned char rex = width64 ? 0x48 : 0;</span>
+<span class="lineNum">     587 </span><span class="lineCov">          8 :   int saw_high_8bit = 0;</span>
+<span class="lineNum">     588 </span>            :   int i;
+<span class="lineNum">     589 </span><span class="lineCov">          8 :   if (rmi == -1) {</span>
+<span class="lineNum">     590 </span>            :       /* No mod/rm byte, but we might have a register op nevertheless
+<span class="lineNum">     591 </span>            :          (we will add it to the opcode later).  */
+<span class="lineNum">     592 </span><span class="lineCov">          8 :       for(i = 0; i &lt; nb_ops; i++) {</span>
+<span class="lineNum">     593 </span><span class="lineCov">         11 :           if (op_type[i] &amp; (OP_REG | OP_ST)) {</span>
+<span class="lineNum">     594 </span><span class="lineCov">          3 :               if (ops[i].reg &gt;= 8) {</span>
+<span class="lineNum">     595 </span><span class="lineNoCov">          0 :                   rex |= REX_B;</span>
+<span class="lineNum">     596 </span><span class="lineNoCov">          0 :                   ops[i].reg -= 8;</span>
+<span class="lineNum">     597 </span><span class="lineCov">          3 :               } else if (ops[i].type &amp; OP_REG8_LOW)</span>
+<span class="lineNum">     598 </span><span class="lineNoCov">          0 :                   rex |= 0x40;</span>
+<span class="lineNum">     599 </span><span class="lineCov">          3 :               else if (ops[i].type &amp; OP_REG8 &amp;&amp; ops[i].reg &gt;= 4)</span>
+<span class="lineNum">     600 </span>            :                   /* An 8 bit reg &gt;= 4 without REG8 is ah/ch/dh/bh */
+<span class="lineNum">     601 </span><span class="lineNoCov">          0 :                   saw_high_8bit = ops[i].reg;</span>
+<span class="lineNum">     602 </span>            :               break;
+<span class="lineNum">     603 </span>            :           }
+<span class="lineNum">     604 </span>            :       }
+<span class="lineNum">     605 </span>            :   } else {
+<span class="lineNum">     606 </span><span class="lineCov">          2 :       if (regi != -1) {</span>
+<span class="lineNum">     607 </span><span class="lineCov">          2 :           if (ops[regi].reg &gt;= 8) {</span>
+<span class="lineNum">     608 </span><span class="lineNoCov">          0 :               rex |= REX_R;</span>
+<span class="lineNum">     609 </span><span class="lineNoCov">          0 :               ops[regi].reg -= 8;</span>
+<span class="lineNum">     610 </span><span class="lineCov">          2 :           } else if (ops[regi].type &amp; OP_REG8_LOW)</span>
+<span class="lineNum">     611 </span><span class="lineNoCov">          0 :               rex |= 0x40;</span>
+<span class="lineNum">     612 </span><span class="lineCov">          2 :           else if (ops[regi].type &amp; OP_REG8 &amp;&amp; ops[regi].reg &gt;= 4)</span>
+<span class="lineNum">     613 </span>            :               /* An 8 bit reg &gt;= 4 without REG8 is ah/ch/dh/bh */
+<span class="lineNum">     614 </span><span class="lineNoCov">          0 :               saw_high_8bit = ops[regi].reg;</span>
+<span class="lineNum">     615 </span>            :       }
+<span class="lineNum">     616 </span><span class="lineCov">          2 :       if (ops[rmi].type &amp; (OP_REG | OP_MMX | OP_SSE | OP_CR | OP_EA)) {</span>
+<span class="lineNum">     617 </span><span class="lineCov">          2 :           if (ops[rmi].reg &gt;= 8) {</span>
+<span class="lineNum">     618 </span><span class="lineNoCov">          0 :               rex |= REX_B;</span>
+<span class="lineNum">     619 </span><span class="lineNoCov">          0 :               ops[rmi].reg -= 8;</span>
+<span class="lineNum">     620 </span><span class="lineCov">          2 :           } else if (ops[rmi].type &amp; OP_REG8_LOW)</span>
+<span class="lineNum">     621 </span><span class="lineNoCov">          0 :               rex |= 0x40;</span>
+<span class="lineNum">     622 </span><span class="lineCov">          2 :           else if (ops[rmi].type &amp; OP_REG8 &amp;&amp; ops[rmi].reg &gt;= 4)</span>
+<span class="lineNum">     623 </span>            :               /* An 8 bit reg &gt;= 4 without REG8 is ah/ch/dh/bh */
+<span class="lineNum">     624 </span><span class="lineNoCov">          0 :               saw_high_8bit = ops[rmi].reg;</span>
+<span class="lineNum">     625 </span>            :       }
+<span class="lineNum">     626 </span><span class="lineCov">          2 :       if (ops[rmi].type &amp; OP_EA &amp;&amp; ops[rmi].reg2 &gt;= 8) {</span>
+<span class="lineNum">     627 </span><span class="lineNoCov">          0 :           rex |= REX_X;</span>
+<span class="lineNum">     628 </span><span class="lineNoCov">          0 :           ops[rmi].reg2 -= 8;</span>
+<span class="lineNum">     629 </span>            :       }
+<span class="lineNum">     630 </span>            :   }
+<span class="lineNum">     631 </span><span class="lineCov">          8 :   if (rex) {</span>
+<span class="lineNum">     632 </span><span class="lineNoCov">          0 :       if (saw_high_8bit)</span>
+<span class="lineNum">     633 </span><span class="lineNoCov">          0 :           tcc_error(&quot;can't encode register %%%ch when REX prefix is required&quot;,</span>
+<span class="lineNum">     634 </span><span class="lineNoCov">          0 :                     &quot;acdb&quot;[saw_high_8bit-4]);</span>
+<span class="lineNum">     635 </span><span class="lineNoCov">          0 :       g(rex);</span>
+<span class="lineNum">     636 </span>            :   }
+<span class="lineNum">     637 </span><span class="lineCov">          8 : }</span>
+<a name="638"><span class="lineNum">     638 </span>            : #endif</a>
+<span class="lineNum">     639 </span>            : 
+<span class="lineNum">     640 </span><span class="lineCov">         13 : static void maybe_print_stats (void)</span>
+<span class="lineNum">     641 </span>            : {
+<span class="lineNum">     642 </span>            :   static int already = 1;
+<span class="lineNum">     643 </span><span class="lineCov">         13 :   if (!already)</span>
+<span class="lineNum">     644 </span>            :     /* print stats about opcodes */
+<span class="lineNum">     645 </span>            :     {
+<span class="lineNum">     646 </span>            :         const struct ASMInstr *pa;
+<span class="lineNum">     647 </span>            :         int freq[4];
+<span class="lineNum">     648 </span>            :         int op_vals[500];
+<span class="lineNum">     649 </span>            :         int nb_op_vals, i, j;
+<span class="lineNum">     650 </span>            : 
+<span class="lineNum">     651 </span><span class="lineNoCov">          0 :         already = 1;</span>
+<span class="lineNum">     652 </span><span class="lineNoCov">          0 :         nb_op_vals = 0;</span>
+<span class="lineNum">     653 </span><span class="lineNoCov">          0 :         memset(freq, 0, sizeof(freq));</span>
+<span class="lineNum">     654 </span><span class="lineNoCov">          0 :         for(pa = asm_instrs; pa-&gt;sym != 0; pa++) {</span>
+<span class="lineNum">     655 </span><span class="lineNoCov">          0 :             freq[pa-&gt;nb_ops]++;</span>
+<span class="lineNum">     656 </span>            :             //for(i=0;i&lt;pa-&gt;nb_ops;i++) {
+<span class="lineNum">     657 </span><span class="lineNoCov">          0 :                 for(j=0;j&lt;nb_op_vals;j++) {</span>
+<span class="lineNum">     658 </span>            :                     //if (pa-&gt;op_type[i] == op_vals[j])
+<span class="lineNum">     659 </span><span class="lineNoCov">          0 :                     if (pa-&gt;instr_type == op_vals[j])</span>
+<span class="lineNum">     660 </span>            :                         goto found;
+<span class="lineNum">     661 </span>            :                 }
+<span class="lineNum">     662 </span>            :                 //op_vals[nb_op_vals++] = pa-&gt;op_type[i];
+<span class="lineNum">     663 </span><span class="lineNoCov">          0 :                 op_vals[nb_op_vals++] = pa-&gt;instr_type;</span>
+<span class="lineNum">     664 </span><span class="lineNoCov">          0 :             found: ;</span>
+<span class="lineNum">     665 </span>            :             //}
+<span class="lineNum">     666 </span>            :         }
+<span class="lineNum">     667 </span><span class="lineNoCov">          0 :         for(i=0;i&lt;nb_op_vals;i++) {</span>
+<span class="lineNum">     668 </span><span class="lineNoCov">          0 :             int v = op_vals[i];</span>
+<span class="lineNum">     669 </span>            :             //if ((v &amp; (v - 1)) != 0)
+<span class="lineNum">     670 </span><span class="lineNoCov">          0 :                 printf(&quot;%3d: %08x\n&quot;, i, v);</span>
+<span class="lineNum">     671 </span>            :         }
+<span class="lineNum">     672 </span><span class="lineNoCov">          0 :         printf(&quot;size=%d nb=%d f0=%d f1=%d f2=%d f3=%d\n&quot;,</span>
+<span class="lineNum">     673 </span>            :                (int)sizeof(asm_instrs),
+<span class="lineNum">     674 </span>            :                (int)sizeof(asm_instrs) / (int)sizeof(ASMInstr),
+<span class="lineNum">     675 </span>            :                freq[0], freq[1], freq[2], freq[3]);
+<span class="lineNum">     676 </span>            :     }
+<a name="677"><span class="lineNum">     677 </span><span class="lineCov">         13 : }</span></a>
+<span class="lineNum">     678 </span>            : 
+<span class="lineNum">     679 </span><span class="lineCov">         13 : ST_FUNC void asm_opcode(TCCState *s1, int opcode)</span>
+<span class="lineNum">     680 </span>            : {
+<span class="lineNum">     681 </span>            :     const ASMInstr *pa;
+<span class="lineNum">     682 </span>            :     int i, modrm_index, modreg_index, reg, v, op1, seg_prefix, pc;
+<span class="lineNum">     683 </span>            :     int nb_ops, s;
+<span class="lineNum">     684 </span>            :     Operand ops[MAX_OPERANDS], *pop;
+<span class="lineNum">     685 </span>            :     int op_type[3]; /* decoded op type */
+<span class="lineNum">     686 </span>            :     int alltypes;   /* OR of all operand types */
+<span class="lineNum">     687 </span>            :     int autosize;
+<span class="lineNum">     688 </span>            :     int p66;
+<span class="lineNum">     689 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">     690 </span>            :     int rex64;
+<span class="lineNum">     691 </span>            : #endif
+<span class="lineNum">     692 </span>            : 
+<span class="lineNum">     693 </span><span class="lineCov">         13 :     maybe_print_stats();</span>
+<span class="lineNum">     694 </span>            :     /* force synthetic ';' after prefix instruction, so we can handle */
+<span class="lineNum">     695 </span>            :     /* one-line things like &quot;rep stosb&quot; instead of only &quot;rep\nstosb&quot; */
+<span class="lineNum">     696 </span><span class="lineCov">         13 :     if (opcode &gt;= TOK_ASM_wait &amp;&amp; opcode &lt;= TOK_ASM_repnz)</span>
+<span class="lineNum">     697 </span><span class="lineNoCov">          0 :         unget_tok(';');</span>
+<span class="lineNum">     698 </span>            : 
+<span class="lineNum">     699 </span>            :     /* get operands */
+<span class="lineNum">     700 </span>            :     pop = ops;
+<span class="lineNum">     701 </span>            :     nb_ops = 0;
+<span class="lineNum">     702 </span>            :     seg_prefix = 0;
+<span class="lineNum">     703 </span>            :     alltypes = 0;
+<span class="lineNum">     704 </span>            :     for(;;) {
+<span class="lineNum">     705 </span><span class="lineCov">         27 :         if (tok == ';' || tok == TOK_LINEFEED)</span>
+<span class="lineNum">     706 </span>            :             break;
+<span class="lineNum">     707 </span><span class="lineCov">         17 :         if (nb_ops &gt;= MAX_OPERANDS) {</span>
+<span class="lineNum">     708 </span><span class="lineNoCov">          0 :             tcc_error(&quot;incorrect number of operands&quot;);</span>
+<span class="lineNum">     709 </span>            :         }
+<span class="lineNum">     710 </span><span class="lineCov">         17 :         parse_operand(s1, pop);</span>
+<span class="lineNum">     711 </span><span class="lineCov">         16 :         if (tok == ':') {</span>
+<span class="lineNum">     712 </span><span class="lineNoCov">          0 :            if (pop-&gt;type != OP_SEG || seg_prefix)</span>
+<span class="lineNum">     713 </span><span class="lineNoCov">          0 :                tcc_error(&quot;incorrect prefix&quot;);</span>
+<span class="lineNum">     714 </span><span class="lineNoCov">          0 :            seg_prefix = segment_prefixes[pop-&gt;reg];</span>
+<span class="lineNum">     715 </span><span class="lineNoCov">          0 :            next();</span>
+<span class="lineNum">     716 </span><span class="lineNoCov">          0 :            parse_operand(s1, pop);</span>
+<span class="lineNum">     717 </span><span class="lineNoCov">          0 :            if (!(pop-&gt;type &amp; OP_EA)) {</span>
+<span class="lineNum">     718 </span><span class="lineNoCov">          0 :                tcc_error(&quot;segment prefix must be followed by memory reference&quot;);</span>
+<span class="lineNum">     719 </span>            :            }
+<span class="lineNum">     720 </span>            :         }
+<span class="lineNum">     721 </span><span class="lineCov">         16 :         pop++;</span>
+<span class="lineNum">     722 </span><span class="lineCov">         16 :         nb_ops++;</span>
+<span class="lineNum">     723 </span><span class="lineCov">         16 :         if (tok != ',')</span>
+<span class="lineNum">     724 </span>            :             break;
+<span class="lineNum">     725 </span><span class="lineCov">          7 :         next();</span>
+<span class="lineNum">     726 </span>            :     }
+<span class="lineNum">     727 </span>            : 
+<span class="lineNum">     728 </span><span class="lineCov">         12 :     s = 0; /* avoid warning */</span>
+<span class="lineNum">     729 </span>            : 
+<span class="lineNum">     730 </span><span class="lineCov">         12 : again:</span>
+<span class="lineNum">     731 </span>            :     /* optimize matching by using a lookup table (no hashing is needed
+<span class="lineNum">     732 </span>            :        !) */
+<span class="lineNum">     733 </span><span class="lineCov">       1791 :     for(pa = asm_instrs; pa-&gt;sym != 0; pa++) {</span>
+<span class="lineNum">     734 </span><span class="lineCov">       1787 :         int it = pa-&gt;instr_type &amp; OPCT_MASK;</span>
+<span class="lineNum">     735 </span><span class="lineCov">       1787 :         s = 0;</span>
+<span class="lineNum">     736 </span><span class="lineCov">       1787 :         if (it == OPC_FARITH) {</span>
+<span class="lineNum">     737 </span><span class="lineCov">         52 :             v = opcode - pa-&gt;sym;</span>
+<span class="lineNum">     738 </span><span class="lineCov">         52 :             if (!((unsigned)v &lt; 8 * 6 &amp;&amp; (v % 6) == 0))</span>
+<span class="lineNum">     739 </span><span class="lineCov">         52 :                 continue;</span>
+<span class="lineNum">     740 </span><span class="lineCov">       1735 :         } else if (it == OPC_ARITH) {</span>
+<span class="lineNum">     741 </span><span class="lineCov">         36 :             if (!(opcode &gt;= pa-&gt;sym &amp;&amp; opcode &lt; pa-&gt;sym + 8*NBWLX))</span>
+<span class="lineNum">     742 </span><span class="lineCov">         30 :                 continue;</span>
+<span class="lineNum">     743 </span><span class="lineCov">          6 :             s = (opcode - pa-&gt;sym) % NBWLX;</span>
+<span class="lineNum">     744 </span><span class="lineCov">          6 :             if ((pa-&gt;instr_type &amp; OPC_BWLX) == OPC_WLX)</span>
+<span class="lineNum">     745 </span>            :               {
+<span class="lineNum">     746 </span>            :                 /* We need to reject the xxxb opcodes that we accepted above.
+<span class="lineNum">     747 </span>            :                    Note that pa-&gt;sym for WLX opcodes is the 'w' token,
+<span class="lineNum">     748 </span>            :                    to get the 'b' token subtract one.  */
+<span class="lineNum">     749 </span><span class="lineNoCov">          0 :                 if (((opcode - pa-&gt;sym + 1) % NBWLX) == 0)</span>
+<span class="lineNum">     750 </span><span class="lineNoCov">          0 :                     continue;</span>
+<span class="lineNum">     751 </span><span class="lineNoCov">          0 :                 s++;</span>
+<span class="lineNum">     752 </span>            :               }
+<span class="lineNum">     753 </span><span class="lineCov">       1699 :         } else if (it == OPC_SHIFT) {</span>
+<span class="lineNum">     754 </span><span class="lineCov">         15 :             if (!(opcode &gt;= pa-&gt;sym &amp;&amp; opcode &lt; pa-&gt;sym + 7*NBWLX))</span>
+<span class="lineNum">     755 </span><span class="lineCov">         15 :                 continue;</span>
+<span class="lineNum">     756 </span><span class="lineNoCov">          0 :             s = (opcode - pa-&gt;sym) % NBWLX;</span>
+<span class="lineNum">     757 </span><span class="lineCov">       1684 :         } else if (it == OPC_TEST) {</span>
+<span class="lineNum">     758 </span><span class="lineCov">         16 :             if (!(opcode &gt;= pa-&gt;sym &amp;&amp; opcode &lt; pa-&gt;sym + NB_TEST_OPCODES))</span>
+<span class="lineNum">     759 </span><span class="lineCov">         16 :                 continue;</span>
+<span class="lineNum">     760 </span>            :             /* cmovxx is a test opcode but accepts multiple sizes.
+<span class="lineNum">     761 </span>            :                The suffixes aren't encoded in the table, instead we
+<span class="lineNum">     762 </span>            :                simply force size autodetection always and deal with suffixed
+<span class="lineNum">     763 </span>            :                variants below when we don't find e.g. &quot;cmovzl&quot;.  */
+<span class="lineNum">     764 </span><span class="lineNoCov">          0 :             if (pa-&gt;instr_type &amp; OPC_WLX)</span>
+<span class="lineNum">     765 </span><span class="lineNoCov">          0 :                 s = NBWLX - 1;</span>
+<span class="lineNum">     766 </span><span class="lineCov">       1668 :         } else if (pa-&gt;instr_type &amp; OPC_B) {</span>
+<span class="lineNum">     767 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">     768 </span>            :             /* Some instructions don't have the full size but only
+<span class="lineNum">     769 </span>            :                bwl form.  insb e.g. */
+<span class="lineNum">     770 </span><span class="lineCov">        354 :             if ((pa-&gt;instr_type &amp; OPC_WLQ) != OPC_WLQ</span>
+<span class="lineNum">     771 </span><span class="lineCov">         88 :                 &amp;&amp; !(opcode &gt;= pa-&gt;sym &amp;&amp; opcode &lt; pa-&gt;sym + NBWLX-1))</span>
+<span class="lineNum">     772 </span><span class="lineCov">         88 :                 continue;</span>
+<span class="lineNum">     773 </span>            : #endif
+<span class="lineNum">     774 </span><span class="lineCov">        266 :             if (!(opcode &gt;= pa-&gt;sym &amp;&amp; opcode &lt; pa-&gt;sym + NBWLX))</span>
+<span class="lineNum">     775 </span><span class="lineCov">        255 :                 continue;</span>
+<span class="lineNum">     776 </span><span class="lineCov">         11 :             s = opcode - pa-&gt;sym;</span>
+<span class="lineNum">     777 </span><span class="lineCov">       1314 :         } else if (pa-&gt;instr_type &amp; OPC_WLX) {</span>
+<span class="lineNum">     778 </span><span class="lineCov">        338 :             if (!(opcode &gt;= pa-&gt;sym &amp;&amp; opcode &lt; pa-&gt;sym + NBWLX-1))</span>
+<span class="lineNum">     779 </span><span class="lineCov">        335 :                 continue;</span>
+<span class="lineNum">     780 </span><span class="lineCov">          3 :             s = opcode - pa-&gt;sym + 1;</span>
+<span class="lineNum">     781 </span>            :         } else {
+<span class="lineNum">     782 </span><span class="lineCov">        976 :             if (pa-&gt;sym != opcode)</span>
+<span class="lineNum">     783 </span><span class="lineCov">        972 :                 continue;</span>
+<span class="lineNum">     784 </span>            :         }
+<span class="lineNum">     785 </span><span class="lineCov">         24 :         if (pa-&gt;nb_ops != nb_ops)</span>
+<span class="lineNum">     786 </span><span class="lineCov">          4 :             continue;</span>
+<span class="lineNum">     787 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">     788 </span>            :         /* Special case for moves.  Selecting the IM64-&gt;REG64 form
+<span class="lineNum">     789 </span>            :            should only be done if we really have an &gt;32bit imm64, and that
+<span class="lineNum">     790 </span>            :            is hardcoded.  Ignore it here.  */
+<span class="lineNum">     791 </span><span class="lineCov">         20 :         if (pa-&gt;opcode == 0xb0 &amp;&amp; ops[0].type != OP_IM64</span>
+<span class="lineNum">     792 </span><span class="lineCov">          3 :             &amp;&amp; (ops[1].type &amp; OP_REG) == OP_REG64</span>
+<span class="lineNum">     793 </span><span class="lineNoCov">          0 :             &amp;&amp; !(pa-&gt;instr_type &amp; OPC_0F))</span>
+<span class="lineNum">     794 </span><span class="lineNoCov">          0 :             continue;</span>
+<span class="lineNum">     795 </span>            : #endif
+<span class="lineNum">     796 </span>            :         /* now decode and check each operand */
+<span class="lineNum">     797 </span>            :         alltypes = 0;
+<span class="lineNum">     798 </span><span class="lineCov">         15 :         for(i = 0; i &lt; nb_ops; i++) {</span>
+<span class="lineNum">     799 </span>            :             int op1, op2;
+<span class="lineNum">     800 </span><span class="lineCov">         27 :             op1 = pa-&gt;op_type[i];</span>
+<span class="lineNum">     801 </span><span class="lineCov">         27 :             op2 = op1 &amp; 0x1f;</span>
+<span class="lineNum">     802 </span><span class="lineCov">         27 :             switch(op2) {</span>
+<span class="lineNum">     803 </span>            :             case OPT_IM:
+<span class="lineNum">     804 </span>            :                 v = OP_IM8 | OP_IM16 | OP_IM32;
+<span class="lineNum">     805 </span>            :                 break;
+<span class="lineNum">     806 </span><span class="lineCov">         16 :             case OPT_REG:</span>
+<span class="lineNum">     807 </span><span class="lineCov">         16 :                 v = OP_REG8 | OP_REG16 | OP_REG32 | OP_REG64;</span>
+<span class="lineNum">     808 </span><span class="lineCov">         16 :                 break;</span>
+<span class="lineNum">     809 </span><span class="lineCov">          1 :             case OPT_REGW:</span>
+<span class="lineNum">     810 </span><span class="lineCov">          1 :                 v = OP_REG16 | OP_REG32 | OP_REG64;</span>
+<span class="lineNum">     811 </span><span class="lineCov">          1 :                 break;</span>
+<span class="lineNum">     812 </span><span class="lineNoCov">          0 :             case OPT_IMW:</span>
+<span class="lineNum">     813 </span><span class="lineNoCov">          0 :                 v = OP_IM16 | OP_IM32;</span>
+<span class="lineNum">     814 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     815 </span><span class="lineNoCov">          0 :             case OPT_MMXSSE:</span>
+<span class="lineNum">     816 </span><span class="lineNoCov">          0 :                 v = OP_MMX | OP_SSE;</span>
+<span class="lineNum">     817 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     818 </span><span class="lineCov">          1 :             case OPT_DISP:</span>
+<span class="lineNum">     819 </span>            :             case OPT_DISP8:
+<span class="lineNum">     820 </span><span class="lineCov">          1 :                 v = OP_ADDR;</span>
+<span class="lineNum">     821 </span><span class="lineCov">          1 :                 break;</span>
+<span class="lineNum">     822 </span><span class="lineCov">          4 :             default:</span>
+<span class="lineNum">     823 </span><span class="lineCov">          4 :                 v = 1 &lt;&lt; op2;</span>
+<span class="lineNum">     824 </span><span class="lineCov">          4 :                 break;</span>
+<span class="lineNum">     825 </span>            :             }
+<span class="lineNum">     826 </span><span class="lineCov">         27 :             if (op1 &amp; OPT_EA)</span>
+<span class="lineNum">     827 </span><span class="lineCov">          7 :                 v |= OP_EA;</span>
+<span class="lineNum">     828 </span><span class="lineCov">         27 :             op_type[i] = v;</span>
+<span class="lineNum">     829 </span><span class="lineCov">         27 :             if ((ops[i].type &amp; v) == 0)</span>
+<span class="lineNum">     830 </span>            :                 goto next;
+<span class="lineNum">     831 </span><span class="lineCov">         15 :             alltypes |= ops[i].type;</span>
+<span class="lineNum">     832 </span>            :         }
+<span class="lineNum">     833 </span>            :         /* all is matching ! */
+<span class="lineNum">     834 </span>            :         break;
+<span class="lineNum">     835 </span><span class="lineCov">         12 :     next: ;</span>
+<span class="lineNum">     836 </span>            :     }
+<span class="lineNum">     837 </span><span class="lineCov">         12 :     if (pa-&gt;sym == 0) {</span>
+<span class="lineNum">     838 </span><span class="lineCov">          4 :         if (opcode &gt;= TOK_ASM_first &amp;&amp; opcode &lt;= TOK_ASM_last) {</span>
+<span class="lineNum">     839 </span>            :             int b;
+<span class="lineNum">     840 </span><span class="lineCov">          3 :             b = op0_codes[opcode - TOK_ASM_first];</span>
+<span class="lineNum">     841 </span><span class="lineCov">          3 :             if (b &amp; 0xff00) </span>
+<span class="lineNum">     842 </span><span class="lineCov">          1 :                 g(b &gt;&gt; 8);</span>
+<span class="lineNum">     843 </span><span class="lineCov">          3 :             g(b);</span>
+<span class="lineNum">     844 </span><span class="lineCov">          3 :             return;</span>
+<span class="lineNum">     845 </span><span class="lineCov">          1 :         } else if (opcode &lt;= TOK_ASM_alllast) {</span>
+<span class="lineNum">     846 </span><span class="lineNoCov">          0 :             tcc_error(&quot;bad operand with opcode '%s'&quot;,</span>
+<span class="lineNum">     847 </span>            :                   get_tok_str(opcode, NULL));
+<span class="lineNum">     848 </span>            :         } else {
+<span class="lineNum">     849 </span>            :             /* Special case for cmovcc, we accept size suffixes but ignore
+<span class="lineNum">     850 </span>            :                them, but we don't want them to blow up our tables.  */
+<span class="lineNum">     851 </span><span class="lineCov">          1 :             TokenSym *ts = table_ident[opcode - TOK_IDENT];</span>
+<span class="lineNum">     852 </span><span class="lineCov">          1 :             if (ts-&gt;len &gt;= 6</span>
+<span class="lineNum">     853 </span><span class="lineCov">          1 :                 &amp;&amp; strchr(&quot;wlq&quot;, ts-&gt;str[ts-&gt;len-1])</span>
+<span class="lineNum">     854 </span><span class="lineNoCov">          0 :                 &amp;&amp; !memcmp(ts-&gt;str, &quot;cmov&quot;, 4)) {</span>
+<span class="lineNum">     855 </span><span class="lineNoCov">          0 :                 opcode = tok_alloc(ts-&gt;str, ts-&gt;len-1)-&gt;tok;</span>
+<span class="lineNum">     856 </span><span class="lineNoCov">          0 :                 goto again;</span>
+<span class="lineNum">     857 </span>            :             }
+<span class="lineNum">     858 </span><span class="lineCov">          1 :             tcc_error(&quot;unknown opcode '%s'&quot;, ts-&gt;str);</span>
+<span class="lineNum">     859 </span>            :         }
+<span class="lineNum">     860 </span>            :     }
+<span class="lineNum">     861 </span>            :     /* if the size is unknown, then evaluate it (OPC_B or OPC_WL case) */
+<span class="lineNum">     862 </span><span class="lineCov">          8 :     autosize = NBWLX-1;</span>
+<span class="lineNum">     863 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">     864 </span>            :     /* XXX the autosize should rather be zero, to not have to adjust this
+<span class="lineNum">     865 </span>            :        all the time.  */
+<span class="lineNum">     866 </span><span class="lineCov">          8 :     if ((pa-&gt;instr_type &amp; OPC_BWLQ) == OPC_B)</span>
+<span class="lineNum">     867 </span><span class="lineNoCov">          0 :         autosize = NBWLX-2;</span>
+<span class="lineNum">     868 </span>            : #endif
+<span class="lineNum">     869 </span><span class="lineCov">          8 :     if (s == autosize) {</span>
+<span class="lineNum">     870 </span>            :         /* Check for register operands providing hints about the size.
+<span class="lineNum">     871 </span>            :            Start from the end, i.e. destination operands.  This matters
+<span class="lineNum">     872 </span>            :            only for opcodes accepting different sized registers, lar and lsl
+<span class="lineNum">     873 </span>            :            are such opcodes.  */
+<span class="lineNum">     874 </span><span class="lineNoCov">          0 :         for(i = nb_ops - 1; s == autosize &amp;&amp; i &gt;= 0; i--) {</span>
+<span class="lineNum">     875 </span><span class="lineNoCov">          0 :             if ((ops[i].type &amp; OP_REG) &amp;&amp; !(op_type[i] &amp; (OP_CL | OP_DX)))</span>
+<span class="lineNum">     876 </span><span class="lineNoCov">          0 :                 s = reg_to_size[ops[i].type &amp; OP_REG];</span>
+<span class="lineNum">     877 </span>            :         }
+<span class="lineNum">     878 </span><span class="lineNoCov">          0 :         if (s == autosize) {</span>
+<span class="lineNum">     879 </span><span class="lineNoCov">          0 :             if ((opcode == TOK_ASM_push || opcode == TOK_ASM_pop) &amp;&amp;</span>
+<span class="lineNum">     880 </span><span class="lineNoCov">          0 :                 (ops[0].type &amp; (OP_SEG | OP_IM8S | OP_IM32)))</span>
+<span class="lineNum">     881 </span>            :                 s = 2;
+<span class="lineNum">     882 </span><span class="lineNoCov">          0 :             else if ((opcode == TOK_ASM_push || opcode == TOK_ASM_pop) &amp;&amp;</span>
+<span class="lineNum">     883 </span><span class="lineNoCov">          0 :                      (ops[0].type &amp; OP_EA))</span>
+<span class="lineNum">     884 </span>            :                 s = NBWLX - 2;
+<span class="lineNum">     885 </span>            :             else
+<span class="lineNum">     886 </span><span class="lineNoCov">          0 :                 tcc_error(&quot;cannot infer opcode suffix&quot;);</span>
+<span class="lineNum">     887 </span>            :         }
+<span class="lineNum">     888 </span>            :     }
+<span class="lineNum">     889 </span>            : 
+<span class="lineNum">     890 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">     891 </span>            :     /* Generate addr32 prefix if needed */
+<span class="lineNum">     892 </span><span class="lineCov">         23 :     for(i = 0; i &lt; nb_ops; i++) {</span>
+<span class="lineNum">     893 </span><span class="lineCov">         15 :         if (ops[i].type &amp; OP_EA32) {</span>
+<span class="lineNum">     894 </span><span class="lineNoCov">          0 :             g(0x67);</span>
+<span class="lineNum">     895 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     896 </span>            :         }
+<span class="lineNum">     897 </span>            :     }
+<span class="lineNum">     898 </span>            : #endif
+<span class="lineNum">     899 </span>            :     /* generate data16 prefix if needed */
+<span class="lineNum">     900 </span><span class="lineCov">          8 :     p66 = 0;</span>
+<span class="lineNum">     901 </span><span class="lineCov">          8 :     if (s == 1)</span>
+<span class="lineNum">     902 </span>            :         p66 = 1;
+<span class="lineNum">     903 </span>            :     else {
+<span class="lineNum">     904 </span>            :         /* accepting mmx+sse in all operands --&gt; needs 0x66 to
+<span class="lineNum">     905 </span>            :            switch to sse mode.  Accepting only sse in an operand --&gt; is
+<span class="lineNum">     906 </span>            :            already SSE insn and needs 0x66/f2/f3 handling.  */
+<span class="lineNum">     907 </span><span class="lineCov">         15 :         for (i = 0; i &lt; nb_ops; i++)</span>
+<span class="lineNum">     908 </span><span class="lineCov">         15 :             if ((op_type[i] &amp; (OP_MMX | OP_SSE)) == (OP_MMX | OP_SSE)</span>
+<span class="lineNum">     909 </span><span class="lineNoCov">          0 :                 &amp;&amp; ops[i].type &amp; OP_SSE)</span>
+<span class="lineNum">     910 </span><span class="lineNoCov">          0 :                 p66 = 1;</span>
+<span class="lineNum">     911 </span>            :     }
+<span class="lineNum">     912 </span><span class="lineCov">          8 :     if (p66)</span>
+<span class="lineNum">     913 </span><span class="lineNoCov">          0 :         g(0x66);</span>
+<span class="lineNum">     914 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">     915 </span><span class="lineCov">          8 :     rex64 = 0;</span>
+<span class="lineNum">     916 </span><span class="lineCov">          8 :     if (pa-&gt;instr_type &amp; OPC_48)</span>
+<span class="lineNum">     917 </span>            :         rex64 = 1;
+<span class="lineNum">     918 </span><span class="lineCov">          8 :     else if (s == 3 || (alltypes &amp; OP_REG64)) {</span>
+<span class="lineNum">     919 </span>            :         /* generate REX prefix */
+<span class="lineNum">     920 </span>            :         int default64 = 0;
+<span class="lineNum">     921 </span><span class="lineNoCov">          0 :         for(i = 0; i &lt; nb_ops; i++) {</span>
+<span class="lineNum">     922 </span><span class="lineNoCov">          0 :             if (op_type[i] == OP_REG64 &amp;&amp; pa-&gt;opcode != 0xb8) {</span>
+<span class="lineNum">     923 </span>            :                 /* If only 64bit regs are accepted in one operand
+<span class="lineNum">     924 </span>            :                    this is a default64 instruction without need for
+<span class="lineNum">     925 </span>            :                    REX prefixes, except for movabs(0xb8).  */
+<span class="lineNum">     926 </span>            :                 default64 = 1;
+<span class="lineNum">     927 </span>            :                 break;
+<span class="lineNum">     928 </span>            :             }
+<span class="lineNum">     929 </span>            :         }
+<span class="lineNum">     930 </span>            :         /* XXX find better encoding for the default64 instructions.  */
+<span class="lineNum">     931 </span><span class="lineNoCov">          0 :         if (((opcode != TOK_ASM_push &amp;&amp; opcode != TOK_ASM_pop</span>
+<span class="lineNum">     932 </span><span class="lineNoCov">          0 :               &amp;&amp; opcode != TOK_ASM_pushw &amp;&amp; opcode != TOK_ASM_pushl</span>
+<span class="lineNum">     933 </span><span class="lineNoCov">          0 :               &amp;&amp; opcode != TOK_ASM_pushq &amp;&amp; opcode != TOK_ASM_popw</span>
+<span class="lineNum">     934 </span><span class="lineNoCov">          0 :               &amp;&amp; opcode != TOK_ASM_popl &amp;&amp; opcode != TOK_ASM_popq</span>
+<span class="lineNum">     935 </span><span class="lineNoCov">          0 :               &amp;&amp; opcode != TOK_ASM_call &amp;&amp; opcode != TOK_ASM_jmp))</span>
+<span class="lineNum">     936 </span><span class="lineNoCov">          0 :             &amp;&amp; !default64)</span>
+<span class="lineNum">     937 </span><span class="lineNoCov">          0 :             rex64 = 1;</span>
+<span class="lineNum">     938 </span>            :     }
+<span class="lineNum">     939 </span>            : #endif
+<span class="lineNum">     940 </span>            : 
+<span class="lineNum">     941 </span>            :     /* now generates the operation */
+<span class="lineNum">     942 </span><span class="lineCov">          8 :     if (OPCT_IS(pa-&gt;instr_type, OPC_FWAIT))</span>
+<span class="lineNum">     943 </span><span class="lineNoCov">          0 :         g(0x9b);</span>
+<span class="lineNum">     944 </span><span class="lineCov">          8 :     if (seg_prefix)</span>
+<span class="lineNum">     945 </span><span class="lineNoCov">          0 :         g(seg_prefix);</span>
+<span class="lineNum">     946 </span>            : 
+<span class="lineNum">     947 </span><span class="lineCov">          8 :     v = pa-&gt;opcode;</span>
+<span class="lineNum">     948 </span><span class="lineCov">          8 :     if (pa-&gt;instr_type &amp; OPC_0F)</span>
+<span class="lineNum">     949 </span><span class="lineNoCov">          0 :         v = ((v &amp; ~0xff) &lt;&lt; 8) | 0x0f00 | (v &amp; 0xff);</span>
+<span class="lineNum">     950 </span><span class="lineCov">          8 :     if ((v == 0x69 || v == 0x6b) &amp;&amp; nb_ops == 2) {</span>
+<span class="lineNum">     951 </span>            :         /* kludge for imul $im, %reg */
+<span class="lineNum">     952 </span><span class="lineCov">          1 :         nb_ops = 3;</span>
+<span class="lineNum">     953 </span><span class="lineCov">          1 :         ops[2] = ops[1];</span>
+<span class="lineNum">     954 </span><span class="lineCov">          1 :         op_type[2] = op_type[1];</span>
+<span class="lineNum">     955 </span><span class="lineCov">          7 :     } else if (v == 0xcd &amp;&amp; ops[0].e.v == 3 &amp;&amp; !ops[0].e.sym) {</span>
+<span class="lineNum">     956 </span>            :         v--; /* int $3 case */
+<span class="lineNum">     957 </span>            :         nb_ops = 0;
+<span class="lineNum">     958 </span><span class="lineCov">          7 :     } else if ((v == 0x06 || v == 0x07)) {</span>
+<span class="lineNum">     959 </span><span class="lineNoCov">          0 :         if (ops[0].reg &gt;= 4) {</span>
+<span class="lineNum">     960 </span>            :             /* push/pop %fs or %gs */
+<span class="lineNum">     961 </span><span class="lineNoCov">          0 :             v = 0x0fa0 + (v - 0x06) + ((ops[0].reg - 4) &lt;&lt; 3);</span>
+<span class="lineNum">     962 </span>            :         } else {
+<span class="lineNum">     963 </span><span class="lineNoCov">          0 :             v += ops[0].reg &lt;&lt; 3;</span>
+<span class="lineNum">     964 </span>            :         }
+<span class="lineNum">     965 </span>            :         nb_ops = 0;
+<span class="lineNum">     966 </span><span class="lineCov">          7 :     } else if (v &lt;= 0x05) {</span>
+<span class="lineNum">     967 </span>            :         /* arith case */
+<span class="lineNum">     968 </span><span class="lineCov">          2 :         v += ((opcode - TOK_ASM_addb) / NBWLX) &lt;&lt; 3;</span>
+<span class="lineNum">     969 </span><span class="lineCov">          5 :     } else if ((pa-&gt;instr_type &amp; (OPCT_MASK | OPC_MODRM)) == OPC_FARITH) {</span>
+<span class="lineNum">     970 </span>            :         /* fpu arith case */
+<span class="lineNum">     971 </span><span class="lineNoCov">          0 :         v += ((opcode - pa-&gt;sym) / 6) &lt;&lt; 3;</span>
+<span class="lineNum">     972 </span>            :     }
+<span class="lineNum">     973 </span>            : 
+<span class="lineNum">     974 </span>            :     /* search which operand will be used for modrm */
+<span class="lineNum">     975 </span><span class="lineCov">          8 :     modrm_index = -1;</span>
+<span class="lineNum">     976 </span><span class="lineCov">          8 :     modreg_index = -1;</span>
+<span class="lineNum">     977 </span><span class="lineCov">          8 :     if (pa-&gt;instr_type &amp; OPC_MODRM) {</span>
+<span class="lineNum">     978 </span><span class="lineCov">          2 :         if (!nb_ops) {</span>
+<span class="lineNum">     979 </span>            :             /* A modrm opcode without operands is a special case (e.g. mfence).
+<span class="lineNum">     980 </span>            :                It has a group and acts as if there's an register operand 0
+<span class="lineNum">     981 </span>            :                (ax).  */
+<span class="lineNum">     982 </span><span class="lineNoCov">          0 :             i = 0;</span>
+<span class="lineNum">     983 </span><span class="lineNoCov">          0 :             ops[i].type = OP_REG;</span>
+<span class="lineNum">     984 </span><span class="lineNoCov">          0 :             ops[i].reg = 0;</span>
+<span class="lineNum">     985 </span><span class="lineNoCov">          0 :             goto modrm_found;</span>
+<span class="lineNum">     986 </span>            :         }
+<span class="lineNum">     987 </span>            :         /* first look for an ea operand */
+<span class="lineNum">     988 </span><span class="lineCov">          4 :         for(i = 0;i &lt; nb_ops; i++) {</span>
+<span class="lineNum">     989 </span><span class="lineCov">          5 :             if (op_type[i] &amp; OP_EA)</span>
+<span class="lineNum">     990 </span>            :                 goto modrm_found;
+<span class="lineNum">     991 </span>            :         }
+<span class="lineNum">     992 </span>            :         /* then if not found, a register or indirection (shift instructions) */
+<span class="lineNum">     993 </span><span class="lineCov">          1 :         for(i = 0;i &lt; nb_ops; i++) {</span>
+<span class="lineNum">     994 </span><span class="lineCov">          2 :             if (op_type[i] &amp; (OP_REG | OP_MMX | OP_SSE | OP_INDIR))</span>
+<span class="lineNum">     995 </span>            :                 goto modrm_found;
+<span class="lineNum">     996 </span>            :         }
+<span class="lineNum">     997 </span>            : #ifdef ASM_DEBUG
+<span class="lineNum">     998 </span>            :         tcc_error(&quot;bad op table&quot;);
+<span class="lineNum">     999 </span>            : #endif
+<span class="lineNum">    1000 </span><span class="lineCov">          2 :     modrm_found:</span>
+<span class="lineNum">    1001 </span><span class="lineCov">          2 :         modrm_index = i;</span>
+<span class="lineNum">    1002 </span>            :         /* if a register is used in another operand then it is
+<span class="lineNum">    1003 </span>            :            used instead of group */
+<span class="lineNum">    1004 </span><span class="lineCov">          4 :         for(i = 0;i &lt; nb_ops; i++) {</span>
+<span class="lineNum">    1005 </span><span class="lineCov">          4 :             int t = op_type[i];</span>
+<span class="lineNum">    1006 </span><span class="lineCov">          7 :             if (i != modrm_index &amp;&amp;</span>
+<span class="lineNum">    1007 </span><span class="lineCov">          3 :                 (t &amp; (OP_REG | OP_MMX | OP_SSE | OP_CR | OP_TR | OP_DB | OP_SEG))) {</span>
+<span class="lineNum">    1008 </span>            :                 modreg_index = i;
+<span class="lineNum">    1009 </span>            :                 break;
+<span class="lineNum">    1010 </span>            :             }
+<span class="lineNum">    1011 </span>            :         }
+<span class="lineNum">    1012 </span>            :     }
+<span class="lineNum">    1013 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">    1014 </span><span class="lineCov">          8 :     asm_rex (rex64, ops, nb_ops, op_type, modreg_index, modrm_index);</span>
+<span class="lineNum">    1015 </span>            : #endif
+<span class="lineNum">    1016 </span>            : 
+<span class="lineNum">    1017 </span><span class="lineCov">          8 :     if (pa-&gt;instr_type &amp; OPC_REG) {</span>
+<span class="lineNum">    1018 </span>            :         /* mov $im, %reg case */
+<span class="lineNum">    1019 </span><span class="lineCov">          3 :         if (v == 0xb0 &amp;&amp; s &gt;= 1)</span>
+<span class="lineNum">    1020 </span><span class="lineCov">          3 :             v += 7;</span>
+<span class="lineNum">    1021 </span><span class="lineCov">          6 :         for(i = 0; i &lt; nb_ops; i++) {</span>
+<span class="lineNum">    1022 </span><span class="lineCov">          6 :             if (op_type[i] &amp; (OP_REG | OP_ST)) {</span>
+<span class="lineNum">    1023 </span><span class="lineCov">          3 :                 v += ops[i].reg;</span>
+<span class="lineNum">    1024 </span><span class="lineCov">          3 :                 break;</span>
+<span class="lineNum">    1025 </span>            :             }
+<span class="lineNum">    1026 </span>            :         }
+<span class="lineNum">    1027 </span>            :     }
+<span class="lineNum">    1028 </span><span class="lineCov">          8 :     if (pa-&gt;instr_type &amp; OPC_B)</span>
+<span class="lineNum">    1029 </span><span class="lineCov">          6 :         v += s &gt;= 1;</span>
+<span class="lineNum">    1030 </span><span class="lineCov">          8 :     if (nb_ops == 1 &amp;&amp; pa-&gt;op_type[0] == OPT_DISP8) {</span>
+<span class="lineNum">    1031 </span>            :         ElfSym *esym;
+<span class="lineNum">    1032 </span>            :         int jmp_disp;
+<span class="lineNum">    1033 </span>            : 
+<span class="lineNum">    1034 </span>            :         /* see if we can really generate the jump with a byte offset */
+<span class="lineNum">    1035 </span><span class="lineCov">          1 :         esym = elfsym(ops[0].e.sym);</span>
+<span class="lineNum">    1036 </span><span class="lineCov">          1 :         if (!esym || esym-&gt;st_shndx != cur_text_section-&gt;sh_num)</span>
+<span class="lineNum">    1037 </span>            :             goto no_short_jump;
+<span class="lineNum">    1038 </span><span class="lineCov">          1 :         jmp_disp = ops[0].e.v + esym-&gt;st_value - ind - 2 - (v &gt;= 0xff);</span>
+<span class="lineNum">    1039 </span><span class="lineCov">          1 :         if (jmp_disp == (int8_t)jmp_disp) {</span>
+<span class="lineNum">    1040 </span>            :             /* OK to generate jump */
+<span class="lineNum">    1041 </span><span class="lineCov">          1 :             ops[0].e.sym = 0;</span>
+<span class="lineNum">    1042 </span><span class="lineCov">          1 :             ops[0].e.v = jmp_disp;</span>
+<span class="lineNum">    1043 </span><span class="lineCov">          1 :             op_type[0] = OP_IM8S;</span>
+<span class="lineNum">    1044 </span>            :         } else {
+<span class="lineNum">    1045 </span><span class="lineNoCov">          0 :         no_short_jump:</span>
+<span class="lineNum">    1046 </span>            :             /* long jump will be allowed. need to modify the
+<span class="lineNum">    1047 </span>            :                opcode slightly */
+<span class="lineNum">    1048 </span><span class="lineNoCov">          0 :             if (v == 0xeb) /* jmp */</span>
+<span class="lineNum">    1049 </span>            :                 v = 0xe9;
+<span class="lineNum">    1050 </span><span class="lineNoCov">          0 :             else if (v == 0x70) /* jcc */</span>
+<span class="lineNum">    1051 </span>            :                 v += 0x0f10;
+<span class="lineNum">    1052 </span>            :             else
+<span class="lineNum">    1053 </span><span class="lineNoCov">          0 :                 tcc_error(&quot;invalid displacement&quot;);</span>
+<span class="lineNum">    1054 </span>            :         }
+<span class="lineNum">    1055 </span>            :     }
+<span class="lineNum">    1056 </span><span class="lineCov">          8 :     if (OPCT_IS(pa-&gt;instr_type, OPC_TEST))</span>
+<span class="lineNum">    1057 </span><span class="lineNoCov">          0 :         v += test_bits[opcode - pa-&gt;sym];</span>
+<span class="lineNum">    1058 </span><span class="lineCov">          8 :     op1 = v &gt;&gt; 16;</span>
+<span class="lineNum">    1059 </span><span class="lineCov">          8 :     if (op1)</span>
+<span class="lineNum">    1060 </span><span class="lineNoCov">          0 :         g(op1);</span>
+<span class="lineNum">    1061 </span><span class="lineCov">          8 :     op1 = (v &gt;&gt; 8) &amp; 0xff;</span>
+<span class="lineNum">    1062 </span><span class="lineCov">          8 :     if (op1)</span>
+<span class="lineNum">    1063 </span><span class="lineNoCov">          0 :         g(op1);</span>
+<span class="lineNum">    1064 </span><span class="lineCov">          8 :     g(v);</span>
+<span class="lineNum">    1065 </span>            : 
+<span class="lineNum">    1066 </span><span class="lineCov">          8 :     if (OPCT_IS(pa-&gt;instr_type, OPC_SHIFT)) {</span>
+<span class="lineNum">    1067 </span><span class="lineNoCov">          0 :         reg = (opcode - pa-&gt;sym) / NBWLX;</span>
+<span class="lineNum">    1068 </span><span class="lineNoCov">          0 :         if (reg == 6)</span>
+<span class="lineNum">    1069 </span><span class="lineNoCov">          0 :             reg = 7;</span>
+<span class="lineNum">    1070 </span><span class="lineCov">          8 :     } else if (OPCT_IS(pa-&gt;instr_type, OPC_ARITH)) {</span>
+<span class="lineNum">    1071 </span><span class="lineCov">          2 :         reg = (opcode - pa-&gt;sym) / NBWLX;</span>
+<span class="lineNum">    1072 </span><span class="lineCov">          6 :     } else if (OPCT_IS(pa-&gt;instr_type, OPC_FARITH)) {</span>
+<span class="lineNum">    1073 </span><span class="lineNoCov">          0 :         reg = (opcode - pa-&gt;sym) / 6;</span>
+<span class="lineNum">    1074 </span>            :     } else {
+<span class="lineNum">    1075 </span><span class="lineCov">          6 :         reg = (pa-&gt;instr_type &gt;&gt; OPC_GROUP_SHIFT) &amp; 7;</span>
+<span class="lineNum">    1076 </span>            :     }
+<span class="lineNum">    1077 </span>            : 
+<span class="lineNum">    1078 </span><span class="lineCov">          8 :     pc = 0;</span>
+<span class="lineNum">    1079 </span><span class="lineCov">          8 :     if (pa-&gt;instr_type &amp; OPC_MODRM) {</span>
+<span class="lineNum">    1080 </span>            :         /* if a register is used in another operand then it is
+<span class="lineNum">    1081 </span>            :            used instead of group */
+<span class="lineNum">    1082 </span><span class="lineCov">          2 :         if (modreg_index &gt;= 0)</span>
+<span class="lineNum">    1083 </span><span class="lineCov">          2 :             reg = ops[modreg_index].reg;</span>
+<span class="lineNum">    1084 </span><span class="lineCov">          2 :         pc = asm_modrm(reg, &amp;ops[modrm_index]);</span>
+<span class="lineNum">    1085 </span>            :     }
+<span class="lineNum">    1086 </span>            : 
+<span class="lineNum">    1087 </span>            :     /* emit constants */
+<span class="lineNum">    1088 </span>            : #ifndef TCC_TARGET_X86_64
+<span class="lineNum">    1089 </span>            :     if (!(pa-&gt;instr_type &amp; OPC_0F)
+<span class="lineNum">    1090 </span>            :         &amp;&amp; (pa-&gt;opcode == 0x9a || pa-&gt;opcode == 0xea)) {
+<span class="lineNum">    1091 </span>            :         /* ljmp or lcall kludge */
+<span class="lineNum">    1092 </span>            :         gen_expr32(&amp;ops[1].e);
+<span class="lineNum">    1093 </span>            :         if (ops[0].e.sym)
+<span class="lineNum">    1094 </span>            :             tcc_error(&quot;cannot relocate&quot;);
+<span class="lineNum">    1095 </span>            :         gen_le16(ops[0].e.v);
+<span class="lineNum">    1096 </span>            :         return;
+<span class="lineNum">    1097 </span>            :     }
+<span class="lineNum">    1098 </span>            : #endif
+<span class="lineNum">    1099 </span><span class="lineCov">         24 :     for(i = 0;i &lt; nb_ops; i++) {</span>
+<span class="lineNum">    1100 </span><span class="lineCov">         16 :         v = op_type[i];</span>
+<span class="lineNum">    1101 </span><span class="lineCov">         16 :         if (v &amp; (OP_IM8 | OP_IM16 | OP_IM32 | OP_IM64 | OP_IM8S | OP_ADDR)) {</span>
+<span class="lineNum">    1102 </span>            :             /* if multiple sizes are given it means we must look
+<span class="lineNum">    1103 </span>            :                at the op size */
+<span class="lineNum">    1104 </span><span class="lineCov">          7 :             if ((v | OP_IM8 | OP_IM64) == (OP_IM8 | OP_IM16 | OP_IM32 | OP_IM64)) {</span>
+<span class="lineNum">    1105 </span><span class="lineCov">          5 :                 if (s == 0)</span>
+<span class="lineNum">    1106 </span>            :                     v = OP_IM8;
+<span class="lineNum">    1107 </span><span class="lineCov">          5 :                 else if (s == 1)</span>
+<span class="lineNum">    1108 </span>            :                     v = OP_IM16;
+<span class="lineNum">    1109 </span><span class="lineCov">          5 :                 else if (s == 2 || (v &amp; OP_IM64) == 0)</span>
+<span class="lineNum">    1110 </span>            :                     v = OP_IM32;
+<span class="lineNum">    1111 </span>            :                 else
+<span class="lineNum">    1112 </span><span class="lineNoCov">          0 :                     v = OP_IM64;</span>
+<span class="lineNum">    1113 </span>            :             }
+<span class="lineNum">    1114 </span>            : 
+<span class="lineNum">    1115 </span><span class="lineCov">          7 :             if ((v &amp; (OP_IM8 | OP_IM8S | OP_IM16)) &amp;&amp; ops[i].e.sym)</span>
+<span class="lineNum">    1116 </span><span class="lineNoCov">          0 :                 tcc_error(&quot;cannot relocate&quot;);</span>
+<span class="lineNum">    1117 </span>            : 
+<span class="lineNum">    1118 </span><span class="lineCov">          7 :             if (v &amp; (OP_IM8 | OP_IM8S)) {</span>
+<span class="lineNum">    1119 </span><span class="lineCov">          2 :                 g(ops[i].e.v);</span>
+<span class="lineNum">    1120 </span><span class="lineCov">          5 :             } else if (v &amp; OP_IM16) {</span>
+<span class="lineNum">    1121 </span><span class="lineNoCov">          0 :                 gen_le16(ops[i].e.v);</span>
+<span class="lineNum">    1122 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">    1123 </span><span class="lineCov">          5 :             } else if (v &amp; OP_IM64) {</span>
+<span class="lineNum">    1124 </span><span class="lineNoCov">          0 :                 gen_expr64(&amp;ops[i].e);</span>
+<span class="lineNum">    1125 </span>            : #endif
+<span class="lineNum">    1126 </span><span class="lineCov">          5 :             } else if (pa-&gt;op_type[i] == OPT_DISP || pa-&gt;op_type[i] == OPT_DISP8) {</span>
+<span class="lineNum">    1127 </span><span class="lineNoCov">          0 :                 gen_disp32(&amp;ops[i].e);</span>
+<span class="lineNum">    1128 </span>            :             } else {
+<span class="lineNum">    1129 </span><span class="lineCov">          5 :                 gen_expr32(&amp;ops[i].e);</span>
+<span class="lineNum">    1130 </span>            :             }
+<span class="lineNum">    1131 </span>            :         }
+<span class="lineNum">    1132 </span>            :     }
+<span class="lineNum">    1133 </span>            : 
+<span class="lineNum">    1134 </span>            :     /* after immediate operands, adjust pc-relative address */
+<span class="lineNum">    1135 </span><span class="lineCov">          8 :     if (pc)</span>
+<span class="lineNum">    1136 </span><span class="lineNoCov">          0 :         add32le(cur_text_section-&gt;data + pc - 4, pc - ind);</span>
+<span class="lineNum">    1137 </span>            : }
+<span class="lineNum">    1138 </span>            : 
+<a name="1139"><span class="lineNum">    1139 </span>            : /* return the constraint priority (we allocate first the lowest</a>
+<span class="lineNum">    1140 </span>            :    numbered constraints) */
+<span class="lineNum">    1141 </span><span class="lineCov">          2 : static inline int constraint_priority(const char *str)</span>
+<span class="lineNum">    1142 </span>            : {
+<span class="lineNum">    1143 </span>            :     int priority, c, pr;
+<span class="lineNum">    1144 </span>            : 
+<span class="lineNum">    1145 </span>            :     /* we take the lowest priority */
+<span class="lineNum">    1146 </span><span class="lineCov">          2 :     priority = 0;</span>
+<span class="lineNum">    1147 </span>            :     for(;;) {
+<span class="lineNum">    1148 </span><span class="lineCov">          4 :         c = *str;</span>
+<span class="lineNum">    1149 </span><span class="lineCov">          4 :         if (c == '\0')</span>
+<span class="lineNum">    1150 </span>            :             break;
+<span class="lineNum">    1151 </span><span class="lineCov">          2 :         str++;</span>
+<span class="lineNum">    1152 </span><span class="lineCov">          2 :         switch(c) {</span>
+<span class="lineNum">    1153 </span>            :         case 'A':
+<span class="lineNum">    1154 </span>            :             pr = 0;
+<span class="lineNum">    1155 </span>            :             break;
+<span class="lineNum">    1156 </span><span class="lineNoCov">          0 :         case 'a':</span>
+<span class="lineNum">    1157 </span>            :         case 'b':
+<span class="lineNum">    1158 </span>            :         case 'c':
+<span class="lineNum">    1159 </span>            :         case 'd':
+<span class="lineNum">    1160 </span>            :         case 'S':
+<span class="lineNum">    1161 </span>            :         case 'D':
+<span class="lineNum">    1162 </span><span class="lineNoCov">          0 :             pr = 1;</span>
+<span class="lineNum">    1163 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1164 </span><span class="lineNoCov">          0 :         case 'q':</span>
+<span class="lineNum">    1165 </span><span class="lineNoCov">          0 :             pr = 2;</span>
+<span class="lineNum">    1166 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1167 </span><span class="lineCov">          2 :         case 'r':</span>
+<span class="lineNum">    1168 </span>            :         case 'R':
+<span class="lineNum">    1169 </span>            :         case 'p':
+<span class="lineNum">    1170 </span><span class="lineCov">          2 :             pr = 3;</span>
+<span class="lineNum">    1171 </span><span class="lineCov">          2 :             break;</span>
+<span class="lineNum">    1172 </span><span class="lineNoCov">          0 :         case 'N':</span>
+<span class="lineNum">    1173 </span>            :         case 'M':
+<span class="lineNum">    1174 </span>            :         case 'I':
+<span class="lineNum">    1175 </span>            :         case 'e':
+<span class="lineNum">    1176 </span>            :         case 'i':
+<span class="lineNum">    1177 </span>            :         case 'm':
+<span class="lineNum">    1178 </span>            :         case 'g':
+<span class="lineNum">    1179 </span><span class="lineNoCov">          0 :             pr = 4;</span>
+<span class="lineNum">    1180 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1181 </span><span class="lineNoCov">          0 :         default:</span>
+<span class="lineNum">    1182 </span><span class="lineNoCov">          0 :             tcc_error(&quot;unknown constraint '%c'&quot;, c);</span>
+<span class="lineNum">    1183 </span>            :             pr = 0;
+<span class="lineNum">    1184 </span>            :         }
+<span class="lineNum">    1185 </span><span class="lineCov">          2 :         if (pr &gt; priority)</span>
+<span class="lineNum">    1186 </span><span class="lineCov">          2 :             priority = pr;</span>
+<span class="lineNum">    1187 </span>            :     }
+<span class="lineNum">    1188 </span><span class="lineCov">          2 :     return priority;</span>
+<span class="lineNum">    1189 </span>            : }
+<span class="lineNum">    1190 </span>            : 
+<span class="lineNum">    1191 </span>            : static const char *skip_constraint_modifiers(const char *p)
+<span class="lineNum">    1192 </span>            : {
+<span class="lineNum">    1193 </span><span class="lineCov">          3 :     while (*p == '=' || *p == '&amp;' || *p == '+' || *p == '%')</span>
+<span class="lineNum">    1194 </span><span class="lineCov">          1 :         p++;</span>
+<span class="lineNum">    1195 </span>            :     return p;
+<span class="lineNum">    1196 </span>            : }
+<span class="lineNum">    1197 </span>            : 
+<a name="1198"><span class="lineNum">    1198 </span>            : /* If T (a token) is of the form &quot;%reg&quot; returns the register</a>
+<span class="lineNum">    1199 </span>            :    number and type, otherwise return -1.  */
+<span class="lineNum">    1200 </span><span class="lineNoCov">          0 : ST_FUNC int asm_parse_regvar (int t)</span>
+<span class="lineNum">    1201 </span>            : {
+<span class="lineNum">    1202 </span>            :     const char *s;
+<span class="lineNum">    1203 </span>            :     Operand op;
+<span class="lineNum">    1204 </span><span class="lineNoCov">          0 :     if (t &lt; TOK_IDENT)</span>
+<span class="lineNum">    1205 </span>            :         return -1;
+<span class="lineNum">    1206 </span><span class="lineNoCov">          0 :     s = table_ident[t - TOK_IDENT]-&gt;str;</span>
+<span class="lineNum">    1207 </span><span class="lineNoCov">          0 :     if (s[0] != '%')</span>
+<span class="lineNum">    1208 </span>            :         return -1;
+<span class="lineNum">    1209 </span><span class="lineNoCov">          0 :     t = tok_alloc(s+1, strlen(s)-1)-&gt;tok;</span>
+<span class="lineNum">    1210 </span><span class="lineNoCov">          0 :     unget_tok(t);</span>
+<span class="lineNum">    1211 </span><span class="lineNoCov">          0 :     unget_tok('%');</span>
+<span class="lineNum">    1212 </span><span class="lineNoCov">          0 :     parse_operand(tcc_state, &amp;op);</span>
+<span class="lineNum">    1213 </span>            :     /* Accept only integer regs for now.  */
+<span class="lineNum">    1214 </span><span class="lineNoCov">          0 :     if (op.type &amp; OP_REG)</span>
+<span class="lineNum">    1215 </span><span class="lineNoCov">          0 :         return op.reg;</span>
+<span class="lineNum">    1216 </span>            :     else
+<span class="lineNum">    1217 </span>            :         return -1;
+<span class="lineNum">    1218 </span>            : }
+<span class="lineNum">    1219 </span>            : 
+<span class="lineNum">    1220 </span>            : #define REG_OUT_MASK 0x01
+<span class="lineNum">    1221 </span>            : #define REG_IN_MASK  0x02
+<span class="lineNum">    1222 </span>            : 
+<a name="1223"><span class="lineNum">    1223 </span>            : #define is_reg_allocated(reg) (regs_allocated[reg] &amp; reg_mask)</a>
+<span class="lineNum">    1224 </span>            : 
+<span class="lineNum">    1225 </span><span class="lineCov">          1 : ST_FUNC void asm_compute_constraints(ASMOperand *operands,</span>
+<span class="lineNum">    1226 </span>            :                                     int nb_operands, int nb_outputs,
+<span class="lineNum">    1227 </span>            :                                     const uint8_t *clobber_regs,
+<span class="lineNum">    1228 </span>            :                                     int *pout_reg)
+<span class="lineNum">    1229 </span>            : {
+<span class="lineNum">    1230 </span>            :     ASMOperand *op;
+<span class="lineNum">    1231 </span>            :     int sorted_op[MAX_ASM_OPERANDS];
+<span class="lineNum">    1232 </span>            :     int i, j, k, p1, p2, tmp, reg, c, reg_mask;
+<span class="lineNum">    1233 </span>            :     const char *str;
+<span class="lineNum">    1234 </span>            :     uint8_t regs_allocated[NB_ASM_REGS];
+<span class="lineNum">    1235 </span>            : 
+<span class="lineNum">    1236 </span>            :     /* init fields */
+<span class="lineNum">    1237 </span><span class="lineCov">          3 :     for(i=0;i&lt;nb_operands;i++) {</span>
+<span class="lineNum">    1238 </span><span class="lineCov">          2 :         op = &amp;operands[i];</span>
+<span class="lineNum">    1239 </span><span class="lineCov">          2 :         op-&gt;input_index = -1;</span>
+<span class="lineNum">    1240 </span><span class="lineCov">          2 :         op-&gt;ref_index = -1;</span>
+<span class="lineNum">    1241 </span><span class="lineCov">          2 :         op-&gt;reg = -1;</span>
+<span class="lineNum">    1242 </span><span class="lineCov">          2 :         op-&gt;is_memory = 0;</span>
+<span class="lineNum">    1243 </span><span class="lineCov">          2 :         op-&gt;is_rw = 0;</span>
+<span class="lineNum">    1244 </span>            :     }
+<span class="lineNum">    1245 </span>            :     /* compute constraint priority and evaluate references to output
+<span class="lineNum">    1246 </span>            :        constraints if input constraints */
+<span class="lineNum">    1247 </span><span class="lineCov">          2 :     for(i=0;i&lt;nb_operands;i++) {</span>
+<span class="lineNum">    1248 </span><span class="lineCov">          2 :         op = &amp;operands[i];</span>
+<span class="lineNum">    1249 </span><span class="lineCov">          2 :         str = op-&gt;constraint;</span>
+<span class="lineNum">    1250 </span><span class="lineCov">          2 :         str = skip_constraint_modifiers(str);</span>
+<span class="lineNum">    1251 </span><span class="lineCov">          4 :         if (isnum(*str) || *str == '[') {</span>
+<span class="lineNum">    1252 </span>            :             /* this is a reference to another constraint */
+<span class="lineNum">    1253 </span><span class="lineNoCov">          0 :             k = find_constraint(operands, nb_operands, str, NULL);</span>
+<span class="lineNum">    1254 </span><span class="lineNoCov">          0 :             if ((unsigned)k &gt;= i || i &lt; nb_outputs)</span>
+<span class="lineNum">    1255 </span><span class="lineNoCov">          0 :                 tcc_error(&quot;invalid reference in constraint %d ('%s')&quot;,</span>
+<span class="lineNum">    1256 </span>            :                       i, str);
+<span class="lineNum">    1257 </span><span class="lineNoCov">          0 :             op-&gt;ref_index = k;</span>
+<span class="lineNum">    1258 </span><span class="lineNoCov">          0 :             if (operands[k].input_index &gt;= 0)</span>
+<span class="lineNum">    1259 </span><span class="lineNoCov">          0 :                 tcc_error(&quot;cannot reference twice the same operand&quot;);</span>
+<span class="lineNum">    1260 </span><span class="lineNoCov">          0 :             operands[k].input_index = i;</span>
+<span class="lineNum">    1261 </span><span class="lineNoCov">          0 :             op-&gt;priority = 5;</span>
+<span class="lineNum">    1262 </span><span class="lineCov">          2 :         } else if ((op-&gt;vt-&gt;r &amp; VT_VALMASK) == VT_LOCAL</span>
+<span class="lineNum">    1263 </span><span class="lineCov">          2 :                    &amp;&amp; op-&gt;vt-&gt;sym</span>
+<span class="lineNum">    1264 </span><span class="lineCov">          2 :                    &amp;&amp; (reg = op-&gt;vt-&gt;sym-&gt;r &amp; VT_VALMASK) &lt; VT_CONST) {</span>
+<span class="lineNum">    1265 </span><span class="lineNoCov">          0 :             op-&gt;priority = 1;</span>
+<span class="lineNum">    1266 </span><span class="lineNoCov">          0 :             op-&gt;reg = reg;</span>
+<span class="lineNum">    1267 </span>            :         } else {
+<span class="lineNum">    1268 </span><span class="lineCov">          2 :             op-&gt;priority = constraint_priority(str);</span>
+<span class="lineNum">    1269 </span>            :         }
+<span class="lineNum">    1270 </span>            :     }
+<span class="lineNum">    1271 </span>            : 
+<span class="lineNum">    1272 </span>            :     /* sort operands according to their priority */
+<span class="lineNum">    1273 </span><span class="lineCov">          2 :     for(i=0;i&lt;nb_operands;i++)</span>
+<span class="lineNum">    1274 </span><span class="lineCov">          2 :         sorted_op[i] = i;</span>
+<span class="lineNum">    1275 </span><span class="lineCov">          2 :     for(i=0;i&lt;nb_operands - 1;i++) {</span>
+<span class="lineNum">    1276 </span><span class="lineCov">          2 :         for(j=i+1;j&lt;nb_operands;j++) {</span>
+<span class="lineNum">    1277 </span><span class="lineCov">          1 :             p1 = operands[sorted_op[i]].priority;</span>
+<span class="lineNum">    1278 </span><span class="lineCov">          1 :             p2 = operands[sorted_op[j]].priority;</span>
+<span class="lineNum">    1279 </span><span class="lineCov">          1 :             if (p2 &lt; p1) {</span>
+<span class="lineNum">    1280 </span><span class="lineNoCov">          0 :                 tmp = sorted_op[i];</span>
+<span class="lineNum">    1281 </span><span class="lineNoCov">          0 :                 sorted_op[i] = sorted_op[j];</span>
+<span class="lineNum">    1282 </span><span class="lineNoCov">          0 :                 sorted_op[j] = tmp;</span>
+<span class="lineNum">    1283 </span>            :             }
+<span class="lineNum">    1284 </span>            :         }
+<span class="lineNum">    1285 </span>            :     }
+<span class="lineNum">    1286 </span>            : 
+<span class="lineNum">    1287 </span><span class="lineCov">         16 :     for(i = 0;i &lt; NB_ASM_REGS; i++) {</span>
+<span class="lineNum">    1288 </span><span class="lineCov">         16 :         if (clobber_regs[i])</span>
+<span class="lineNum">    1289 </span><span class="lineNoCov">          0 :             regs_allocated[i] = REG_IN_MASK | REG_OUT_MASK;</span>
+<span class="lineNum">    1290 </span>            :         else
+<span class="lineNum">    1291 </span><span class="lineCov">         16 :             regs_allocated[i] = 0;</span>
+<span class="lineNum">    1292 </span>            :     }
+<span class="lineNum">    1293 </span>            :     /* esp cannot be used */
+<span class="lineNum">    1294 </span><span class="lineCov">          1 :     regs_allocated[4] = REG_IN_MASK | REG_OUT_MASK;</span>
+<span class="lineNum">    1295 </span>            :     /* ebp cannot be used yet */
+<span class="lineNum">    1296 </span><span class="lineCov">          1 :     regs_allocated[5] = REG_IN_MASK | REG_OUT_MASK;</span>
+<span class="lineNum">    1297 </span>            : 
+<span class="lineNum">    1298 </span>            :     /* allocate registers and generate corresponding asm moves */
+<span class="lineNum">    1299 </span><span class="lineCov">          3 :     for(i=0;i&lt;nb_operands;i++) {</span>
+<span class="lineNum">    1300 </span><span class="lineCov">          2 :         j = sorted_op[i];</span>
+<span class="lineNum">    1301 </span><span class="lineCov">          2 :         op = &amp;operands[j];</span>
+<span class="lineNum">    1302 </span><span class="lineCov">          2 :         str = op-&gt;constraint;</span>
+<span class="lineNum">    1303 </span>            :         /* no need to allocate references */
+<span class="lineNum">    1304 </span><span class="lineCov">          2 :         if (op-&gt;ref_index &gt;= 0)</span>
+<span class="lineNum">    1305 </span><span class="lineNoCov">          0 :             continue;</span>
+<span class="lineNum">    1306 </span>            :         /* select if register is used for output, input or both */
+<span class="lineNum">    1307 </span><span class="lineCov">          2 :         if (op-&gt;input_index &gt;= 0) {</span>
+<span class="lineNum">    1308 </span>            :             reg_mask = REG_IN_MASK | REG_OUT_MASK;
+<span class="lineNum">    1309 </span><span class="lineCov">          2 :         } else if (j &lt; nb_outputs) {</span>
+<span class="lineNum">    1310 </span>            :             reg_mask = REG_OUT_MASK;
+<span class="lineNum">    1311 </span>            :         } else {
+<span class="lineNum">    1312 </span><span class="lineCov">          1 :             reg_mask = REG_IN_MASK;</span>
+<span class="lineNum">    1313 </span>            :         }
+<span class="lineNum">    1314 </span><span class="lineCov">          2 :         if (op-&gt;reg &gt;= 0) {</span>
+<span class="lineNum">    1315 </span><span class="lineNoCov">          0 :             if (is_reg_allocated(op-&gt;reg))</span>
+<span class="lineNum">    1316 </span><span class="lineNoCov">          0 :                 tcc_error(&quot;asm regvar requests register that's taken already&quot;);</span>
+<span class="lineNum">    1317 </span>            :             reg = op-&gt;reg;
+<span class="lineNum">    1318 </span>            :             goto reg_found;
+<span class="lineNum">    1319 </span>            :         }
+<span class="lineNum">    1320 </span><span class="lineCov">          2 :     try_next:</span>
+<span class="lineNum">    1321 </span><span class="lineCov">          3 :         c = *str++;</span>
+<span class="lineNum">    1322 </span><span class="lineCov">          3 :         switch(c) {</span>
+<span class="lineNum">    1323 </span>            :         case '=':
+<span class="lineNum">    1324 </span>            :             goto try_next;
+<span class="lineNum">    1325 </span><span class="lineNoCov">          0 :         case '+':</span>
+<span class="lineNum">    1326 </span><span class="lineNoCov">          0 :             op-&gt;is_rw = 1;</span>
+<span class="lineNum">    1327 </span>            :             /* FALL THRU */
+<span class="lineNum">    1328 </span><span class="lineNoCov">          0 :         case '&amp;':</span>
+<span class="lineNum">    1329 </span><span class="lineNoCov">          0 :             if (j &gt;= nb_outputs)</span>
+<span class="lineNum">    1330 </span><span class="lineNoCov">          0 :                 tcc_error(&quot;'%c' modifier can only be applied to outputs&quot;, c);</span>
+<span class="lineNum">    1331 </span>            :             reg_mask = REG_IN_MASK | REG_OUT_MASK;
+<span class="lineNum">    1332 </span>            :             goto try_next;
+<span class="lineNum">    1333 </span><span class="lineNoCov">          0 :         case 'A':</span>
+<span class="lineNum">    1334 </span>            :             /* allocate both eax and edx */
+<span class="lineNum">    1335 </span><span class="lineNoCov">          0 :             if (is_reg_allocated(TREG_XAX) ||</span>
+<span class="lineNum">    1336 </span><span class="lineNoCov">          0 :                 is_reg_allocated(TREG_XDX))</span>
+<span class="lineNum">    1337 </span>            :                 goto try_next;
+<span class="lineNum">    1338 </span><span class="lineNoCov">          0 :             op-&gt;is_llong = 1;</span>
+<span class="lineNum">    1339 </span><span class="lineNoCov">          0 :             op-&gt;reg = TREG_XAX;</span>
+<span class="lineNum">    1340 </span><span class="lineNoCov">          0 :             regs_allocated[TREG_XAX] |= reg_mask;</span>
+<span class="lineNum">    1341 </span><span class="lineNoCov">          0 :             regs_allocated[TREG_XDX] |= reg_mask;</span>
+<span class="lineNum">    1342 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1343 </span>            :         case 'a':
+<span class="lineNum">    1344 </span>            :             reg = TREG_XAX;
+<span class="lineNum">    1345 </span>            :             goto alloc_reg;
+<span class="lineNum">    1346 </span><span class="lineNoCov">          0 :         case 'b':</span>
+<span class="lineNum">    1347 </span><span class="lineNoCov">          0 :             reg = 3;</span>
+<span class="lineNum">    1348 </span><span class="lineNoCov">          0 :             goto alloc_reg;</span>
+<span class="lineNum">    1349 </span><span class="lineNoCov">          0 :         case 'c':</span>
+<span class="lineNum">    1350 </span><span class="lineNoCov">          0 :             reg = TREG_XCX;</span>
+<span class="lineNum">    1351 </span><span class="lineNoCov">          0 :             goto alloc_reg;</span>
+<span class="lineNum">    1352 </span><span class="lineNoCov">          0 :         case 'd':</span>
+<span class="lineNum">    1353 </span><span class="lineNoCov">          0 :             reg = TREG_XDX;</span>
+<span class="lineNum">    1354 </span><span class="lineNoCov">          0 :             goto alloc_reg;</span>
+<span class="lineNum">    1355 </span><span class="lineNoCov">          0 :         case 'S':</span>
+<span class="lineNum">    1356 </span><span class="lineNoCov">          0 :             reg = 6;</span>
+<span class="lineNum">    1357 </span><span class="lineNoCov">          0 :             goto alloc_reg;</span>
+<span class="lineNum">    1358 </span><span class="lineNoCov">          0 :         case 'D':</span>
+<span class="lineNum">    1359 </span><span class="lineNoCov">          0 :             reg = 7;</span>
+<span class="lineNum">    1360 </span><span class="lineNoCov">          0 :         alloc_reg:</span>
+<span class="lineNum">    1361 </span><span class="lineNoCov">          0 :             if (is_reg_allocated(reg))</span>
+<span class="lineNum">    1362 </span>            :                 goto try_next;
+<span class="lineNum">    1363 </span>            :             goto reg_found;
+<span class="lineNum">    1364 </span>            :         case 'q':
+<span class="lineNum">    1365 </span>            :             /* eax, ebx, ecx or edx */
+<span class="lineNum">    1366 </span><span class="lineNoCov">          0 :             for(reg = 0; reg &lt; 4; reg++) {</span>
+<span class="lineNum">    1367 </span><span class="lineNoCov">          0 :                 if (!is_reg_allocated(reg))</span>
+<span class="lineNum">    1368 </span>            :                     goto reg_found;
+<span class="lineNum">    1369 </span>            :             }
+<span class="lineNum">    1370 </span>            :             goto try_next;
+<span class="lineNum">    1371 </span>            :         case 'r':
+<span class="lineNum">    1372 </span>            :         case 'R':
+<span class="lineNum">    1373 </span>            :         case 'p': /* A general address, for x86(64) any register is acceptable*/
+<span class="lineNum">    1374 </span>            :             /* any general register */
+<span class="lineNum">    1375 </span><span class="lineNoCov">          0 :             for(reg = 0; reg &lt; 8; reg++) {</span>
+<span class="lineNum">    1376 </span><span class="lineCov">          2 :                 if (!is_reg_allocated(reg))</span>
+<span class="lineNum">    1377 </span>            :                     goto reg_found;
+<span class="lineNum">    1378 </span>            :             }
+<span class="lineNum">    1379 </span>            :             goto try_next;
+<span class="lineNum">    1380 </span><span class="lineCov">          2 :         reg_found:</span>
+<span class="lineNum">    1381 </span>            :             /* now we can reload in the register */
+<span class="lineNum">    1382 </span><span class="lineCov">          2 :             op-&gt;is_llong = 0;</span>
+<span class="lineNum">    1383 </span><span class="lineCov">          2 :             op-&gt;reg = reg;</span>
+<span class="lineNum">    1384 </span><span class="lineCov">          2 :             regs_allocated[reg] |= reg_mask;</span>
+<span class="lineNum">    1385 </span><span class="lineCov">          2 :             break;</span>
+<span class="lineNum">    1386 </span><span class="lineNoCov">          0 :         case 'e':</span>
+<span class="lineNum">    1387 </span>            :         case 'i':
+<span class="lineNum">    1388 </span><span class="lineNoCov">          0 :             if (!((op-&gt;vt-&gt;r &amp; (VT_VALMASK | VT_LVAL)) == VT_CONST))</span>
+<span class="lineNum">    1389 </span>            :                 goto try_next;
+<span class="lineNum">    1390 </span>            :             break;
+<span class="lineNum">    1391 </span><span class="lineNoCov">          0 :         case 'I':</span>
+<span class="lineNum">    1392 </span>            :         case 'N':
+<span class="lineNum">    1393 </span>            :         case 'M':
+<span class="lineNum">    1394 </span><span class="lineNoCov">          0 :             if (!((op-&gt;vt-&gt;r &amp; (VT_VALMASK | VT_LVAL | VT_SYM)) == VT_CONST))</span>
+<span class="lineNum">    1395 </span>            :                 goto try_next;
+<span class="lineNum">    1396 </span>            :             break;
+<span class="lineNum">    1397 </span><span class="lineNoCov">          0 :         case 'm':</span>
+<span class="lineNum">    1398 </span>            :         case 'g':
+<span class="lineNum">    1399 </span>            :             /* nothing special to do because the operand is already in
+<span class="lineNum">    1400 </span>            :                memory, except if the pointer itself is stored in a
+<span class="lineNum">    1401 </span>            :                memory variable (VT_LLOCAL case) */
+<span class="lineNum">    1402 </span>            :             /* XXX: fix constant case */
+<span class="lineNum">    1403 </span>            :             /* if it is a reference to a memory zone, it must lie
+<span class="lineNum">    1404 </span>            :                in a register, so we reserve the register in the
+<span class="lineNum">    1405 </span>            :                input registers and a load will be generated
+<span class="lineNum">    1406 </span>            :                later */
+<span class="lineNum">    1407 </span><span class="lineNoCov">          0 :             if (j &lt; nb_outputs || c == 'm') {</span>
+<span class="lineNum">    1408 </span><span class="lineNoCov">          0 :                 if ((op-&gt;vt-&gt;r &amp; VT_VALMASK) == VT_LLOCAL) {</span>
+<span class="lineNum">    1409 </span>            :                     /* any general register */
+<span class="lineNum">    1410 </span><span class="lineNoCov">          0 :                     for(reg = 0; reg &lt; 8; reg++) {</span>
+<span class="lineNum">    1411 </span><span class="lineNoCov">          0 :                         if (!(regs_allocated[reg] &amp; REG_IN_MASK))</span>
+<span class="lineNum">    1412 </span>            :                             goto reg_found1;
+<span class="lineNum">    1413 </span>            :                     }
+<span class="lineNum">    1414 </span>            :                     goto try_next;
+<span class="lineNum">    1415 </span><span class="lineNoCov">          0 :                 reg_found1:</span>
+<span class="lineNum">    1416 </span>            :                     /* now we can reload in the register */
+<span class="lineNum">    1417 </span><span class="lineNoCov">          0 :                     regs_allocated[reg] |= REG_IN_MASK;</span>
+<span class="lineNum">    1418 </span><span class="lineNoCov">          0 :                     op-&gt;reg = reg;</span>
+<span class="lineNum">    1419 </span><span class="lineNoCov">          0 :                     op-&gt;is_memory = 1;</span>
+<span class="lineNum">    1420 </span>            :                 }
+<span class="lineNum">    1421 </span>            :             }
+<span class="lineNum">    1422 </span>            :             break;
+<span class="lineNum">    1423 </span><span class="lineNoCov">          0 :         default:</span>
+<span class="lineNum">    1424 </span><span class="lineNoCov">          0 :             tcc_error(&quot;asm constraint %d ('%s') could not be satisfied&quot;,</span>
+<span class="lineNum">    1425 </span>            :                   j, op-&gt;constraint);
+<span class="lineNum">    1426 </span>            :             break;
+<span class="lineNum">    1427 </span>            :         }
+<span class="lineNum">    1428 </span>            :         /* if a reference is present for that operand, we assign it too */
+<span class="lineNum">    1429 </span><span class="lineCov">          2 :         if (op-&gt;input_index &gt;= 0) {</span>
+<span class="lineNum">    1430 </span><span class="lineNoCov">          0 :             operands[op-&gt;input_index].reg = op-&gt;reg;</span>
+<span class="lineNum">    1431 </span><span class="lineNoCov">          0 :             operands[op-&gt;input_index].is_llong = op-&gt;is_llong;</span>
+<span class="lineNum">    1432 </span>            :         }
+<span class="lineNum">    1433 </span>            :     }
+<span class="lineNum">    1434 </span>            : 
+<span class="lineNum">    1435 </span>            :     /* compute out_reg. It is used to store outputs registers to memory
+<span class="lineNum">    1436 </span>            :        locations references by pointers (VT_LLOCAL case) */
+<span class="lineNum">    1437 </span><span class="lineCov">          1 :     *pout_reg = -1;</span>
+<span class="lineNum">    1438 </span><span class="lineCov">          3 :     for(i=0;i&lt;nb_operands;i++) {</span>
+<span class="lineNum">    1439 </span><span class="lineCov">          2 :         op = &amp;operands[i];</span>
+<span class="lineNum">    1440 </span><span class="lineCov">          4 :         if (op-&gt;reg &gt;= 0 &amp;&amp;</span>
+<span class="lineNum">    1441 </span><span class="lineCov">          2 :             (op-&gt;vt-&gt;r &amp; VT_VALMASK) == VT_LLOCAL  &amp;&amp;</span>
+<span class="lineNum">    1442 </span><span class="lineNoCov">          0 :             !op-&gt;is_memory) {</span>
+<span class="lineNum">    1443 </span><span class="lineNoCov">          0 :             for(reg = 0; reg &lt; 8; reg++) {</span>
+<span class="lineNum">    1444 </span><span class="lineNoCov">          0 :                 if (!(regs_allocated[reg] &amp; REG_OUT_MASK))</span>
+<span class="lineNum">    1445 </span>            :                     goto reg_found2;
+<span class="lineNum">    1446 </span>            :             }
+<span class="lineNum">    1447 </span><span class="lineNoCov">          0 :             tcc_error(&quot;could not find free output register for reloading&quot;);</span>
+<span class="lineNum">    1448 </span><span class="lineNoCov">          0 :         reg_found2:</span>
+<span class="lineNum">    1449 </span><span class="lineNoCov">          0 :             *pout_reg = reg;</span>
+<span class="lineNum">    1450 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1451 </span>            :         }
+<span class="lineNum">    1452 </span>            :     }
+<span class="lineNum">    1453 </span>            : 
+<span class="lineNum">    1454 </span>            :     /* print sorted constraints */
+<span class="lineNum">    1455 </span>            : #ifdef ASM_DEBUG
+<span class="lineNum">    1456 </span>            :     for(i=0;i&lt;nb_operands;i++) {
+<span class="lineNum">    1457 </span>            :         j = sorted_op[i];
+<span class="lineNum">    1458 </span>            :         op = &amp;operands[j];
+<span class="lineNum">    1459 </span>            :         printf(&quot;%%%d [%s]: \&quot;%s\&quot; r=0x%04x reg=%d\n&quot;,
+<span class="lineNum">    1460 </span>            :                j,
+<span class="lineNum">    1461 </span>            :                op-&gt;id ? get_tok_str(op-&gt;id, NULL) : &quot;&quot;,
+<span class="lineNum">    1462 </span>            :                op-&gt;constraint,
+<span class="lineNum">    1463 </span>            :                op-&gt;vt-&gt;r,
+<span class="lineNum">    1464 </span>            :                op-&gt;reg);
+<span class="lineNum">    1465 </span>            :     }
+<span class="lineNum">    1466 </span>            :     if (*pout_reg &gt;= 0)
+<span class="lineNum">    1467 </span>            :         printf(&quot;out_reg=%d\n&quot;, *pout_reg);
+<span class="lineNum">    1468 </span>            : #endif
+<a name="1469"><span class="lineNum">    1469 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">    1470 </span>            : 
+<span class="lineNum">    1471 </span><span class="lineCov">          2 : ST_FUNC void subst_asm_operand(CString *add_str,</span>
+<span class="lineNum">    1472 </span>            :                               SValue *sv, int modifier)
+<span class="lineNum">    1473 </span>            : {
+<span class="lineNum">    1474 </span>            :     int r, reg, size, val;
+<span class="lineNum">    1475 </span>            :     char buf[64];
+<span class="lineNum">    1476 </span>            : 
+<span class="lineNum">    1477 </span><span class="lineCov">          2 :     r = sv-&gt;r;</span>
+<span class="lineNum">    1478 </span><span class="lineCov">          2 :     if ((r &amp; VT_VALMASK) == VT_CONST) {</span>
+<span class="lineNum">    1479 </span><span class="lineNoCov">          0 :         if (!(r &amp; VT_LVAL) &amp;&amp; modifier != 'c' &amp;&amp; modifier != 'n' &amp;&amp;</span>
+<span class="lineNum">    1480 </span>            :             modifier != 'P')
+<span class="lineNum">    1481 </span><span class="lineNoCov">          0 :             cstr_ccat(add_str, '$');</span>
+<span class="lineNum">    1482 </span><span class="lineNoCov">          0 :         if (r &amp; VT_SYM) {</span>
+<span class="lineNum">    1483 </span><span class="lineNoCov">          0 :             const char *name = get_tok_str(sv-&gt;sym-&gt;v, NULL);</span>
+<span class="lineNum">    1484 </span><span class="lineNoCov">          0 :             if (sv-&gt;sym-&gt;v &gt;= SYM_FIRST_ANOM) {</span>
+<span class="lineNum">    1485 </span>            :                 /* In case of anonymous symbols (&quot;L.42&quot;, used
+<span class="lineNum">    1486 </span>            :                    for static data labels) we can't find them
+<span class="lineNum">    1487 </span>            :                    in the C symbol table when later looking up
+<span class="lineNum">    1488 </span>            :                    this name.  So enter them now into the asm label
+<span class="lineNum">    1489 </span>            :                    list when we still know the symbol.  */
+<span class="lineNum">    1490 </span><span class="lineNoCov">          0 :                 get_asm_sym(tok_alloc(name, strlen(name))-&gt;tok, sv-&gt;sym);</span>
+<span class="lineNum">    1491 </span>            :             }
+<span class="lineNum">    1492 </span><span class="lineNoCov">          0 :             cstr_cat(add_str, name, -1);</span>
+<span class="lineNum">    1493 </span><span class="lineNoCov">          0 :             if ((uint32_t)sv-&gt;c.i == 0)</span>
+<span class="lineNum">    1494 </span>            :                 goto no_offset;
+<span class="lineNum">    1495 </span><span class="lineNoCov">          0 :             cstr_ccat(add_str, '+');</span>
+<span class="lineNum">    1496 </span>            :         }
+<span class="lineNum">    1497 </span><span class="lineNoCov">          0 :         val = sv-&gt;c.i;</span>
+<span class="lineNum">    1498 </span>            :         if (modifier == 'n')
+<span class="lineNum">    1499 </span>            :             val = -val;
+<span class="lineNum">    1500 </span><span class="lineNoCov">          0 :         snprintf(buf, sizeof(buf), &quot;%d&quot;, (int)sv-&gt;c.i);</span>
+<span class="lineNum">    1501 </span><span class="lineNoCov">          0 :         cstr_cat(add_str, buf, -1);</span>
+<span class="lineNum">    1502 </span><span class="lineNoCov">          0 :     no_offset:;</span>
+<span class="lineNum">    1503 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">    1504 </span><span class="lineNoCov">          0 :         if (r &amp; VT_LVAL)</span>
+<span class="lineNum">    1505 </span><span class="lineNoCov">          0 :             cstr_cat(add_str, &quot;(%rip)&quot;, -1);</span>
+<span class="lineNum">    1506 </span>            : #endif
+<span class="lineNum">    1507 </span><span class="lineCov">          2 :     } else if ((r &amp; VT_VALMASK) == VT_LOCAL) {</span>
+<span class="lineNum">    1508 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">    1509 </span><span class="lineNoCov">          0 :         snprintf(buf, sizeof(buf), &quot;%d(%%rbp)&quot;, (int)sv-&gt;c.i);</span>
+<span class="lineNum">    1510 </span>            : #else
+<span class="lineNum">    1511 </span>            :         snprintf(buf, sizeof(buf), &quot;%d(%%ebp)&quot;, (int)sv-&gt;c.i);
+<span class="lineNum">    1512 </span>            : #endif
+<span class="lineNum">    1513 </span><span class="lineNoCov">          0 :         cstr_cat(add_str, buf, -1);</span>
+<span class="lineNum">    1514 </span><span class="lineCov">          2 :     } else if (r &amp; VT_LVAL) {</span>
+<span class="lineNum">    1515 </span><span class="lineNoCov">          0 :         reg = r &amp; VT_VALMASK;</span>
+<span class="lineNum">    1516 </span><span class="lineNoCov">          0 :         if (reg &gt;= VT_CONST)</span>
+<span class="lineNum">    1517 </span><span class="lineNoCov">          0 :             tcc_error(&quot;internal compiler error&quot;);</span>
+<span class="lineNum">    1518 </span><span class="lineNoCov">          0 :         snprintf(buf, sizeof(buf), &quot;(%%%s)&quot;,</span>
+<span class="lineNum">    1519 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">    1520 </span>            :                  get_tok_str(TOK_ASM_rax + reg, NULL)
+<span class="lineNum">    1521 </span>            : #else
+<span class="lineNum">    1522 </span>            :                  get_tok_str(TOK_ASM_eax + reg, NULL)
+<span class="lineNum">    1523 </span>            : #endif
+<span class="lineNum">    1524 </span>            :                  );
+<span class="lineNum">    1525 </span><span class="lineNoCov">          0 :         cstr_cat(add_str, buf, -1);</span>
+<span class="lineNum">    1526 </span>            :     } else {
+<span class="lineNum">    1527 </span>            :         /* register case */
+<span class="lineNum">    1528 </span><span class="lineCov">          2 :         reg = r &amp; VT_VALMASK;</span>
+<span class="lineNum">    1529 </span><span class="lineCov">          2 :         if (reg &gt;= VT_CONST)</span>
+<span class="lineNum">    1530 </span><span class="lineNoCov">          0 :             tcc_error(&quot;internal compiler error&quot;);</span>
+<span class="lineNum">    1531 </span>            : 
+<span class="lineNum">    1532 </span>            :         /* choose register operand size */
+<span class="lineNum">    1533 </span><span class="lineCov">          2 :         if ((sv-&gt;type.t &amp; VT_BTYPE) == VT_BYTE ||</span>
+<span class="lineNum">    1534 </span>            :             (sv-&gt;type.t &amp; VT_BTYPE) == VT_BOOL)
+<span class="lineNum">    1535 </span>            :             size = 1;
+<span class="lineNum">    1536 </span><span class="lineCov">          2 :         else if ((sv-&gt;type.t &amp; VT_BTYPE) == VT_SHORT)</span>
+<span class="lineNum">    1537 </span>            :             size = 2;
+<span class="lineNum">    1538 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">    1539 </span><span class="lineCov">          2 :         else if ((sv-&gt;type.t &amp; VT_BTYPE) == VT_LLONG ||</span>
+<span class="lineNum">    1540 </span>            :                  (sv-&gt;type.t &amp; VT_BTYPE) == VT_PTR)
+<span class="lineNum">    1541 </span>            :             size = 8;
+<span class="lineNum">    1542 </span>            : #endif
+<span class="lineNum">    1543 </span>            :         else
+<span class="lineNum">    1544 </span><span class="lineCov">          2 :             size = 4;</span>
+<span class="lineNum">    1545 </span><span class="lineCov">          2 :         if (size == 1 &amp;&amp; reg &gt;= 4)</span>
+<span class="lineNum">    1546 </span><span class="lineNoCov">          0 :             size = 4;</span>
+<span class="lineNum">    1547 </span>            : 
+<span class="lineNum">    1548 </span><span class="lineCov">          2 :         if (modifier == 'b') {</span>
+<span class="lineNum">    1549 </span><span class="lineNoCov">          0 :             if (reg &gt;= 4)</span>
+<span class="lineNum">    1550 </span><span class="lineNoCov">          0 :                 tcc_error(&quot;cannot use byte register&quot;);</span>
+<span class="lineNum">    1551 </span>            :             size = 1;
+<span class="lineNum">    1552 </span><span class="lineCov">          2 :         } else if (modifier == 'h') {</span>
+<span class="lineNum">    1553 </span><span class="lineNoCov">          0 :             if (reg &gt;= 4)</span>
+<span class="lineNum">    1554 </span><span class="lineNoCov">          0 :                 tcc_error(&quot;cannot use byte register&quot;);</span>
+<span class="lineNum">    1555 </span>            :             size = -1;
+<span class="lineNum">    1556 </span><span class="lineCov">          2 :         } else if (modifier == 'w') {</span>
+<span class="lineNum">    1557 </span>            :             size = 2;
+<span class="lineNum">    1558 </span><span class="lineCov">          2 :         } else if (modifier == 'k') {</span>
+<span class="lineNum">    1559 </span>            :             size = 4;
+<span class="lineNum">    1560 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">    1561 </span><span class="lineCov">          2 :         } else if (modifier == 'q') {</span>
+<span class="lineNum">    1562 </span>            :             size = 8;
+<span class="lineNum">    1563 </span>            : #endif
+<span class="lineNum">    1564 </span>            :         }
+<span class="lineNum">    1565 </span>            : 
+<span class="lineNum">    1566 </span><span class="lineCov">          2 :         switch(size) {</span>
+<span class="lineNum">    1567 </span><span class="lineNoCov">          0 :         case -1:</span>
+<span class="lineNum">    1568 </span><span class="lineNoCov">          0 :             reg = TOK_ASM_ah + reg;</span>
+<span class="lineNum">    1569 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1570 </span><span class="lineNoCov">          0 :         case 1:</span>
+<span class="lineNum">    1571 </span><span class="lineNoCov">          0 :             reg = TOK_ASM_al + reg;</span>
+<span class="lineNum">    1572 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1573 </span><span class="lineNoCov">          0 :         case 2:</span>
+<span class="lineNum">    1574 </span><span class="lineNoCov">          0 :             reg = TOK_ASM_ax + reg;</span>
+<span class="lineNum">    1575 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1576 </span><span class="lineCov">          2 :         default:</span>
+<span class="lineNum">    1577 </span><span class="lineCov">          2 :             reg = TOK_ASM_eax + reg;</span>
+<span class="lineNum">    1578 </span><span class="lineCov">          2 :             break;</span>
+<span class="lineNum">    1579 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">    1580 </span><span class="lineNoCov">          0 :         case 8:</span>
+<span class="lineNum">    1581 </span><span class="lineNoCov">          0 :             reg = TOK_ASM_rax + reg;</span>
+<span class="lineNum">    1582 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1583 </span>            : #endif
+<span class="lineNum">    1584 </span>            :         }
+<span class="lineNum">    1585 </span><span class="lineCov">          4 :         snprintf(buf, sizeof(buf), &quot;%%%s&quot;, get_tok_str(reg, NULL));</span>
+<span class="lineNum">    1586 </span><span class="lineCov">          2 :         cstr_cat(add_str, buf, -1);</span>
+<span class="lineNum">    1587 </span>            :     }
+<span class="lineNum">    1588 </span><span class="lineCov">          2 : }</span>
+<a name="1589"><span class="lineNum">    1589 </span>            : </a>
+<span class="lineNum">    1590 </span>            : /* generate prolog and epilog code for asm statement */
+<span class="lineNum">    1591 </span><span class="lineCov">          2 : ST_FUNC void asm_gen_code(ASMOperand *operands, int nb_operands,</span>
+<span class="lineNum">    1592 </span>            :                          int nb_outputs, int is_output,
+<span class="lineNum">    1593 </span>            :                          uint8_t *clobber_regs,
+<span class="lineNum">    1594 </span>            :                          int out_reg)
+<span class="lineNum">    1595 </span>            : {
+<span class="lineNum">    1596 </span>            :     uint8_t regs_allocated[NB_ASM_REGS];
+<span class="lineNum">    1597 </span>            :     ASMOperand *op;
+<span class="lineNum">    1598 </span>            :     int i, reg;
+<span class="lineNum">    1599 </span>            : 
+<span class="lineNum">    1600 </span>            :     /* Strictly speaking %Xbp and %Xsp should be included in the
+<span class="lineNum">    1601 </span>            :        call-preserved registers, but currently it doesn't matter.  */
+<span class="lineNum">    1602 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">    1603 </span>            : #ifdef TCC_TARGET_PE
+<span class="lineNum">    1604 </span>            :     static uint8_t reg_saved[] = { 3, 6, 7, 12, 13, 14, 15 };
+<span class="lineNum">    1605 </span>            : #else
+<span class="lineNum">    1606 </span>            :     static uint8_t reg_saved[] = { 3, 12, 13, 14, 15 };
+<span class="lineNum">    1607 </span>            : #endif
+<span class="lineNum">    1608 </span>            : #else
+<span class="lineNum">    1609 </span>            :     static uint8_t reg_saved[] = { 3, 6, 7 };
+<span class="lineNum">    1610 </span>            : #endif
+<span class="lineNum">    1611 </span>            : 
+<span class="lineNum">    1612 </span>            :     /* mark all used registers */
+<span class="lineNum">    1613 </span><span class="lineCov">          2 :     memcpy(regs_allocated, clobber_regs, sizeof(regs_allocated));</span>
+<span class="lineNum">    1614 </span><span class="lineCov">          6 :     for(i = 0; i &lt; nb_operands;i++) {</span>
+<span class="lineNum">    1615 </span><span class="lineCov">          4 :         op = &amp;operands[i];</span>
+<span class="lineNum">    1616 </span><span class="lineCov">          4 :         if (op-&gt;reg &gt;= 0)</span>
+<span class="lineNum">    1617 </span><span class="lineCov">          4 :             regs_allocated[op-&gt;reg] = 1;</span>
+<span class="lineNum">    1618 </span>            :     }
+<span class="lineNum">    1619 </span><span class="lineCov">          2 :     if (!is_output) {</span>
+<span class="lineNum">    1620 </span>            :         /* generate reg save code */
+<span class="lineNum">    1621 </span><span class="lineCov">          5 :         for(i = 0; i &lt; sizeof(reg_saved)/sizeof(reg_saved[0]); i++) {</span>
+<span class="lineNum">    1622 </span><span class="lineCov">          5 :             reg = reg_saved[i];</span>
+<span class="lineNum">    1623 </span><span class="lineCov">          5 :             if (regs_allocated[reg]) {</span>
+<span class="lineNum">    1624 </span><span class="lineNoCov">          0 :                 if (reg &gt;= 8)</span>
+<span class="lineNum">    1625 </span><span class="lineNoCov">          0 :                   g(0x41), reg-=8;</span>
+<span class="lineNum">    1626 </span><span class="lineNoCov">          0 :                 g(0x50 + reg);</span>
+<span class="lineNum">    1627 </span>            :             }
+<span class="lineNum">    1628 </span>            :         }
+<span class="lineNum">    1629 </span>            : 
+<span class="lineNum">    1630 </span>            :         /* generate load code */
+<span class="lineNum">    1631 </span><span class="lineCov">          2 :         for(i = 0; i &lt; nb_operands; i++) {</span>
+<span class="lineNum">    1632 </span><span class="lineCov">          2 :             op = &amp;operands[i];</span>
+<span class="lineNum">    1633 </span><span class="lineCov">          2 :             if (op-&gt;reg &gt;= 0) {</span>
+<span class="lineNum">    1634 </span><span class="lineCov">          2 :                 if ((op-&gt;vt-&gt;r &amp; VT_VALMASK) == VT_LLOCAL &amp;&amp;</span>
+<span class="lineNum">    1635 </span><span class="lineNoCov">          0 :                     op-&gt;is_memory) {</span>
+<span class="lineNum">    1636 </span>            :                     /* memory reference case (for both input and
+<span class="lineNum">    1637 </span>            :                        output cases) */
+<span class="lineNum">    1638 </span>            :                     SValue sv;
+<span class="lineNum">    1639 </span><span class="lineNoCov">          0 :                     sv = *op-&gt;vt;</span>
+<span class="lineNum">    1640 </span><span class="lineNoCov">          0 :                     sv.r = (sv.r &amp; ~VT_VALMASK) | VT_LOCAL | VT_LVAL;</span>
+<span class="lineNum">    1641 </span><span class="lineNoCov">          0 :                     sv.type.t = VT_PTR;</span>
+<span class="lineNum">    1642 </span><span class="lineNoCov">          0 :                     load(op-&gt;reg, &amp;sv);</span>
+<span class="lineNum">    1643 </span><span class="lineCov">          2 :                 } else if (i &gt;= nb_outputs || op-&gt;is_rw) {</span>
+<span class="lineNum">    1644 </span>            :                     /* load value in register */
+<span class="lineNum">    1645 </span><span class="lineCov">          1 :                     load(op-&gt;reg, op-&gt;vt);</span>
+<span class="lineNum">    1646 </span><span class="lineCov">          1 :                     if (op-&gt;is_llong) {</span>
+<span class="lineNum">    1647 </span>            :                         SValue sv;
+<span class="lineNum">    1648 </span><span class="lineNoCov">          0 :                         sv = *op-&gt;vt;</span>
+<span class="lineNum">    1649 </span><span class="lineNoCov">          0 :                         sv.c.i += 4;</span>
+<span class="lineNum">    1650 </span><span class="lineNoCov">          0 :                         load(TREG_XDX, &amp;sv);</span>
+<span class="lineNum">    1651 </span>            :                     }
+<span class="lineNum">    1652 </span>            :                 }
+<span class="lineNum">    1653 </span>            :             }
+<span class="lineNum">    1654 </span>            :         }
+<span class="lineNum">    1655 </span>            :     } else {
+<span class="lineNum">    1656 </span>            :         /* generate save code */
+<span class="lineNum">    1657 </span><span class="lineCov">          1 :         for(i = 0 ; i &lt; nb_outputs; i++) {</span>
+<span class="lineNum">    1658 </span><span class="lineCov">          1 :             op = &amp;operands[i];</span>
+<span class="lineNum">    1659 </span><span class="lineCov">          1 :             if (op-&gt;reg &gt;= 0) {</span>
+<span class="lineNum">    1660 </span><span class="lineCov">          1 :                 if ((op-&gt;vt-&gt;r &amp; VT_VALMASK) == VT_LLOCAL) {</span>
+<span class="lineNum">    1661 </span><span class="lineNoCov">          0 :                     if (!op-&gt;is_memory) {</span>
+<span class="lineNum">    1662 </span>            :                         SValue sv;
+<span class="lineNum">    1663 </span><span class="lineNoCov">          0 :                         sv = *op-&gt;vt;</span>
+<span class="lineNum">    1664 </span><span class="lineNoCov">          0 :                         sv.r = (sv.r &amp; ~VT_VALMASK) | VT_LOCAL;</span>
+<span class="lineNum">    1665 </span><span class="lineNoCov">          0 :                         sv.type.t = VT_PTR;</span>
+<span class="lineNum">    1666 </span><span class="lineNoCov">          0 :                         load(out_reg, &amp;sv);</span>
+<span class="lineNum">    1667 </span>            : 
+<span class="lineNum">    1668 </span><span class="lineNoCov">          0 :                         sv = *op-&gt;vt;</span>
+<span class="lineNum">    1669 </span><span class="lineNoCov">          0 :                         sv.r = (sv.r &amp; ~VT_VALMASK) | out_reg;</span>
+<span class="lineNum">    1670 </span><span class="lineNoCov">          0 :                         store(op-&gt;reg, &amp;sv);</span>
+<span class="lineNum">    1671 </span>            :                     }
+<span class="lineNum">    1672 </span>            :                 } else {
+<span class="lineNum">    1673 </span><span class="lineCov">          1 :                     store(op-&gt;reg, op-&gt;vt);</span>
+<span class="lineNum">    1674 </span><span class="lineCov">          1 :                     if (op-&gt;is_llong) {</span>
+<span class="lineNum">    1675 </span>            :                         SValue sv;
+<span class="lineNum">    1676 </span><span class="lineNoCov">          0 :                         sv = *op-&gt;vt;</span>
+<span class="lineNum">    1677 </span><span class="lineNoCov">          0 :                         sv.c.i += 4;</span>
+<span class="lineNum">    1678 </span><span class="lineNoCov">          0 :                         store(TREG_XDX, &amp;sv);</span>
+<span class="lineNum">    1679 </span>            :                     }
+<span class="lineNum">    1680 </span>            :                 }
+<span class="lineNum">    1681 </span>            :             }
+<span class="lineNum">    1682 </span>            :         }
+<span class="lineNum">    1683 </span>            :         /* generate reg restore code */
+<span class="lineNum">    1684 </span><span class="lineCov">          5 :         for(i = sizeof(reg_saved)/sizeof(reg_saved[0]) - 1; i &gt;= 0; i--) {</span>
+<span class="lineNum">    1685 </span><span class="lineCov">          5 :             reg = reg_saved[i];</span>
+<span class="lineNum">    1686 </span><span class="lineCov">          5 :             if (regs_allocated[reg]) {</span>
+<span class="lineNum">    1687 </span><span class="lineNoCov">          0 :                 if (reg &gt;= 8)</span>
+<span class="lineNum">    1688 </span><span class="lineNoCov">          0 :                   g(0x41), reg-=8;</span>
+<span class="lineNum">    1689 </span><span class="lineNoCov">          0 :                 g(0x58 + reg);</span>
+<span class="lineNum">    1690 </span>            :             }
+<span class="lineNum">    1691 </span>            :         }
+<span class="lineNum">    1692 </span>            :     }
+<a name="1693"><span class="lineNum">    1693 </span><span class="lineCov">          2 : }</span></a>
+<span class="lineNum">    1694 </span>            : 
+<span class="lineNum">    1695 </span><span class="lineNoCov">          0 : ST_FUNC void asm_clobber(uint8_t *clobber_regs, const char *str)</span>
+<span class="lineNum">    1696 </span>            : {
+<span class="lineNum">    1697 </span>            :     int reg;
+<span class="lineNum">    1698 </span>            :     TokenSym *ts;
+<span class="lineNum">    1699 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">    1700 </span>            :     unsigned int type;
+<span class="lineNum">    1701 </span>            : #endif
+<span class="lineNum">    1702 </span>            : 
+<span class="lineNum">    1703 </span><span class="lineNoCov">          0 :     if (!strcmp(str, &quot;memory&quot;) ||</span>
+<span class="lineNum">    1704 </span><span class="lineNoCov">          0 :         !strcmp(str, &quot;cc&quot;) ||</span>
+<span class="lineNum">    1705 </span><span class="lineNoCov">          0 :         !strcmp(str, &quot;flags&quot;))</span>
+<span class="lineNum">    1706 </span><span class="lineNoCov">          0 :         return;</span>
+<span class="lineNum">    1707 </span><span class="lineNoCov">          0 :     ts = tok_alloc(str, strlen(str));</span>
+<span class="lineNum">    1708 </span><span class="lineNoCov">          0 :     reg = ts-&gt;tok;</span>
+<span class="lineNum">    1709 </span><span class="lineNoCov">          0 :     if (reg &gt;= TOK_ASM_eax &amp;&amp; reg &lt;= TOK_ASM_edi) {</span>
+<span class="lineNum">    1710 </span><span class="lineNoCov">          0 :         reg -= TOK_ASM_eax;</span>
+<span class="lineNum">    1711 </span><span class="lineNoCov">          0 :     } else if (reg &gt;= TOK_ASM_ax &amp;&amp; reg &lt;= TOK_ASM_di) {</span>
+<span class="lineNum">    1712 </span><span class="lineNoCov">          0 :         reg -= TOK_ASM_ax;</span>
+<span class="lineNum">    1713 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">    1714 </span><span class="lineNoCov">          0 :     } else if (reg &gt;= TOK_ASM_rax &amp;&amp; reg &lt;= TOK_ASM_rdi) {</span>
+<span class="lineNum">    1715 </span><span class="lineNoCov">          0 :         reg -= TOK_ASM_rax;</span>
+<span class="lineNum">    1716 </span><span class="lineNoCov">          0 :     } else if ((reg = asm_parse_numeric_reg(reg, &amp;type)) &gt;= 0) {</span>
+<span class="lineNum">    1717 </span>            :         ;
+<span class="lineNum">    1718 </span>            : #endif
+<span class="lineNum">    1719 </span>            :     } else {
+<span class="lineNum">    1720 </span><span class="lineNoCov">          0 :         tcc_error(&quot;invalid clobber register '%s'&quot;, str);</span>
+<span class="lineNum">    1721 </span>            :     }
+<span class="lineNum">    1722 </span><span class="lineNoCov">          0 :     clobber_regs[reg] = 1;</span>
+<span class="lineNum">    1723 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

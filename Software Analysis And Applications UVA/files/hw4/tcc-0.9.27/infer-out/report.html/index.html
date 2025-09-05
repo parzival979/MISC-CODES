@@ -1,0 +1,273 @@
+<html>
+<head>
+<title>Infer found 66 bugs</title>
+</head>
+<body>
+<h2>List of bugs found</h2>
+<ol><li>
+libtcc.c:174: error: NULL_DEREFERENCE
+  pointer `p` last assigned on line 173 could be null and is dereferenced at line 174, column 25.
+(<a href="traces/bug_1.txt">trace</a>)
+</li><li>
+libtcc.c:186: error: NULL_DEREFERENCE
+  pointer `b` last assigned on line 185 could be null and is dereferenced by call to `strrchr()` at line 186, column 15.
+(<a href="traces/bug_2.txt">trace</a>)
+</li><li>
+libtcc.c:217: error: NULL_DEREFERENCE
+  pointer `ptr` last assigned on line 216 could be null and is dereferenced by call to `memset()` at line 217, column 5.
+(<a href="traces/bug_3.txt">trace</a>)
+</li><li>
+libtcc.c:234: error: NULL_DEREFERENCE
+  pointer `ptr` last assigned on line 233 could be null and is dereferenced by call to `strcpy()` at line 234, column 5.
+(<a href="traces/bug_4.txt">trace</a>)
+</li><li>
+tccrun.c:460: error: UNINITIALIZED_VALUE
+  The value read from incl_files[_] was never initialized.
+(<a href="traces/bug_5.txt">trace</a>)
+</li><li>
+tccrun.c:467: error: UNINITIALIZED_VALUE
+  The value read from incl_files[_] was never initialized.
+(<a href="traces/bug_6.txt">trace</a>)
+</li><li>
+libtcc.c:441: error: UNINITIALIZED_VALUE
+  The value read from c was never initialized.
+(<a href="traces/bug_7.txt">trace</a>)
+</li><li>
+libtcc.c:441: error: UNINITIALIZED_VALUE
+  The value read from c was never initialized.
+(<a href="traces/bug_8.txt">trace</a>)
+</li><li>
+i386-asm.c:659: error: UNINITIALIZED_VALUE
+  The value read from op_vals[_] was never initialized.
+(<a href="traces/bug_9.txt">trace</a>)
+</li><li>
+i386-asm.c:668: error: UNINITIALIZED_VALUE
+  The value read from op_vals[_] was never initialized.
+(<a href="traces/bug_10.txt">trace</a>)
+</li><li>
+i386-asm.c:875: error: UNINITIALIZED_VALUE
+  The value read from op_type[_] was never initialized.
+(<a href="traces/bug_11.txt">trace</a>)
+</li><li>
+i386-asm.c:908: error: UNINITIALIZED_VALUE
+  The value read from op_type[_] was never initialized.
+(<a href="traces/bug_12.txt">trace</a>)
+</li><li>
+i386-asm.c:922: error: UNINITIALIZED_VALUE
+  The value read from op_type[_] was never initialized.
+(<a href="traces/bug_13.txt">trace</a>)
+</li><li>
+i386-asm.c:954: error: UNINITIALIZED_VALUE
+  The value read from op_type[_] was never initialized.
+(<a href="traces/bug_14.txt">trace</a>)
+</li><li>
+i386-asm.c:989: error: UNINITIALIZED_VALUE
+  The value read from op_type[_] was never initialized.
+(<a href="traces/bug_15.txt">trace</a>)
+</li><li>
+i386-asm.c:994: error: UNINITIALIZED_VALUE
+  The value read from op_type[_] was never initialized.
+(<a href="traces/bug_16.txt">trace</a>)
+</li><li>
+i386-asm.c:1005: error: UNINITIALIZED_VALUE
+  The value read from op_type[_] was never initialized.
+(<a href="traces/bug_17.txt">trace</a>)
+</li><li>
+tccpp.c:732: error: DEAD_STORE
+  The value written to &c (type int) is never used.
+(<a href="traces/bug_18.txt">trace</a>)
+</li><li>
+tccpp.c:737: error: DEAD_STORE
+  The value written to &c (type int) is never used.
+(<a href="traces/bug_19.txt">trace</a>)
+</li><li>
+tccpp.c:769: error: UNINITIALIZED_VALUE
+  The value read from c was never initialized.
+(<a href="traces/bug_20.txt">trace</a>)
+</li><li>
+tccpp.c:772: error: UNINITIALIZED_VALUE
+  The value read from c was never initialized.
+(<a href="traces/bug_21.txt">trace</a>)
+</li><li>
+i386-asm.c:1280: error: UNINITIALIZED_VALUE
+  The value read from sorted_op[_] was never initialized.
+(<a href="traces/bug_22.txt">trace</a>)
+</li><li>
+i386-asm.c:1281: error: UNINITIALIZED_VALUE
+  The value read from sorted_op[_] was never initialized.
+(<a href="traces/bug_23.txt">trace</a>)
+</li><li>
+i386-asm.c:1300: error: UNINITIALIZED_VALUE
+  The value read from sorted_op[_] was never initialized.
+(<a href="traces/bug_24.txt">trace</a>)
+</li><li>
+x86_64-gen.c:1350: error: UNINITIALIZED_VALUE
+  The value read from onstack was never initialized.
+(<a href="traces/bug_25.txt">trace</a>)
+</li><li>
+i386-asm.c:1499: error: DEAD_STORE
+  The value written to &val (type int) is never used.
+(<a href="traces/bug_26.txt">trace</a>)
+</li><li>
+libtcc.c:1608: error: UNINITIALIZED_VALUE
+  The value read from c was never initialized.
+(<a href="traces/bug_27.txt">trace</a>)
+</li><li>
+libtcc.c:1608: error: UNINITIALIZED_VALUE
+  The value read from c was never initialized.
+(<a href="traces/bug_28.txt">trace</a>)
+</li><li>
+libtcc.c:1655: error: MEMORY_LEAK
+  memory dynamically allocated to `argv` by call to `dynarray_add()` at line 1657, column 13 is not reachable after line 1655, column 13.
+(<a href="traces/bug_29.txt">trace</a>)
+</li><li>
+libtcc.c:1777: error: UNINITIALIZED_VALUE
+  The value read from *optarg was never initialized.
+(<a href="traces/bug_30.txt">trace</a>)
+</li><li>
+libtcc.c:1779: error: UNINITIALIZED_VALUE
+  The value read from *optarg was never initialized.
+(<a href="traces/bug_31.txt">trace</a>)
+</li><li>
+libtcc.c:1781: error: UNINITIALIZED_VALUE
+  The value read from *optarg was never initialized.
+(<a href="traces/bug_32.txt">trace</a>)
+</li><li>
+libtcc.c:1899: error: UNINITIALIZED_VALUE
+  The value read from *optarg was never initialized.
+(<a href="traces/bug_33.txt">trace</a>)
+</li><li>
+libtcc.c:1901: error: UNINITIALIZED_VALUE
+  The value read from *optarg was never initialized.
+(<a href="traces/bug_34.txt">trace</a>)
+</li><li>
+libtcc.c:1903: error: UNINITIALIZED_VALUE
+  The value read from *optarg was never initialized.
+(<a href="traces/bug_35.txt">trace</a>)
+</li><li>
+libtcc.c:1830: error: UNINITIALIZED_VALUE
+  The value read from optarg was never initialized.
+(<a href="traces/bug_36.txt">trace</a>)
+</li><li>
+libtcc.c:1834: error: UNINITIALIZED_VALUE
+  The value read from optarg was never initialized.
+(<a href="traces/bug_37.txt">trace</a>)
+</li><li>
+libtcc.c:1880: error: UNINITIALIZED_VALUE
+  The value read from optarg was never initialized.
+(<a href="traces/bug_38.txt">trace</a>)
+</li><li>
+libtcc.c:1855: error: UNINITIALIZED_VALUE
+  The value read from x was never initialized.
+(<a href="traces/bug_39.txt">trace</a>)
+</li><li>
+libtcc.c:1855: error: UNINITIALIZED_VALUE
+  The value read from x was never initialized.
+(<a href="traces/bug_40.txt">trace</a>)
+</li><li>
+tccpp.c:1814: error: UNINITIALIZED_VALUE
+  The value read from buf[_] was never initialized.
+(<a href="traces/bug_41.txt">trace</a>)
+</li><li>
+x86_64-gen.c:1845: error: DEAD_STORE
+  The value written to &r (type int) is never used.
+(<a href="traces/bug_42.txt">trace</a>)
+</li><li>
+x86_64-gen.c:1743: error: DEAD_STORE
+  The value written to &uu (type int) is never used.
+(<a href="traces/bug_43.txt">trace</a>)
+</li><li>
+x86_64-gen.c:1959: error: DEAD_STORE
+  The value written to &fc (type int) is never used.
+(<a href="traces/bug_44.txt">trace</a>)
+</li><li>
+x86_64-gen.c:1958: error: DEAD_STORE
+  The value written to &ft (type int) is never used.
+(<a href="traces/bug_45.txt">trace</a>)
+</li><li>
+x86_64-gen.c:1937: error: DEAD_STORE
+  The value written to &swapped (type int) is never used.
+(<a href="traces/bug_46.txt">trace</a>)
+</li><li>
+tccpp.c:2382: error: DEAD_STORE
+  The value written to &p (type char const *) is never used.
+(<a href="traces/bug_47.txt">trace</a>)
+</li><li>
+tccpp.c:2387: error: DEAD_STORE
+  The value written to &p (type char const *) is never used.
+(<a href="traces/bug_48.txt">trace</a>)
+</li><li>
+tccpp.c:2439: error: DEAD_STORE
+  The value written to &p (type char const *) is never used.
+(<a href="traces/bug_49.txt">trace</a>)
+</li><li>
+tccpp.c:2443: error: DEAD_STORE
+  The value written to &p (type char const *) is never used.
+(<a href="traces/bug_50.txt">trace</a>)
+</li><li>
+tccelf.c:2604: error: NULL_DEREFERENCE
+  pointer `data` last assigned on line 2601 could be null and is dereferenced by call to `get_be32()` at line 2604, column 30.
+(<a href="traces/bug_51.txt">trace</a>)
+</li><li>
+tccelf.c:2604: error: NULL_DEREFERENCE
+  pointer `data` last assigned on line 2601 could be null and is dereferenced by call to `get_be32()` at line 2604, column 30.
+(<a href="traces/bug_52.txt">trace</a>)
+</li><li>
+tccelf.c:2706: error: UNINITIALIZED_VALUE
+  The value read from ehdr.e_machine was never initialized.
+(<a href="traces/bug_53.txt">trace</a>)
+</li><li>
+tccelf.c:2720: error: UNINITIALIZED_VALUE
+  The value read from ehdr.e_shnum was never initialized.
+(<a href="traces/bug_54.txt">trace</a>)
+</li><li>
+tccelf.c:2712: error: UNINITIALIZED_VALUE
+  The value read from ehdr.e_shoff was never initialized.
+(<a href="traces/bug_55.txt">trace</a>)
+</li><li>
+tccpp.c:3107: error: NULL_DEREFERENCE
+  pointer `&str->str` last assigned on line 3015 could be null and is dereferenced by call to `tok_str_add()` at line 3107, column 17.
+(<a href="traces/bug_56.txt">trace</a>)
+</li><li>
+tccgen.c:3737: error: UNINITIALIZED_VALUE
+  The value read from cx was never initialized.
+(<a href="traces/bug_57.txt">trace</a>)
+</li><li>
+tccgen.c:3739: error: UNINITIALIZED_VALUE
+  The value read from cx was never initialized.
+(<a href="traces/bug_58.txt">trace</a>)
+</li><li>
+tccgen.c:3737: error: UNINITIALIZED_VALUE
+  The value read from px was never initialized.
+(<a href="traces/bug_59.txt">trace</a>)
+</li><li>
+tccgen.c:3740: error: UNINITIALIZED_VALUE
+  The value read from px was never initialized.
+(<a href="traces/bug_60.txt">trace</a>)
+</li><li>
+tccgen.c:3744: error: UNINITIALIZED_VALUE
+  The value read from t.t was never initialized.
+(<a href="traces/bug_61.txt">trace</a>)
+</li><li>
+tccgen.c:4100: error: NULL_DEREFERENCE
+  pointer `type->ref` last assigned on line 4012 could be null and is dereferenced by call to `parse_btype_qualify()` at line 4100, column 13.
+(<a href="traces/bug_62.txt">trace</a>)
+</li><li>
+tccgen.c:4108: error: NULL_DEREFERENCE
+  pointer `type->ref` last assigned on line 4012 could be null and is dereferenced by call to `parse_btype_qualify()` at line 4108, column 13.
+(<a href="traces/bug_63.txt">trace</a>)
+</li><li>
+tccgen.c:4282: error: UNINITIALIZED_VALUE
+  The value read from pt.t was never initialized.
+(<a href="traces/bug_64.txt">trace</a>)
+</li><li>
+tccgen.c:5252: error: UNINITIALIZED_VALUE
+  The value read from ret.r was never initialized.
+(<a href="traces/bug_65.txt">trace</a>)
+</li><li>
+tccgen.c:5252: error: UNINITIALIZED_VALUE
+  The value read from ret.r was never initialized.
+(<a href="traces/bug_66.txt">trace</a>)
+</li></ol>
+</body>
+</html>

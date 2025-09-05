@@ -1,0 +1,216 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{booktabs}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{tabularx}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{CS6888 Software Analysis and its Applications \\ HW4\\
+% {\footnotesize \textsuperscript{*}Note: Sub-titles are not captured in Xplore and
+% should not be used}
+% \thanks{Identify applicable funding agency here. If none, delete this.}
+}
+
+\author{\IEEEauthorblockN{Sravanth Chowdary Potluri}
+\IEEEauthorblockA{und5uv@virginia.edu}
+\textit{University Of Virginia}\\
+% City, Country \\
+% email address or ORCID}
+% \and
+% \IEEEauthorblockN{2\textsuperscript{nd} Given Name Surname}
+% \IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
+% \textit{name of organization (of Aff.)}\\
+% City, Country \\
+% email address or ORCID}
+% \and
+% \IEEEauthorblockN{3\textsuperscript{rd} Given Name Surname}
+% \IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
+% \textit{name of organization (of Aff.)}\\
+% City, Country \\
+% email address or ORCID}
+% \and
+% \IEEEauthorblockN{4\textsuperscript{th} Given Name Surname}
+% \IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
+% \textit{name of organization (of Aff.)}\\
+% City, Country \\
+% email address or ORCID
+% \and
+% \IEEEauthorblockN{5\textsuperscript{th} Given Name Surname}
+% \IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
+% \textit{name of organization (of Aff.)}\\
+% City, Country \\
+% email address or ORCID}
+% \and
+% \IEEEauthorblockN{6\textsuperscript{th} Given Name Surname}
+% \IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
+% \textit{name of organization (of Aff.)}\\
+% City, Country \\
+% email address or ORCID}
+}
+
+\maketitle
+
+% \begin{abstract}
+% This document is a model and instructions for \LaTeX.
+% This and the IEEEtran.cls file define the components of your paper [title, text, heads, etc.]. *CRITICAL: Do Not Use Symbols, Special Characters, Footnotes, 
+% or Math in Paper Title or Abstract.
+% \end{abstract}
+
+% \begin{IEEEkeywords}
+% component, formatting, style, styling, insert
+% \end{IEEEkeywords}
+
+\section{Analysis of tcas5.c}
+This section presents the results of running \texttt{cppcheck} on \texttt{tcas5.c}, a modified version of the Traffic Collision Avoidance System, in two configurations: a standard run (\texttt{cppcheck --output-file=<file> tcas5.c}) and a bug-hunting run (\texttt{cppcheck --output-file=<file> --bug-hunting tcas5.c}), as specified in Assignment 4, Section 4.1.2. The objective, per Section 4.2(1), is to catalog all faults reported by both runs in a table and classify each as a certain fault, potential fault, or false positive, with justifications derived from code analysis.
+
+\subsection{Fault Table and Classification}
+Table~\ref{tab:tcas5_faults} compiles the faults identified by \texttt{cppcheck} across both runs. The standard run reported two primary errors, with accompanying notes providing context, while the bug-hunting run flagged three distinct errors at a single line, reflecting its more aggressive analysis mode. Each fault is analyzed below, with classifications based on the code’s logic and potential runtime behavior.
+
+\begin{table}[p]
+    \caption{Faults Reported by cppcheck on tcas5.c}
+    \label{tab:tcas5_faults}
+    \centering
+    \begin{tabular}{llcll}
+        \toprule
+        Run Type & File & Line & Fault Type & Classification \\
+        \midrule
+        Standard & tcas5.c & 75 & Array Index Out of Bounds & Certain Fault \\
+        Standard & tcas5.c & 61 & Signed Integer Overflow & Certain Fault \\
+        Bug-Hunting & tcas5.c & 93 & Array Index Out of Bounds ($\geq 4$) & Potential Fault \\
+        Bug-Hunting & tcas5.c & 93 & Array Index Out of Bounds ($< 0$) & Potential Fault \\
+        Bug-Hunting & tcas5.c & 93 & Potential Division by Zero & Potential Fault \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Analysis}
+The analysis of each fault leverages the provided \texttt{tcas5.c} source code and \texttt{cppcheck} outputs to determine its validity and severity. The standard run focuses on definitive errors, while the bug-hunting run explores more speculative issues, aligning with their respective design goals.
+
+\subsubsection{Array Index Out of Bounds (Line 75, Standard Run)}
+In the standard run, \texttt{cppcheck} flags an array access at line 75 within the \texttt{ALIM()} function: \texttt{alim = Positive\_RA\_Alt\_Thresh[4]}. The array \texttt{Positive\_RA\_Alt\_Thresh} is defined with four elements (indices 0 to 3), initialized to 400, 500, 640, and 740 in \texttt{initialize()}. Accessing index 4, as occurs in the \texttt{case 4} branch of the switch statement, exceeds these bounds, resulting in undefined behavior. This fault is classified as a \textit{certain fault} because it is a hard-coded error that will invariably occur when \texttt{Alt\_Layer\_Value} equals 4, a value explicitly handled in the switch without bounds checking, leading to memory corruption or a crash.
+
+\subsubsection{Signed Integer Overflow (Line 61, Standard Run)}
+The standard run also identifies a signed integer overflow at line 61 in \texttt{ALIM()}: \texttt{alim = Local\_Positive\_RA\_Alt\_Thresh * altitude}. Accompanying notes clarify that \texttt{Local\_Positive\_RA\_Alt\_Thresh} is assigned 740 at line 60, and \texttt{altitude} is set to 1,000,000,000 when \texttt{Climb\_Inhibit} is true. Multiplying these yields 740,000,000,000, which vastly exceeds the 32-bit signed integer maximum of 2,147,483,647. This overflow introduces undefined behavior, such as wraparound or truncation, compromising the function’s return value. Classified as a \textit{certain fault}, this issue is guaranteed to manifest whenever \texttt{Climb\_Inhibit} is true, given the fixed, excessively large \texttt{altitude} value, making it a critical defect in this perturbed version of the code.
+
+\subsubsection{Array Index Out of Bounds (Alt\_Layer\_Value $\geq$ 4, Line 93, Bug-Hunting Run)}
+Switching to the bug-hunting run, \texttt{cppcheck} reports a potential array index out-of-bounds error at line 93 in \texttt{Non\_Crossing\_Biased\_Climb()}: \texttt{Inhibit\_Biased\_Climb() / Positive\_RA\_Alt\_Thresh[Alt\_Layer\_Value]}. The tool notes it cannot determine if \texttt{Alt\_Layer\_Value} is less than 4. Since \texttt{Positive\_RA\_Alt\_Thresh} has valid indices 0 to 3, an \texttt{Alt\_Layer\_Value} of 4 or greater—possible via command-line input (\texttt{argv[7]}) without validation—would access beyond the array’s bounds. This is a \textit{potential fault} because, unlike line 75, the error depends on runtime input rather than a fixed code path, requiring specific conditions (e.g., \texttt{Alt\_Layer\_Value = 4}) to trigger undefined behavior.
+
+\subsubsection{Array Index Out of Bounds (Alt\_Layer\_Value < 0, Line 93, Bug-Hunting Run)}
+A second fault at line 93 from the bug-hunting run warns that \texttt{Alt\_Layer\_Value} could be negative, as \texttt{cppcheck} cannot confirm it is non-negative. In the same expression, a negative index would result in an invalid memory access, potentially causing a segmentation fault. The code accepts \texttt{Alt\_Layer\_Value} from \texttt{argv[7]} via \texttt{atoi()}, which can produce negative values if a negative string (e.g., "-1") is provided, and no lower-bound check exists. This is classified as a \textit{potential fault}, as it hinges on user input rather than an inherent code flaw, but it underscores a lack of input sanitization that could destabilize the program.
+
+\subsubsection{Potential Division by Zero (Line 93, Bug-Hunting Run)}
+The final bug-hunting fault at line 93 flags a possible division by zero in \texttt{Inhibit\_Biased\_Climb() / Positive\_RA\_Alt\_Thresh[Alt\_Layer\_Value]}. The array’s initialized values (400, 500, 640, 740) are all positive, so within bounds, the denominator is never zero. However, if \texttt{Alt\_Layer\_Value} is out of bounds (e.g., $\geq 4$ or $< 0$), the access could theoretically hit uninitialized memory, which might be zero, though this is unlikely given the static allocation. Classified as a \textit{potential fault}, this issue is speculative and less immediate than the array bounds errors, as the initialized array mitigates the risk, but it reflects \texttt{cppcheck}’s slightly speculative analysis in bug-hunting mode.
+
+
+\begin{table}[htbp]
+    \centering
+    \caption{Faults Reported by cppcheck and infer on tcc}
+    \label{tab:tcc_faults}
+    \begin{tabular}{>{\raggedright\arraybackslash}p{3cm} c p{5cm}}
+        \toprule
+        \textbf{File Name} & \textbf{Line} & \textbf{Fault Type} \\
+        \midrule
+        arm64-link.c & 184 & shiftTooManyBits \\
+        arm64-link.c & 188 & shiftTooManyBits \\
+        c67-gen.c & 1602 & arrayIndexOutOfBounds \\
+        c67-gen.c & 1773 & arrayIndexOutOfBounds \\
+        c67-gen.c & 2113 & uninitvar \\
+        libtcc.c & 174 & NULL\_DEREFERENCE \\
+        libtcc.c & 186 & NULL\_DEREFERENCE \\
+        libtcc.c & 217 & NULL\_DEREFERENCE \\
+        libtcc.c & 234 & NULL\_DEREFERENCE \\
+        libtcc.c & 1655 & MEMORY\_LEAK \\
+        tccelf.c & 2604 & NULL\_DEREFERENCE \\
+        tccelf.c & 2604 & NULL\_DEREFERENCE \\
+        tccgen.c & 4100 & NULL\_DEREFERENCE \\
+        tccgen.c & 4108 & NULL\_DEREFERENCE \\
+        tccpe.c & 1004 & nullPointer \\
+        tccpe.c & 1004 & nullPointer \\
+        tccpe.c & 1005 & nullPointerArithmetic \\
+        tccpp.c & 732 & DEAD\_STORE \\
+        tccpp.c & 737 & DEAD\_STORE \\
+        tccpp.c & 2382 & DEAD\_STORE \\
+        tccpp.c & 2387 & DEAD\_STORE \\
+        tccpp.c & 2439 & DEAD\_STORE \\
+        tccpp.c & 2443 & DEAD\_STORE \\
+        tccpp.c & 3107 & NULL\_DEREFERENCE \\
+        x86\_64-gen.c & 336 & nullPointer \\
+        x86\_64-gen.c & 336 & nullPointer \\
+        x86\_64-gen.c & 1743 & DEAD\_STORE \\
+        x86\_64-gen.c & 1845 & DEAD\_STORE \\
+        x86\_64-gen.c & 1937 & DEAD\_STORE \\
+        x86\_64-gen.c & 1958 & DEAD\_STORE \\
+        x86\_64-gen.c & 1959 & DEAD\_STORE \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\section{Analysis of tcc}
+\subsection{cppcheck and infer Results}
+Table~\ref{tab:tcc_faults} enumerates the faults detected by \texttt{cppcheck} and \texttt{infer} when applied to the \texttt{tcc-0.9.27} codebase using the configurations specified in Sections 4.1.1 and 4.1.3. The table lists each fault with its corresponding file name, line number, and fault type, sorted alphabetically by file name and then by ascending line number, excluding \texttt{infer}'s \texttt{UNINITIALIZED\_VALUE} reports and \texttt{cppcheck}'s notes to focus on actionable errors such as null pointer dereferences, array bounds violations, and dead stores.
+
+\subsection{Trace Analysis}
+Using the HTML report from Subsubsection 4.1.3, we evaluate four issue traces identified by \texttt{infer} to determine whether each is a \textit{certain fault}, \textit{potential fault}, or \textit{false positive}. The analysis relies on the code snippets in the traces, with additional context from the enclosing function where referenced, and provides an explanation for each classification.
+
+\paragraph{Issue 1: \texttt{libtcc.c:174} -- Null Dereference of pointer \texttt{p}}
+\textit{Classification}: Potential Fault \\
+\textit{Explanation}: The trace shows \texttt{p} assigned by \texttt{strchr(name, 0)} at line 173, which seeks the null terminator in \texttt{name} and returns a pointer to it or \texttt{NULL} if the character is not found. At line 174, the loop condition \texttt{!IS\_DIRSEP(p[-1])} dereferences \texttt{p[-1]} without checking if \texttt{p} is \texttt{NULL}, which could occur if \texttt{name} is invalid or null itself. Although \texttt{p > name} guards against underflow, it does not prevent a null dereference if \texttt{strchr} fails, making this a potential fault under rare input conditions.
+
+\paragraph{Issue 8: \texttt{libtcc.c:441} -- Uninitialized Value \texttt{c}}
+\textit{Classification}: Potential/Certain Fault \\
+\textit{Explanation}: The trace at line 441 shows a loop where \texttt{c} is assigned via \texttt{c = *p} in the condition, but \texttt{c} is not initialized before the loop begins. The comma expression evaluates \texttt{c = *p} first, then uses \texttt{c} in subsequent checks, but if \texttt{p} points to invalid memory, the initial read is undefined, and no prior initialization of \texttt{c} is evident in the trace. This makes \texttt{infer}’s uninitialized value report a Potential fault, as \texttt{c}’s value is doesn't seem to be initialized before its first assignment and use.
+
+\paragraph{Issue 51: \texttt{tccelf.c:2604} -- Null Dereference of pointer \texttt{data}}
+\textit{Classification}: Potential/Certain Fault \\
+\textit{Explanation}: The trace shows \texttt{data} allocated via \texttt{tcc\_malloc(size)} at line 2601, which calls \texttt{malloc(size)} (line 207) and may return \texttt{NULL} if allocation fails. Although the trace assumes success (false branch at line 208), no null check precedes \texttt{get\_be32(data)} at line 2604, which dereferences \texttt{data}. This is a potential fault, as a memory allocation failure in practice could lead to a null dereference. However, this fault might not be triggered at all if the \texttt{tcc\_error} raised stops the execution of the program, but it is still a potential fault because the code does not check for null after the allocation and the null dereference could happen if the allocation fails and a null pointer is passed to \texttt{get\_be32(data)}.
+
+\paragraph{Issue 62: \texttt{tccgen.c:4100} -- Null Dereference of pointer \texttt{type->ref}}
+\textit{Classification}: False Positive \\
+\textit{Explanation}: In \texttt{parse\_btype}, \texttt{type->ref} is set to \texttt{NULL} at line 4012, and at line 4100, \texttt{parse\_btype\_qualify(type, VT\_CONSTANT)} is called. Within \texttt{parse\_btype\_qualify}, the loop at line 3991 (\texttt{while (type->t \& VT\_ARRAY)}) is false, skipping any dereference of \texttt{type->ref}, so no null dereference occurs in this path, rendering \texttt{infer}’s warning a false positive.
+
+\subsection{Likelihood and Trends of Reported Faults}
+Using the data from Table~\ref{tab:tcc_faults} and the trace analyses, we assess the likelihood of the reported items being actual faults and identify trends in fault types across the \texttt{tcc-0.9.27} codebase. Table~\ref{tab:tcc_faults} lists 31 faults from \texttt{cppcheck} and \texttt{infer}, spanning null pointer dereferences, array index out-of-bounds errors, shift overflows, dead stores, and a memory leak. The trace analyses of four specific \texttt{infer} issues reveal a mixed picture: Issue 62 (\texttt{tccgen.c:4100}) is a false positive due to a safe execution path avoiding a null dereference, while Issues 1 (\texttt{libtcc.c:174}), 8 (\texttt{libtcc.c:441}), and 51 (\texttt{tccelf.c:2604}) are potential faults contingent on rare conditions like invalid inputs or memory allocation failures. This suggests that while many reported items are plausible, their fault likelihood varies significantly based on context.
+
+The prevalence of potential/certain faults in the traces—three out of four—indicates that \texttt{infer} often flags issues requiring specific runtime scenarios to manifest, such as a null \texttt{name} in \texttt{tcc\_basename} (Issue 1) or a failed \texttt{malloc} in \texttt{tcc\_load\_alacarte} (Issue 51). For Issue 8, the loop’s comma operator ensures \texttt{c} is assigned before use, yet the lack of explicit initialization outside the loop raises a potential fault if \texttt{p} is invalid, though this is mitigated by typical string handling assumptions. Extrapolating to the table, null dereferences (e.g., nine from \texttt{infer}, four from \texttt{cppcheck}) and array bounds errors (e.g., \texttt{c67-gen.c:1602, 1773}) dominate, comprising over 50\% of reports, reflecting \texttt{tcc}’s heavy reliance on pointers and arrays in C. Dead stores (12 instances, all from \texttt{infer}) suggest optimization issues rather than critical bugs, lowering their fault likelihood, while rarer types like \texttt{shiftTooManyBits} (e.g., \texttt{arm64-link.c:184, 188}) and \texttt{MEMORY\_LEAK} (e.g., \texttt{libtcc.c:1655}) indicate specific architectural or resource management flaws with higher severity when triggered.
+
+Overall, approximately one-third of the reported items are likely certain faults—such as definitive array overruns or shift overflows—due to their unambiguous violation of C semantics, while the majority are potential faults dependent on execution paths or inputs, and a minority, like Issue 62, are false positives from over-conservative analysis. The trend toward pointer-related issues (null dereferences, arithmetic errors) underscores \texttt{tcc}’s vulnerability in memory management, a common challenge in low-level C code, whereas dead stores highlight static analysis sensitivity to unused assignments that may not impact runtime behavior.
+
+\section{Limitations}
+This section examines the limitations of \texttt{cppcheck} and \texttt{infer} based on their performance on \texttt{tcas5.c} and \texttt{tcc-0.9.27}, focusing on the flags specified in Sections 4.1.1 to 4.1.3, and assesses whether the observed issues stem from fundamental constraints of static analysis or could be mitigated with available options. The analysis draws from the fault classifications and trends identified earlier, highlighting false positives and incomplete contextual understanding as recurring challenges.
+
+For \texttt{cppcheck}, a notable limitation is its propensity to generate false positives, as seen in the standard run on \texttt{tcas5.c}, where conservative checks flagged potential issues like unused variables (not reported here due to filtering) that may not impact functionality. The tool’s standard mode (\texttt{cppcheck --output-file=<file>}) prioritizes broad coverage, while the bug-hunting mode (\texttt{--bug-hunting}) amplifies this by speculatively identifying risks like the division-by-zero at \texttt{tcas5.c:93}, which is unlikely given initialized array values. This over-sensitivity is partly a fundamental limitation of static analysis, which must err on caution without runtime data, but could be refined using flags like \texttt{--inconclusive} to filter less certain warnings or \texttt{--suppress} to exclude specific fault types (e.g., \texttt{integerOverflow} was suppressed for \texttt{tcc}). However, suppressing too aggressively risks missing true positives, as with the certain fault at \texttt{tccpe.c:1005} (null pointer arithmetic), illustrating a trade-off inherent to the approach.
+
+\texttt{infer} exhibits similar challenges with false positives, evident in the trace analyses of \texttt{tcc}. For instance, Issue 1 (\texttt{libtcc.c:174}) was incorrectly flagged as a null dereference despite \texttt{strchr(name, 0)} always returning a valid pointer to a string’s null terminator, and Issue 62 (\texttt{tccgen.c:4100}) was a false positive due to a safe execution path avoiding dereference. These errors stem from a fundamental limitation: \texttt{infer}’s interprocedural analysis, run with \texttt{infer run -j 1 --reactive -- make}, lacks full runtime context and over-approximates potential issues. The \texttt{--reactive} flag, enabling incremental analysis, may exacerbate this by limiting re-evaluation of prior assumptions, but options like \texttt{--bi-abduction} (enhancing pointer reasoning) or \texttt{--no-filtering} (retaining more reports) could reduce false positives, though at the cost of increased noise. Issue 8 (\texttt{libtcc.c:441}), initially misclassified as a certain fault, is actually only a potential fault since \texttt{c} might actually be initialized before use, highlighting \texttt{infer}’s difficulty with complex control flow—a limitation partially addressable with finer-grained configuration.
+
+Both tools struggle with incomplete contextual understanding, a core constraint of static analysis. For \texttt{tcas5.c}, \texttt{cppcheck}’s potential faults at line 93 (array bounds and division-by-zero) depend on runtime inputs like \texttt{Alt\_Layer\_Value}, which static tools cannot fully resolve without execution. Similarly, \texttt{infer}’s potential fault at \texttt{tccelf.c:2604} (Issue 51) assumes a null \texttt{data} from \texttt{malloc} failure, but cannot confirm its likelihood without dynamic behavior, despite a subsequent error check mitigating impact. This incomplete picture is fundamental, as static analysis abstracts away runtime states, though \texttt{cppcheck}’s \texttt{--enable=all} or \texttt{infer}’s \texttt{--developer-mode} could provide deeper insights at the expense of scalability.
+
+In summary, false positives and partial context are inherent to the static analysis paradigm, reflecting the tools’ inability to simulate all execution paths precisely. While flags like \texttt{--inconclusive} for \texttt{cppcheck} or \texttt{--bi-abduction} for \texttt{infer} offer partial remedies by tuning precision, they cannot fully overcome the absence of runtime data, underscoring a fundamental trade-off between soundness and practicality in these tools’ designs.
+
+\section{Summary}
+This section summarizes the performance of \texttt{cppcheck} and \texttt{infer} across \texttt{tcas5.c} and \texttt{tcc-0.9.27}, evaluating their effectiveness in identifying issues, the severity of findings, and the presence of false positives and negatives. \texttt{cppcheck} detected five issues in \texttt{tcas5.c} across standard and bug-hunting runs, with two certain faults (array overrun at line 75, integer overflow at line 61) of high severity due to guaranteed undefined behavior, and three potential faults (line 93) of moderate severity dependent on input conditions. For \texttt{tcc}, it reported 10-15 faults excluding notes, including severe issues like array bounds errors (\texttt{c67-gen.c:1602, 1773}) and shift overflows (\texttt{arm64-link.c:184, 188}), alongside less critical null pointer warnings (\texttt{x86\_64-gen.c:336}). No false positives were evident in \texttt{tcas5.c}, though its conservative approach likely misses subtle runtime-dependent faults (false negatives), such as uncaught edge cases in \texttt{tcc}.
+
+\texttt{infer} identified 66 issues in \texttt{tcc}, with 22 actionable faults listed in Table~\ref{tab:tcc_faults} after exclusions (nine null dereferences, 12 dead stores, one memory leak). The trace analysis revealed one false positive (Issue 62, \texttt{tccgen.c:4100}) and three potential faults (Issues 1, 8, 51), with severity ranging from moderate (e.g., null dereference at \texttt{tccelf.c:2604}) to low (e.g., dead stores like \texttt{x86\_64-gen.c:1743}). potential false negatives—such as missed complex pointer interactions beyond the traces—may exist due to its focus on specific patterns like null dereferences. Overall, \texttt{infer} excels at depth, catching nuanced issues like memory leaks (\texttt{libtcc.c:1655}), but its 14\% actionable fault rate (9/66 excluding dead stores) suggests a trade-off between sensitivity and specificity, as many flagged items are less critical or speculative.
+
+Both tools balance strengths and weaknesses: \texttt{cppcheck} offers broad, scalable coverage with fewer false positives in \texttt{tcas5.c} (0/5) but limited depth, potentially under-reporting faults in \texttt{tcc}, while \texttt{infer} provides detailed traces with higher sensitivity (66 issues) at the cost of increased false positives (e.g., 1/4 traced issues). Severity aligns with fault type—array and pointer errors pose high risks, dead stores lower—yet runtime-dependent potential faults complicate assessment without execution. False negatives remain unquantified but likely, given static analysis’s inherent contextual limits, making these tools complementary for robust code verification.
+
+
+
+
+%\begin{thebibliography}{00}
+% \end{thebibliography}
+
+
+
+\textit{This homework and report are completed with the help of resources provided along with the homework. This report also makes use of Grok-3 to refine the content.}
+
+\end{document}

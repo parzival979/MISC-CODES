@@ -1,0 +1,12 @@
+x86_64-gen.c:1958: error: DEAD_STORE
+  The value written to &ft (type int) is never used.
+Showing all 1 steps of the trace
+
+
+x86_64-gen.c:1958:13: Write of unused value
+1956.                   break;
+1957.               }
+1958.               ft = vtop->type.t;
+                    ^
+1959.               fc = vtop->c.i;
+1960.               o(0xde); /* fxxxp %st, %st(1) */

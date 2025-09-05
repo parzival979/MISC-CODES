@@ -1,0 +1,12 @@
+tccpp.c:2439: error: DEAD_STORE
+  The value written to &p (type char const *) is never used.
+Showing all 1 steps of the trace
+
+
+tccpp.c:2439:23: Write of unused value
+2437.               errno = 0;
+2438.               if (t == 'F') {
+2439.                   ch = *p++;
+                              ^
+2440.                   tok = TOK_CFLOAT;
+2441.                   tokc.f = strtof(token_buf, NULL);

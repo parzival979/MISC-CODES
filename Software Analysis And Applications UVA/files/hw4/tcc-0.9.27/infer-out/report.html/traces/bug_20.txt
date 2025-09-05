@@ -1,0 +1,11 @@
+tccpp.c:769: error: UNINITIALIZED_VALUE
+  The value read from c was never initialized.
+Showing all 1 steps of the trace
+
+
+tccpp.c:769:13: 
+767.           }
+768.           /* now we can handle all the cases */
+769. >         if (c == '\n') {
+770.               file->line_num++;
+771.               p++;

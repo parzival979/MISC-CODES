@@ -1,0 +1,213 @@
+tccpp.c:3107: error: NULL_DEREFERENCE
+  pointer `&str->str` last assigned on line 3015 could be null and is dereferenced by call to `tok_str_add()` at line 3107, column 17.
+Showing all 28 steps of the trace
+
+
+tccpp.c:3006:1: start of procedure macro_arg_subst()
+3004.   /* substitute arguments in replacement lists in macro_str by the values in
+3005.      args (field d) and return allocated string */
+3006. > static int *macro_arg_subst(Sym **nested_list, const int *macro_str, Sym *args)
+3007.   {
+3008.       int t, t0, t1, spc;
+
+tccpp.c:3015:5: 
+3013.       CString cstr;
+3014.   
+3015. >     tok_str_new(&str);
+3016.       t0 = t1 = 0;
+3017.       while(1) {
+
+tccpp.c:1042:9: start of procedure tok_str_new()
+  1040.   
+  1041.   /* token string handling */
+  1042.   ST_INLN void tok_str_new(TokenString *s)
+                  ^
+  1043.   {
+  1044.       s->str = NULL;
+
+tccpp.c:1044:5: 
+  1042.   ST_INLN void tok_str_new(TokenString *s)
+  1043.   {
+  1044. >     s->str = NULL;
+  1045.       s->len = s->lastlen = 0;
+  1046.       s->allocated_len = 0;
+
+tccpp.c:1045:5: 
+  1043.   {
+  1044.       s->str = NULL;
+  1045. >     s->len = s->lastlen = 0;
+  1046.       s->allocated_len = 0;
+  1047.       s->last_line_num = -1;
+
+tccpp.c:1046:5: 
+  1044.       s->str = NULL;
+  1045.       s->len = s->lastlen = 0;
+  1046. >     s->allocated_len = 0;
+  1047.       s->last_line_num = -1;
+  1048.   }
+
+tccpp.c:1047:5: 
+  1045.       s->len = s->lastlen = 0;
+  1046.       s->allocated_len = 0;
+  1047. >     s->last_line_num = -1;
+  1048.   }
+  1049.   
+
+tccpp.c:1048:1: return from a call to tok_str_new
+  1046.       s->allocated_len = 0;
+  1047.       s->last_line_num = -1;
+  1048. > }
+  1049.   
+  1050.   ST_FUNC TokenString *tok_str_alloc(void)
+
+tccpp.c:3016:5: 
+3014.   
+3015.       tok_str_new(&str);
+3016. >     t0 = t1 = 0;
+3017.       while(1) {
+3018.           TOK_GET(&t, &macro_str, &cval);
+
+tccpp.c:3017:11: Loop condition is true. Entering loop body
+3015.       tok_str_new(&str);
+3016.       t0 = t1 = 0;
+3017.       while(1) {
+                  ^
+3018.           TOK_GET(&t, &macro_str, &cval);
+3019.           if (!t)
+
+tccpp.c:3018:9: Skipping TOK_GET(): empty list of specs
+3016.       t0 = t1 = 0;
+3017.       while(1) {
+3018.           TOK_GET(&t, &macro_str, &cval);
+                ^
+3019.           if (!t)
+3020.               break;
+
+tccpp.c:3019:14: Taking false branch
+3017.       while(1) {
+3018.           TOK_GET(&t, &macro_str, &cval);
+3019.           if (!t)
+                     ^
+3020.               break;
+3021.           if (t == '#') {
+
+tccpp.c:3021:13: Taking false branch
+3019.           if (!t)
+3020.               break;
+3021.           if (t == '#') {
+                    ^
+3022.               /* stringize */
+3023.               TOK_GET(&t, &macro_str, &cval);
+
+tccpp.c:3062:20: Taking true branch
+3060.                   expect("macro parameter after '#'");
+3061.               }
+3062.           } else if (t >= TOK_IDENT) {
+                           ^
+3063.               s = sym_find2(args, t);
+3064.               if (s) {
+
+tccpp.c:3063:13: 
+3061.               }
+3062.           } else if (t >= TOK_IDENT) {
+3063. >             s = sym_find2(args, t);
+3064.               if (s) {
+3065.                   int l0 = str.len;
+
+tccgen.c:518:9: start of procedure sym_find2()
+  516.   /* find a symbol and return its associated structure. 's' is the top
+  517.      of the symbol stack */
+  518.   ST_FUNC Sym *sym_find2(Sym *s, int v)
+                 ^
+  519.   {
+  520.       while (s) {
+
+tccgen.c:520:12: Loop condition is true. Entering loop body
+  518.   ST_FUNC Sym *sym_find2(Sym *s, int v)
+  519.   {
+  520.       while (s) {
+                    ^
+  521.           if (s->v == v)
+  522.               return s;
+
+tccgen.c:521:13: Taking false branch
+  519.   {
+  520.       while (s) {
+  521.           if (s->v == v)
+                     ^
+  522.               return s;
+  523.           else if (s->v == -1)
+
+tccgen.c:523:18: Taking true branch
+  521.           if (s->v == v)
+  522.               return s;
+  523.           else if (s->v == -1)
+                          ^
+  524.               return NULL;
+  525.           s = s->prev;
+
+tccgen.c:524:13: 
+  522.               return s;
+  523.           else if (s->v == -1)
+  524. >             return NULL;
+  525.           s = s->prev;
+  526.       }
+
+tccgen.c:528:1: return from a call to sym_find2
+  526.       }
+  527.       return NULL;
+  528. > }
+  529.   
+  530.   /* structure lookup */
+
+tccpp.c:3064:17: Taking false branch
+3062.           } else if (t >= TOK_IDENT) {
+3063.               s = sym_find2(args, t);
+3064.               if (s) {
+                        ^
+3065.                   int l0 = str.len;
+3066.                   st = s->d;
+
+tccpp.c:3107:17: 
+3105.                       tok_str_add(&str, TOK_PLCHLDR);
+3106.               } else {
+3107. >                 tok_str_add(&str, t);
+3108.               }
+3109.           } else {
+
+tccpp.c:1094:9: start of procedure tok_str_add()
+  1092.   }
+  1093.   
+  1094.   ST_FUNC void tok_str_add(TokenString *s, int t)
+                  ^
+  1095.   {
+  1096.       int len, *str;
+
+tccpp.c:1098:5: 
+  1096.       int len, *str;
+  1097.   
+  1098. >     len = s->len;
+  1099.       str = s->str;
+  1100.       if (len >= s->allocated_len)
+
+tccpp.c:1099:5: 
+  1097.   
+  1098.       len = s->len;
+  1099. >     str = s->str;
+  1100.       if (len >= s->allocated_len)
+  1101.           str = tok_str_realloc(s, len + 1);
+
+tccpp.c:1100:9: Taking false branch
+  1098.       len = s->len;
+  1099.       str = s->str;
+  1100.       if (len >= s->allocated_len)
+                  ^
+  1101.           str = tok_str_realloc(s, len + 1);
+  1102.       str[len++] = t;
+
+tccpp.c:1102:5: 
+  1100.       if (len >= s->allocated_len)
+  1101.           str = tok_str_realloc(s, len + 1);
+  1102. >     str[len++] = t;
+  1103.       s->len = len;
+  1104.   }

@@ -1,0 +1,609 @@
+[82][environment] CWD = /root/files/hw4/tcc-0.9.27
+[82][environment] No .inferconfig file found
+[82][environment] Project root = /root/files/hw4/tcc-0.9.27
+[82][environment] INFER_ARGS =   @/tmp/args.tmp.2c4eea  ++Contents of '/tmp/args.tmp.2c4eea':
+[82][environment]                                         run -j 1 --reactive
+[82][environment]                                       
+[82][environment] command line arguments:   infer run -j 1 --reactive -- makeActive checkers: biabduction (C/C++/ObjC, Java), fragment retains view (Java), inefficient keyset iterator (Java), liveness (C/C++/ObjC), RacerD (C/C++/ObjC, Java), SIOF (C/C++/ObjC), uninitialized variables (C/C++/ObjC), Starvation analysis (C/C++/ObjC, Java)
+[82][environment] Infer log identifier is 
+Infer version v0.17.0
+[82][environment] Copyright 2009 - present Facebook. All Rights Reserved.
+[82][environment] 
+[82][   progress] Capturing in make/cc mode...
+[82][environment] Running command make with env:
+[82][environment] (Extend((PATH /root/infer/lib/infer/infer/bin/../lib/wrappers:/root/infer/bin:/root/cppcheck/build/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin)(INFER_OLD_PATH /root/infer/bin:/root/cppcheck/build/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin)))
+[82][environment] 
+
+[87][environment] CWD = /root/files/hw4/tcc-0.9.27
+[87][environment] No .inferconfig file found
+[87][environment] Project root = /root/files/hw4/tcc-0.9.27
+[87][environment] INFER_ARGS =   @/tmp/args.tmp.23ab94  ++Contents of '/tmp/args.tmp.23ab94':
+[87][environment]                                         @/tmp/args.tmp.2c4eea -o tcc.o -c
+[87][environment]                                         tcc.c
+[87][environment]                                         -DCONFIG_TRIPLET="x86_64-linux-gnu"
+[87][environment]                                         -DTCC_TARGET_X86_64 -DONE_SOURCE=0
+[87][environment]                                         -Wall -g -O2
+[87][environment]                                         -Wdeclaration-after-statement
+[87][environment]                                         -fno-strict-aliasing
+[87][environment]                                         -Wno-pointer-sign -Wno-sign-compare
+[87][environment]                                         -Wno-unused-result -I.
+[87][environment]                                         ++Contents of '/tmp/args.tmp.2c4eea':
+[87][environment]                                           run -j 1 --reactive
+[87][environment]                                         
+[87][environment]                                       
+[87][environment] command line arguments:   gcc -o tcc.o -c tcc.c
+[87][environment]                           -DCONFIG_TRIPLET="x86_64-linux-gnu"
+[87][environment]                           -DTCC_TARGET_X86_64 -DONE_SOURCE=0 -Wall -g -O2
+[87][environment]                           -Wdeclaration-after-statement -fno-strict-aliasing
+[87][environment]                           -Wno-pointer-sign -Wno-sign-compare
+[87][environment]                           -Wno-unused-result -I.Active checkers: biabduction (C/C++/ObjC, Java), fragment retains view (Java), inefficient keyset iterator (Java), liveness (C/C++/ObjC), RacerD (C/C++/ObjC, Java), SIOF (C/C++/ObjC), uninitialized variables (C/C++/ObjC), Starvation analysis (C/C++/ObjC, Java)
+[87][      debug] 
+[87][      debug] *** Beginning capture of file /root/files/hw4/tcc-0.9.27/tcc.c ***
+[87][      debug] Clang frontend action is translating and linting
+[87][      debug] Loading the following linters files: /root/infer/lib/infer/infer/bin/../lib/linter_rules/linters.al
+[87][      debug] Elapsed: 381ms.
+[87][      debug] 
+[87][environment] Infer log identifier is 
+
+[95][environment] CWD = /root/files/hw4/tcc-0.9.27
+[95][environment] No .inferconfig file found
+[95][environment] Project root = /root/files/hw4/tcc-0.9.27
+[95][environment] INFER_ARGS =   @/tmp/args.tmp.595ba7  ++Contents of '/tmp/args.tmp.595ba7':
+[95][environment]                                         @/tmp/args.tmp.2c4eea -o libtcc.o -c
+[95][environment]                                         libtcc.c
+[95][environment]                                         -DCONFIG_TRIPLET="x86_64-linux-gnu"
+[95][environment]                                         -DTCC_TARGET_X86_64 -DONE_SOURCE=0
+[95][environment]                                         -Wall -g -O2
+[95][environment]                                         -Wdeclaration-after-statement
+[95][environment]                                         -fno-strict-aliasing
+[95][environment]                                         -Wno-pointer-sign -Wno-sign-compare
+[95][environment]                                         -Wno-unused-result -I.
+[95][environment]                                         ++Contents of '/tmp/args.tmp.2c4eea':
+[95][environment]                                           run -j 1 --reactive
+[95][environment]                                         
+[95][environment]                                       
+[95][environment] command line arguments:   gcc -o libtcc.o -c libtcc.c
+[95][environment]                           -DCONFIG_TRIPLET="x86_64-linux-gnu"
+[95][environment]                           -DTCC_TARGET_X86_64 -DONE_SOURCE=0 -Wall -g -O2
+[95][environment]                           -Wdeclaration-after-statement -fno-strict-aliasing
+[95][environment]                           -Wno-pointer-sign -Wno-sign-compare
+[95][environment]                           -Wno-unused-result -I.Active checkers: biabduction (C/C++/ObjC, Java), fragment retains view (Java), inefficient keyset iterator (Java), liveness (C/C++/ObjC), RacerD (C/C++/ObjC, Java), SIOF (C/C++/ObjC), uninitialized variables (C/C++/ObjC), Starvation analysis (C/C++/ObjC, Java)
+[95][      debug] 
+[95][      debug] *** Beginning capture of file /root/files/hw4/tcc-0.9.27/libtcc.c ***
+[95][      debug] Clang frontend action is translating and linting
+[95][      debug] Loading the following linters files: /root/infer/lib/infer/infer/bin/../lib/linter_rules/linters.al
+[95][      debug] Elapsed: 433ms.
+[95][      debug] 
+[95][environment] Infer log identifier is 
+
+[103][environment] CWD = /root/files/hw4/tcc-0.9.27
+[103][environment] No .inferconfig file found
+[103][environment] Project root = /root/files/hw4/tcc-0.9.27
+[103][environment] INFER_ARGS =   @/tmp/args.tmp.ef70b4  ++Contents of '/tmp/args.tmp.ef70b4':
+[103][environment]                                         @/tmp/args.tmp.2c4eea -o tccpp.o -c
+[103][environment]                                         tccpp.c
+[103][environment]                                         -DCONFIG_TRIPLET="x86_64-linux-gnu"
+[103][environment]                                         -DTCC_TARGET_X86_64 -DONE_SOURCE=0
+[103][environment]                                         -Wall -g -O2
+[103][environment]                                         -Wdeclaration-after-statement
+[103][environment]                                         -fno-strict-aliasing
+[103][environment]                                         -Wno-pointer-sign -Wno-sign-compare
+[103][environment]                                         -Wno-unused-result -I.
+[103][environment]                                         ++Contents of '/tmp/args.tmp.2c4eea':
+[103][environment]                                           run -j 1 --reactive
+[103][environment]                                         
+[103][environment]                                       
+[103][environment] command line arguments:   gcc -o tccpp.o -c tccpp.c
+[103][environment]                           -DCONFIG_TRIPLET="x86_64-linux-gnu"
+[103][environment]                           -DTCC_TARGET_X86_64 -DONE_SOURCE=0 -Wall -g -O2
+[103][environment]                           -Wdeclaration-after-statement -fno-strict-aliasing
+[103][environment]                           -Wno-pointer-sign -Wno-sign-compare
+[103][environment]                           -Wno-unused-result -I.Active checkers: biabduction (C/C++/ObjC, Java), fragment retains view (Java), inefficient keyset iterator (Java), liveness (C/C++/ObjC), RacerD (C/C++/ObjC, Java), SIOF (C/C++/ObjC), uninitialized variables (C/C++/ObjC), Starvation analysis (C/C++/ObjC, Java)
+[103][      debug] 
+[103][      debug] *** Beginning capture of file /root/files/hw4/tcc-0.9.27/tccpp.c ***
+[103][      debug] Clang frontend action is translating and linting
+[103][      debug] Loading the following linters files: /root/infer/lib/infer/infer/bin/../lib/linter_rules/linters.al
+[103][      debug] Elapsed: 549ms.
+[103][      debug] 
+[103][environment] Infer log identifier is 
+
+[111][environment] CWD = /root/files/hw4/tcc-0.9.27
+[111][environment] No .inferconfig file found
+[111][environment] Project root = /root/files/hw4/tcc-0.9.27
+[111][environment] INFER_ARGS =   @/tmp/args.tmp.aeea36  ++Contents of '/tmp/args.tmp.aeea36':
+[111][environment]                                         @/tmp/args.tmp.2c4eea -o tccgen.o -c
+[111][environment]                                         tccgen.c
+[111][environment]                                         -DCONFIG_TRIPLET="x86_64-linux-gnu"
+[111][environment]                                         -DTCC_TARGET_X86_64 -DONE_SOURCE=0
+[111][environment]                                         -Wall -g -O2
+[111][environment]                                         -Wdeclaration-after-statement
+[111][environment]                                         -fno-strict-aliasing
+[111][environment]                                         -Wno-pointer-sign -Wno-sign-compare
+[111][environment]                                         -Wno-unused-result -I.
+[111][environment]                                         ++Contents of '/tmp/args.tmp.2c4eea':
+[111][environment]                                           run -j 1 --reactive
+[111][environment]                                         
+[111][environment]                                       
+[111][environment] command line arguments:   gcc -o tccgen.o -c tccgen.c
+[111][environment]                           -DCONFIG_TRIPLET="x86_64-linux-gnu"
+[111][environment]                           -DTCC_TARGET_X86_64 -DONE_SOURCE=0 -Wall -g -O2
+[111][environment]                           -Wdeclaration-after-statement -fno-strict-aliasing
+[111][environment]                           -Wno-pointer-sign -Wno-sign-compare
+[111][environment]                           -Wno-unused-result -I.Active checkers: biabduction (C/C++/ObjC, Java), fragment retains view (Java), inefficient keyset iterator (Java), liveness (C/C++/ObjC), RacerD (C/C++/ObjC, Java), SIOF (C/C++/ObjC), uninitialized variables (C/C++/ObjC), Starvation analysis (C/C++/ObjC, Java)
+[111][      debug] 
+[111][      debug] *** Beginning capture of file /root/files/hw4/tcc-0.9.27/tccgen.c ***
+[111][      debug] Clang frontend action is translating and linting
+[111][      debug] Loading the following linters files: /root/infer/lib/infer/infer/bin/../lib/linter_rules/linters.al
+[111][      debug] Elapsed: 687ms.
+[111][      debug] 
+[111][environment] Infer log identifier is 
+
+[119][environment] CWD = /root/files/hw4/tcc-0.9.27
+[119][environment] No .inferconfig file found
+[119][environment] Project root = /root/files/hw4/tcc-0.9.27
+[119][environment] INFER_ARGS =   @/tmp/args.tmp.6c100c  ++Contents of '/tmp/args.tmp.6c100c':
+[119][environment]                                         @/tmp/args.tmp.2c4eea -o tccelf.o -c
+[119][environment]                                         tccelf.c
+[119][environment]                                         -DCONFIG_TRIPLET="x86_64-linux-gnu"
+[119][environment]                                         -DTCC_TARGET_X86_64 -DONE_SOURCE=0
+[119][environment]                                         -Wall -g -O2
+[119][environment]                                         -Wdeclaration-after-statement
+[119][environment]                                         -fno-strict-aliasing
+[119][environment]                                         -Wno-pointer-sign -Wno-sign-compare
+[119][environment]                                         -Wno-unused-result -I.
+[119][environment]                                         ++Contents of '/tmp/args.tmp.2c4eea':
+[119][environment]                                           run -j 1 --reactive
+[119][environment]                                         
+[119][environment]                                       
+[119][environment] command line arguments:   gcc -o tccelf.o -c tccelf.c
+[119][environment]                           -DCONFIG_TRIPLET="x86_64-linux-gnu"
+[119][environment]                           -DTCC_TARGET_X86_64 -DONE_SOURCE=0 -Wall -g -O2
+[119][environment]                           -Wdeclaration-after-statement -fno-strict-aliasing
+[119][environment]                           -Wno-pointer-sign -Wno-sign-compare
+[119][environment]                           -Wno-unused-result -I.Active checkers: biabduction (C/C++/ObjC, Java), fragment retains view (Java), inefficient keyset iterator (Java), liveness (C/C++/ObjC), RacerD (C/C++/ObjC, Java), SIOF (C/C++/ObjC), uninitialized variables (C/C++/ObjC), Starvation analysis (C/C++/ObjC, Java)
+[119][      debug] 
+[119][      debug] *** Beginning capture of file /root/files/hw4/tcc-0.9.27/tccelf.c ***
+[119][      debug] Clang frontend action is translating and linting
+[119][      debug] Loading the following linters files: /root/infer/lib/infer/infer/bin/../lib/linter_rules/linters.al
+[119][      debug] Elapsed: 543ms.
+[119][      debug] 
+[119][environment] Infer log identifier is 
+
+[127][environment] CWD = /root/files/hw4/tcc-0.9.27
+[127][environment] No .inferconfig file found
+[127][environment] Project root = /root/files/hw4/tcc-0.9.27
+[127][environment] INFER_ARGS =   @/tmp/args.tmp.add151  ++Contents of '/tmp/args.tmp.add151':
+[127][environment]                                         @/tmp/args.tmp.2c4eea -o tccasm.o -c
+[127][environment]                                         tccasm.c
+[127][environment]                                         -DCONFIG_TRIPLET="x86_64-linux-gnu"
+[127][environment]                                         -DTCC_TARGET_X86_64 -DONE_SOURCE=0
+[127][environment]                                         -Wall -g -O2
+[127][environment]                                         -Wdeclaration-after-statement
+[127][environment]                                         -fno-strict-aliasing
+[127][environment]                                         -Wno-pointer-sign -Wno-sign-compare
+[127][environment]                                         -Wno-unused-result -I.
+[127][environment]                                         ++Contents of '/tmp/args.tmp.2c4eea':
+[127][environment]                                           run -j 1 --reactive
+[127][environment]                                         
+[127][environment]                                       
+[127][environment] command line arguments:   gcc -o tccasm.o -c tccasm.c
+[127][environment]                           -DCONFIG_TRIPLET="x86_64-linux-gnu"
+[127][environment]                           -DTCC_TARGET_X86_64 -DONE_SOURCE=0 -Wall -g -O2
+[127][environment]                           -Wdeclaration-after-statement -fno-strict-aliasing
+[127][environment]                           -Wno-pointer-sign -Wno-sign-compare
+[127][environment]                           -Wno-unused-result -I.Active checkers: biabduction (C/C++/ObjC, Java), fragment retains view (Java), inefficient keyset iterator (Java), liveness (C/C++/ObjC), RacerD (C/C++/ObjC, Java), SIOF (C/C++/ObjC), uninitialized variables (C/C++/ObjC), Starvation analysis (C/C++/ObjC, Java)
+[127][      debug] 
+[127][      debug] *** Beginning capture of file /root/files/hw4/tcc-0.9.27/tccasm.c ***
+[127][      debug] Clang frontend action is translating and linting
+[127][      debug] Loading the following linters files: /root/infer/lib/infer/infer/bin/../lib/linter_rules/linters.al
+[127][      debug] Elapsed: 405ms.
+[127][      debug] 
+[127][environment] Infer log identifier is 
+
+[135][environment] CWD = /root/files/hw4/tcc-0.9.27
+[135][environment] No .inferconfig file found
+[135][environment] Project root = /root/files/hw4/tcc-0.9.27
+[135][environment] INFER_ARGS =   @/tmp/args.tmp.e08533  ++Contents of '/tmp/args.tmp.e08533':
+[135][environment]                                         @/tmp/args.tmp.2c4eea -o tccrun.o -c
+[135][environment]                                         tccrun.c
+[135][environment]                                         -DCONFIG_TRIPLET="x86_64-linux-gnu"
+[135][environment]                                         -DTCC_TARGET_X86_64 -DONE_SOURCE=0
+[135][environment]                                         -Wall -g -O2
+[135][environment]                                         -Wdeclaration-after-statement
+[135][environment]                                         -fno-strict-aliasing
+[135][environment]                                         -Wno-pointer-sign -Wno-sign-compare
+[135][environment]                                         -Wno-unused-result -I.
+[135][environment]                                         ++Contents of '/tmp/args.tmp.2c4eea':
+[135][environment]                                           run -j 1 --reactive
+[135][environment]                                         
+[135][environment]                                       
+[135][environment] command line arguments:   gcc -o tccrun.o -c tccrun.c
+[135][environment]                           -DCONFIG_TRIPLET="x86_64-linux-gnu"
+[135][environment]                           -DTCC_TARGET_X86_64 -DONE_SOURCE=0 -Wall -g -O2
+[135][environment]                           -Wdeclaration-after-statement -fno-strict-aliasing
+[135][environment]                           -Wno-pointer-sign -Wno-sign-compare
+[135][environment]                           -Wno-unused-result -I.Active checkers: biabduction (C/C++/ObjC, Java), fragment retains view (Java), inefficient keyset iterator (Java), liveness (C/C++/ObjC), RacerD (C/C++/ObjC, Java), SIOF (C/C++/ObjC), uninitialized variables (C/C++/ObjC), Starvation analysis (C/C++/ObjC, Java)
+[135][      debug] 
+[135][      debug] *** Beginning capture of file /root/files/hw4/tcc-0.9.27/tccrun.c ***
+[135][      debug] Clang frontend action is translating and linting
+[135][      debug] Loading the following linters files: /root/infer/lib/infer/infer/bin/../lib/linter_rules/linters.al
+[135][      debug] tccrun.c:286:5-51: ERROR translating statement 'DeclStmt'
+[135][      debug] Aborting translation of method 'set_pages_executable' in file 'tccrun.c'
+[135][      debug] Unimplemented feature:
+[135][      debug]   In DeclStmt found an unknown declaration type <"FunctionDecl":({"pointer":13946,"parent_pointer":1,"source_range":({"file":"/root/files/hw4/tcc-0.9.27/tccrun.c","line":286,"column":5},{"file":"/root/files/hw4/tcc-0.9.27/tccrun.c","line":286,"column":50})},{"name":"__clear_cache","qual_name":["__clear_cache"]},{"type_ptr":13947},{"parameters":[<"ParmVarDecl":({"pointer":13948,"source_range":({"file":"/root/files/hw4/tcc-0.9.27/tccrun.c","line":286,"column":24},{"file":"/root/files/hw4/tcc-0.9.27/tccrun.c","line":286,"column":30})},{"name":"beginning","qual_name":["beginning"]},{"type_ptr":926},{"parm_index_in_function":0})>,<"ParmVarDecl":({"pointer":13949,"source_range":({"file":"/root/files/hw4/tcc-0.9.27/tccrun.c","line":286,"column":41},{"file":"/root/files/hw4/tcc-0.9.27/tccrun.c","line":286,"column":47})},{"name":"end","qual_name":["end"]},{"type_ptr":926},{"parm_index_in_function":1})>]})>
+[135][      debug] tccrun.c:286:5-51: ERROR translating statement 'DeclStmt'
+[135][      debug] Aborting translation of method 'set_pages_executable' in file 'tccrun.c'
+[135][      debug] Unimplemented feature:
+[135][      debug]   In DeclStmt found an unknown declaration type <"FunctionDecl":({"pointer":13946,"parent_pointer":1,"source_range":({"file":"/root/files/hw4/tcc-0.9.27/tccrun.c","line":286,"column":5},{"file":"/root/files/hw4/tcc-0.9.27/tccrun.c","line":286,"column":50})},{"name":"__clear_cache","qual_name":["__clear_cache"]},{"type_ptr":13947},{"parameters":[<"ParmVarDecl":({"pointer":13948,"source_range":({"file":"/root/files/hw4/tcc-0.9.27/tccrun.c","line":286,"column":24},{"file":"/root/files/hw4/tcc-0.9.27/tccrun.c","line":286,"column":30})},{"name":"beginning","qual_name":["beginning"]},{"type_ptr":926},{"parm_index_in_function":0})>,<"ParmVarDecl":({"pointer":13949,"source_range":({"file":"/root/files/hw4/tcc-0.9.27/tccrun.c","line":286,"column":41},{"file":"/root/files/hw4/tcc-0.9.27/tccrun.c","line":286,"column":47})},{"name":"end","qual_name":["end"]},{"type_ptr":926},{"parm_index_in_function":1})>]})>
+[135][      debug] Elapsed: 375ms.
+[135][      debug] 
+[135][environment] Infer log identifier is 
+
+[143][environment] CWD = /root/files/hw4/tcc-0.9.27
+[143][environment] No .inferconfig file found
+[143][environment] Project root = /root/files/hw4/tcc-0.9.27
+[143][environment] INFER_ARGS =   @/tmp/args.tmp.bd2289  ++Contents of '/tmp/args.tmp.bd2289':
+[143][environment]                                         @/tmp/args.tmp.2c4eea -o x86_64-gen.o
+[143][environment]                                         -c x86_64-gen.c
+[143][environment]                                         -DCONFIG_TRIPLET="x86_64-linux-gnu"
+[143][environment]                                         -DTCC_TARGET_X86_64 -DONE_SOURCE=0
+[143][environment]                                         -Wall -g -O2
+[143][environment]                                         -Wdeclaration-after-statement
+[143][environment]                                         -fno-strict-aliasing
+[143][environment]                                         -Wno-pointer-sign -Wno-sign-compare
+[143][environment]                                         -Wno-unused-result -I.
+[143][environment]                                         ++Contents of '/tmp/args.tmp.2c4eea':
+[143][environment]                                           run -j 1 --reactive
+[143][environment]                                         
+[143][environment]                                       
+[143][environment] command line arguments:   gcc -o x86_64-gen.o -c x86_64-gen.c
+[143][environment]                           -DCONFIG_TRIPLET="x86_64-linux-gnu"
+[143][environment]                           -DTCC_TARGET_X86_64 -DONE_SOURCE=0 -Wall -g -O2
+[143][environment]                           -Wdeclaration-after-statement -fno-strict-aliasing
+[143][environment]                           -Wno-pointer-sign -Wno-sign-compare
+[143][environment]                           -Wno-unused-result -I.Active checkers: biabduction (C/C++/ObjC, Java), fragment retains view (Java), inefficient keyset iterator (Java), liveness (C/C++/ObjC), RacerD (C/C++/ObjC, Java), SIOF (C/C++/ObjC), uninitialized variables (C/C++/ObjC), Starvation analysis (C/C++/ObjC, Java)
+[143][      debug] 
+[143][      debug] *** Beginning capture of file /root/files/hw4/tcc-0.9.27/x86_64-gen.c ***
+[143][      debug] Clang frontend action is translating and linting
+[143][      debug] Loading the following linters files: /root/infer/lib/infer/infer/bin/../lib/linter_rules/linters.al
+[143][      debug] x86_64-gen.c:1198:5-1200:6: ERROR translating statement 'DeclStmt'
+[143][      debug] Aborting translation of method 'classify_x86_64_va_arg' in file 'x86_64-gen.c'
+[143][      debug] Unimplemented feature:
+[143][      debug]   In DeclStmt found an unknown declaration type <"EnumDecl":({"pointer":15995,"source_range":({"file":"/root/files/hw4/tcc-0.9.27/x86_64-gen.c","line":1198,"column":5},{"file":"/root/files/hw4/tcc-0.9.27/x86_64-gen.c","line":1200,"column":5})},{"name":"__va_arg_type","qual_name":["__va_arg_type","classify_x86_64_va_arg"]},15996,[<"EnumConstantDecl":({"pointer":15997,"source_range":({"file":"/root/files/hw4/tcc-0.9.27/x86_64-gen.c","line":1199,"column":9},{"file":"/root/files/hw4/tcc-0.9.27/x86_64-gen.c","line":1199,"column":9}),"is_this_declaration_referenced":true},{"name":"__va_gen_reg","qual_name":["__va_gen_reg","__va_arg_type","classify_x86_64_va_arg"]},{"type_ptr":15},{})>,<"EnumConstantDecl":({"pointer":15998,"source_range":({"file":"/root/files/hw4/tcc-0.9.27/x86_64-gen.c","line":1199,"column":23},{"file":"/root/files/hw4/tcc-0.9.27/x86_64-gen.c","line":1199,"column":23}),"is_this_declaration_referenced":true},{"name":"__va_float_reg","qual_name":["__va_float_reg","__va_arg_type","classify_x86_64_va_arg"]},{"type_ptr":15},{})>,<"EnumConstantDecl":({"pointer":15999,"source_range":({"file":"/root/files/hw4/tcc-0.9.27/x86_64-gen.c","line":1199,"column":39},{"file":"/root/files/hw4/tcc-0.9.27/x86_64-gen.c","line":1199,"column":39}),"is_this_declaration_referenced":true},{"name":"__va_stack","qual_name":["__va_stack","__va_arg_type","classify_x86_64_va_arg"]},{"type_ptr":15},{})>],{},<"TTK_Enum">,{})>
+[143][      debug] Elapsed: 452ms.
+[143][      debug] 
+[143][environment] Infer log identifier is 
+
+[151][environment] CWD = /root/files/hw4/tcc-0.9.27
+[151][environment] No .inferconfig file found
+[151][environment] Project root = /root/files/hw4/tcc-0.9.27
+[151][environment] INFER_ARGS =   @/tmp/args.tmp.3e9f77  ++Contents of '/tmp/args.tmp.3e9f77':
+[151][environment]                                         @/tmp/args.tmp.2c4eea -o
+[151][environment]                                         x86_64-link.o -c x86_64-link.c
+[151][environment]                                         -DCONFIG_TRIPLET="x86_64-linux-gnu"
+[151][environment]                                         -DTCC_TARGET_X86_64 -DONE_SOURCE=0
+[151][environment]                                         -Wall -g -O2
+[151][environment]                                         -Wdeclaration-after-statement
+[151][environment]                                         -fno-strict-aliasing
+[151][environment]                                         -Wno-pointer-sign -Wno-sign-compare
+[151][environment]                                         -Wno-unused-result -I.
+[151][environment]                                         ++Contents of '/tmp/args.tmp.2c4eea':
+[151][environment]                                           run -j 1 --reactive
+[151][environment]                                         
+[151][environment]                                       
+[151][environment] command line arguments:   gcc -o x86_64-link.o -c x86_64-link.c
+[151][environment]                           -DCONFIG_TRIPLET="x86_64-linux-gnu"
+[151][environment]                           -DTCC_TARGET_X86_64 -DONE_SOURCE=0 -Wall -g -O2
+[151][environment]                           -Wdeclaration-after-statement -fno-strict-aliasing
+[151][environment]                           -Wno-pointer-sign -Wno-sign-compare
+[151][environment]                           -Wno-unused-result -I.Active checkers: biabduction (C/C++/ObjC, Java), fragment retains view (Java), inefficient keyset iterator (Java), liveness (C/C++/ObjC), RacerD (C/C++/ObjC, Java), SIOF (C/C++/ObjC), uninitialized variables (C/C++/ObjC), Starvation analysis (C/C++/ObjC, Java)
+[151][      debug] 
+[151][      debug] *** Beginning capture of file /root/files/hw4/tcc-0.9.27/x86_64-link.c ***
+[151][      debug] Clang frontend action is translating and linting
+[151][      debug] Loading the following linters files: /root/infer/lib/infer/infer/bin/../lib/linter_rules/linters.al
+[151][      debug] Elapsed: 348ms.
+[151][      debug] 
+[151][environment] Infer log identifier is 
+
+[159][environment] CWD = /root/files/hw4/tcc-0.9.27
+[159][environment] No .inferconfig file found
+[159][environment] Project root = /root/files/hw4/tcc-0.9.27
+[159][environment] INFER_ARGS =   @/tmp/args.tmp.9f7060  ++Contents of '/tmp/args.tmp.9f7060':
+[159][environment]                                         @/tmp/args.tmp.2c4eea -o i386-asm.o
+[159][environment]                                         -c i386-asm.c
+[159][environment]                                         -DCONFIG_TRIPLET="x86_64-linux-gnu"
+[159][environment]                                         -DTCC_TARGET_X86_64 -DONE_SOURCE=0
+[159][environment]                                         -Wall -g -O2
+[159][environment]                                         -Wdeclaration-after-statement
+[159][environment]                                         -fno-strict-aliasing
+[159][environment]                                         -Wno-pointer-sign -Wno-sign-compare
+[159][environment]                                         -Wno-unused-result -I.
+[159][environment]                                         ++Contents of '/tmp/args.tmp.2c4eea':
+[159][environment]                                           run -j 1 --reactive
+[159][environment]                                         
+[159][environment]                                       
+[159][environment] command line arguments:   gcc -o i386-asm.o -c i386-asm.c
+[159][environment]                           -DCONFIG_TRIPLET="x86_64-linux-gnu"
+[159][environment]                           -DTCC_TARGET_X86_64 -DONE_SOURCE=0 -Wall -g -O2
+[159][environment]                           -Wdeclaration-after-statement -fno-strict-aliasing
+[159][environment]                           -Wno-pointer-sign -Wno-sign-compare
+[159][environment]                           -Wno-unused-result -I.Active checkers: biabduction (C/C++/ObjC, Java), fragment retains view (Java), inefficient keyset iterator (Java), liveness (C/C++/ObjC), RacerD (C/C++/ObjC, Java), SIOF (C/C++/ObjC), uninitialized variables (C/C++/ObjC), Starvation analysis (C/C++/ObjC, Java)
+[159][      debug] 
+[159][      debug] *** Beginning capture of file /root/files/hw4/tcc-0.9.27/i386-asm.c ***
+[159][      debug] Clang frontend action is translating and linting
+[159][      debug] Loading the following linters files: /root/infer/lib/infer/infer/bin/../lib/linter_rules/linters.al
+[159][      debug] Elapsed: 593ms.
+[159][      debug] 
+[159][environment] Infer log identifier is 
+
+[167][environment] CWD = /root/files/hw4/tcc-0.9.27
+[167][environment] No .inferconfig file found
+[167][environment] Project root = /root/files/hw4/tcc-0.9.27
+[167][environment] INFER_ARGS =   @/tmp/args.tmp.ea4741  ++Contents of '/tmp/args.tmp.ea4741':
+[167][environment]                                         @/tmp/args.tmp.2c4eea -o tcc tcc.o
+[167][environment]                                         libtcc.a -lm -ldl
+[167][environment]                                         ++Contents of '/tmp/args.tmp.2c4eea':
+[167][environment]                                           run -j 1 --reactive
+[167][environment]                                         
+[167][environment]                                       
+[167][environment] command line arguments:   gcc -o tcc tcc.o libtcc.a -lm -ldlActive checkers: biabduction (C/C++/ObjC, Java), fragment retains view (Java), inefficient keyset iterator (Java), liveness (C/C++/ObjC), RacerD (C/C++/ObjC, Java), SIOF (C/C++/ObjC), uninitialized variables (C/C++/ObjC), Starvation analysis (C/C++/ObjC, Java)
+[167][environment] Infer log identifier is 
+[82][   progress] Found 10 (out of 10) source files to analyze in /root/files/hw4/tcc-0.9.27/infer-out
+[82][   progress] i386-asm.c starting
+[82][   progress] i386-asm.c DONE
+[82][   progress] libtcc.c starting
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][      debug] 
+[82][      debug] typ_get_recursive_flds: unexpected sizeof(t=) unknown struct type: struct TinyAlloc
+[82][   progress] libtcc.c DONE
+[82][   progress] tcc.c starting
+[82][   progress] tcc.c DONE
+[82][   progress] tccasm.c starting
+[82][   progress] tccasm.c DONE
+[82][   progress] tccelf.c starting
+[82][   progress] tccelf.c DONE
+[82][   progress] tccgen.c starting
+[82][   progress] tccgen.c DONE
+[82][   progress] tccpp.c starting
+[82][   progress] tccpp.c DONE
+[82][   progress] tccrun.c starting
+[82][   progress] tccrun.c DONE
+[82][   progress] x86_64-gen.c starting
+[82][   progress] x86_64-gen.c DONE
+[82][   progress] x86_64-link.c starting
+[82][   progress] x86_64-link.c DONE
+[82][   progress] 
+[82][   progress] Analysis finished in 1min6ss
+[82][      debug] collected stats:
+[82][      debug] Backend stats:
+[82][      debug]   summary_file_try_load= 3399
+[82][      debug]   summary_read_from_disk= 628
+[82][      debug]   summary_cache_hits= 41461 (95%)
+[82][      debug]   summary_cache_misses= 1974
+[82][      debug]   summary_has_model_queries= 0
+[82][      debug]   ondemand_procs_analyzed= 525
+[82][      debug]   ondemand_local_cache_hits= 19588 (94%)
+[82][      debug]   ondemand_local_cache_misses= 1179
+[82][      debug]   
+[82][      debug] 
+
+[187][      phase] ============================================================
+[187][      phase] = New infer execution begins
+[187][      phase] ============================================================
+[187][environment] CWD = /root/files/hw4/tcc-0.9.27
+[187][environment] No .inferconfig file found
+[187][environment] Project root = /root/files/hw4/tcc-0.9.27
+[187][environment] INFER_ARGS =   @/tmp/args.tmp.801e98  ++Contents of '/tmp/args.tmp.801e98':
+[187][environment]                                         explore --html
+[187][environment]                                       
+[187][environment] command line arguments:   infer explore --htmlActive checkers: biabduction (C/C++/ObjC, Java), fragment retains view (Java), inefficient keyset iterator (Java), liveness (C/C++/ObjC), RacerD (C/C++/ObjC, Java), SIOF (C/C++/ObjC), uninitialized variables (C/C++/ObjC), Starvation analysis (C/C++/ObjC, Java)
+[187][environment] Infer log identifier is 

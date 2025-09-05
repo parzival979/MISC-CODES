@@ -1,0 +1,11 @@
+tccpp.c:772: error: UNINITIALIZED_VALUE
+  The value read from c was never initialized.
+Showing all 1 steps of the trace
+
+
+tccpp.c:772:20: 
+770.               file->line_num++;
+771.               p++;
+772. >         } else if (c == '*') {
+773.               p++;
+774.               for(;;) {

@@ -1,0 +1,447 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - tinycc/tcc.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">tinycc</a> - tcc.c<span style="font-size: 80%;"> (source / <a href="tcc.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">60</td>
+            <td class="headerCovTableEntry">117</td>
+            <td class="headerCovTableEntryLo">51.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2025-01-31 02:50:06</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryLo">40.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *  TCC - Tiny C Compiler
+<span class="lineNum">       3 </span>            :  * 
+<span class="lineNum">       4 </span>            :  *  Copyright (c) 2001-2004 Fabrice Bellard
+<span class="lineNum">       5 </span>            :  *
+<span class="lineNum">       6 </span>            :  * This library is free software; you can redistribute it and/or
+<span class="lineNum">       7 </span>            :  * modify it under the terms of the GNU Lesser General Public
+<span class="lineNum">       8 </span>            :  * License as published by the Free Software Foundation; either
+<span class="lineNum">       9 </span>            :  * version 2 of the License, or (at your option) any later version.
+<span class="lineNum">      10 </span>            :  *
+<span class="lineNum">      11 </span>            :  * This library is distributed in the hope that it will be useful,
+<span class="lineNum">      12 </span>            :  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      13 </span>            :  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+<span class="lineNum">      14 </span>            :  * Lesser General Public License for more details.
+<span class="lineNum">      15 </span>            :  *
+<span class="lineNum">      16 </span>            :  * You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      17 </span>            :  * License along with this library; if not, write to the Free Software
+<span class="lineNum">      18 </span>            :  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+<span class="lineNum">      19 </span>            :  */
+<span class="lineNum">      20 </span>            : 
+<span class="lineNum">      21 </span>            : #include &quot;tcc.h&quot;
+<span class="lineNum">      22 </span>            : #if ONE_SOURCE
+<span class="lineNum">      23 </span>            : # include &quot;libtcc.c&quot;
+<span class="lineNum">      24 </span>            : #endif
+<span class="lineNum">      25 </span>            : #include &quot;tcctools.c&quot;
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : static const char help[] =
+<span class="lineNum">      28 </span>            :     &quot;Tiny C Compiler &quot;TCC_VERSION&quot; - Copyright (C) 2001-2006 Fabrice Bellard\n&quot;
+<span class="lineNum">      29 </span>            :     &quot;Usage: tcc [options...] [-o outfile] [-c] infile(s)...\n&quot;
+<span class="lineNum">      30 </span>            :     &quot;       tcc [options...] -run infile [arguments...]\n&quot;
+<span class="lineNum">      31 </span>            :     &quot;General options:\n&quot;
+<span class="lineNum">      32 </span>            :     &quot;  -c          compile only - generate an object file\n&quot;
+<span class="lineNum">      33 </span>            :     &quot;  -o outfile  set output filename\n&quot;
+<span class="lineNum">      34 </span>            :     &quot;  -run        run compiled source\n&quot;
+<span class="lineNum">      35 </span>            :     &quot;  -fflag      set or reset (with 'no-' prefix) 'flag' (see tcc -hh)\n&quot;
+<span class="lineNum">      36 </span>            :     &quot;  -Wwarning   set or reset (with 'no-' prefix) 'warning' (see tcc -hh)\n&quot;
+<span class="lineNum">      37 </span>            :     &quot;  -w          disable all warnings\n&quot;
+<span class="lineNum">      38 </span>            :     &quot;  -v -vv      show version, show search paths or loaded files\n&quot;
+<span class="lineNum">      39 </span>            :     &quot;  -h -hh      show this, show more help\n&quot;
+<span class="lineNum">      40 </span>            :     &quot;  -bench      show compilation statistics\n&quot;
+<span class="lineNum">      41 </span>            :     &quot;  -           use stdin pipe as infile\n&quot;
+<span class="lineNum">      42 </span>            :     &quot;  @listfile   read arguments from listfile\n&quot;
+<span class="lineNum">      43 </span>            :     &quot;Preprocessor options:\n&quot;
+<span class="lineNum">      44 </span>            :     &quot;  -Idir       add include path 'dir'\n&quot;
+<span class="lineNum">      45 </span>            :     &quot;  -Dsym[=val] define 'sym' with value 'val'\n&quot;
+<span class="lineNum">      46 </span>            :     &quot;  -Usym       undefine 'sym'\n&quot;
+<span class="lineNum">      47 </span>            :     &quot;  -E          preprocess only\n&quot;
+<span class="lineNum">      48 </span>            :     &quot;Linker options:\n&quot;
+<span class="lineNum">      49 </span>            :     &quot;  -Ldir       add library path 'dir'\n&quot;
+<span class="lineNum">      50 </span>            :     &quot;  -llib       link with dynamic or static library 'lib'\n&quot;
+<span class="lineNum">      51 </span>            :     &quot;  -r          generate (relocatable) object file\n&quot;
+<span class="lineNum">      52 </span>            :     &quot;  -shared     generate a shared library/dll\n&quot;
+<span class="lineNum">      53 </span>            :     &quot;  -rdynamic   export all global symbols to dynamic linker\n&quot;
+<span class="lineNum">      54 </span>            :     &quot;  -soname     set name for shared library to be used at runtime\n&quot;
+<span class="lineNum">      55 </span>            :     &quot;  -Wl,-opt[=val]  set linker option (see tcc -hh)\n&quot;
+<span class="lineNum">      56 </span>            :     &quot;Debugger options:\n&quot;
+<span class="lineNum">      57 </span>            :     &quot;  -g          generate runtime debug info\n&quot;
+<span class="lineNum">      58 </span>            : #ifdef CONFIG_TCC_BCHECK
+<span class="lineNum">      59 </span>            :     &quot;  -b          compile with built-in memory and bounds checker (implies -g)\n&quot;
+<span class="lineNum">      60 </span>            : #endif
+<span class="lineNum">      61 </span>            : #ifdef CONFIG_TCC_BACKTRACE
+<span class="lineNum">      62 </span>            :     &quot;  -bt N       show N callers in stack traces\n&quot;
+<span class="lineNum">      63 </span>            : #endif
+<span class="lineNum">      64 </span>            :     &quot;Misc. options:\n&quot;
+<span class="lineNum">      65 </span>            :     &quot;  -x[c|a|n]   specify type of the next infile\n&quot;
+<span class="lineNum">      66 </span>            :     &quot;  -nostdinc   do not use standard system include paths\n&quot;
+<span class="lineNum">      67 </span>            :     &quot;  -nostdlib   do not link with standard crt and libraries\n&quot;
+<span class="lineNum">      68 </span>            :     &quot;  -Bdir       set tcc's private include/library dir\n&quot;
+<span class="lineNum">      69 </span>            :     &quot;  -MD         generate dependency file for make\n&quot;
+<span class="lineNum">      70 </span>            :     &quot;  -MF file    specify dependency file name\n&quot;
+<span class="lineNum">      71 </span>            :     &quot;  -m32/64     defer to i386/x86_64 cross compiler\n&quot;
+<span class="lineNum">      72 </span>            :     &quot;Tools:\n&quot;
+<span class="lineNum">      73 </span>            :     &quot;  create library  : tcc -ar [rcsv] lib.a files\n&quot;
+<span class="lineNum">      74 </span>            : #ifdef TCC_TARGET_PE
+<span class="lineNum">      75 </span>            :     &quot;  create def file : tcc -impdef lib.dll [-v] [-o lib.def]\n&quot;
+<span class="lineNum">      76 </span>            : #endif
+<span class="lineNum">      77 </span>            :     ;
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span>            : static const char help2[] =
+<span class="lineNum">      80 </span>            :     &quot;Tiny C Compiler &quot;TCC_VERSION&quot; - More Options\n&quot;
+<span class="lineNum">      81 </span>            :     &quot;Special options:\n&quot;
+<span class="lineNum">      82 </span>            :     &quot;  -P -P1                        with -E: no/alternative #line output\n&quot;
+<span class="lineNum">      83 </span>            :     &quot;  -dD -dM                       with -E: output #define directives\n&quot;
+<span class="lineNum">      84 </span>            :     &quot;  -pthread                      same as -D_REENTRANT and -lpthread\n&quot;
+<span class="lineNum">      85 </span>            :     &quot;  -On                           same as -D__OPTIMIZE__ for n &gt; 0\n&quot;
+<span class="lineNum">      86 </span>            :     &quot;  -Wp,-opt                      same as -opt\n&quot;
+<span class="lineNum">      87 </span>            :     &quot;  -include file                 include 'file' above each input file\n&quot;
+<span class="lineNum">      88 </span>            :     &quot;  -isystem dir                  add 'dir' to system include path\n&quot;
+<span class="lineNum">      89 </span>            :     &quot;  -static                       link to static libraries (not recommended)\n&quot;
+<span class="lineNum">      90 </span>            :     &quot;  -dumpversion                  print version\n&quot;
+<span class="lineNum">      91 </span>            :     &quot;  -print-search-dirs            print search paths\n&quot;
+<span class="lineNum">      92 </span>            :     &quot;  -dt                           with -run/-E: auto-define 'test_...' macros\n&quot;
+<span class="lineNum">      93 </span>            :     &quot;Ignored options:\n&quot;
+<span class="lineNum">      94 </span>            :     &quot;  --param  -pedantic  -pipe  -s  -std  -traditional\n&quot;
+<span class="lineNum">      95 </span>            :     &quot;-W... warnings:\n&quot;
+<span class="lineNum">      96 </span>            :     &quot;  all                           turn on some (*) warnings\n&quot;
+<span class="lineNum">      97 </span>            :     &quot;  error                         stop after first warning\n&quot;
+<span class="lineNum">      98 </span>            :     &quot;  unsupported                   warn about ignored options, pragmas, etc.\n&quot;
+<span class="lineNum">      99 </span>            :     &quot;  write-strings                 strings are const\n&quot;
+<span class="lineNum">     100 </span>            :     &quot;  implicit-function-declaration warn for missing prototype (*)\n&quot;
+<span class="lineNum">     101 </span>            :     &quot;-f[no-]... flags:\n&quot;
+<span class="lineNum">     102 </span>            :     &quot;  unsigned-char                 default char is unsigned\n&quot;
+<span class="lineNum">     103 </span>            :     &quot;  signed-char                   default char is signed\n&quot;
+<span class="lineNum">     104 </span>            :     &quot;  common                        use common section instead of bss\n&quot;
+<span class="lineNum">     105 </span>            :     &quot;  leading-underscore            decorate extern symbols\n&quot;
+<span class="lineNum">     106 </span>            :     &quot;  ms-extensions                 allow anonymous struct in struct\n&quot;
+<span class="lineNum">     107 </span>            :     &quot;  dollars-in-identifiers        allow '$' in C symbols\n&quot;
+<span class="lineNum">     108 </span>            :     &quot;-m... target specific options:\n&quot;
+<span class="lineNum">     109 </span>            :     &quot;  ms-bitfields                  use MSVC bitfield layout\n&quot;
+<span class="lineNum">     110 </span>            : #ifdef TCC_TARGET_ARM
+<span class="lineNum">     111 </span>            :     &quot;  float-abi                     hard/softfp on arm\n&quot;
+<span class="lineNum">     112 </span>            : #endif
+<span class="lineNum">     113 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">     114 </span>            :     &quot;  no-sse                        disable floats on x86_64\n&quot;
+<span class="lineNum">     115 </span>            : #endif
+<span class="lineNum">     116 </span>            :     &quot;-Wl,... linker options:\n&quot;
+<span class="lineNum">     117 </span>            :     &quot;  -nostdlib                     do not link with standard crt/libs\n&quot;
+<span class="lineNum">     118 </span>            :     &quot;  -[no-]whole-archive           load lib(s) fully/only as needed\n&quot;
+<span class="lineNum">     119 </span>            :     &quot;  -export-all-symbols           same as -rdynamic\n&quot;
+<span class="lineNum">     120 </span>            :     &quot;  -image-base= -Ttext=          set base address of executable\n&quot;
+<span class="lineNum">     121 </span>            :     &quot;  -section-alignment=           set section alignment in executable\n&quot;
+<span class="lineNum">     122 </span>            : #ifdef TCC_TARGET_PE
+<span class="lineNum">     123 </span>            :     &quot;  -file-alignment=              set PE file alignment\n&quot;
+<span class="lineNum">     124 </span>            :     &quot;  -stack=                       set PE stack reserve\n&quot;
+<span class="lineNum">     125 </span>            :     &quot;  -large-address-aware          set related PE option\n&quot;
+<span class="lineNum">     126 </span>            :     &quot;  -subsystem=[console/windows]  set PE subsystem\n&quot;
+<span class="lineNum">     127 </span>            :     &quot;  -oformat=[pe-* binary]        set executable output format\n&quot;
+<span class="lineNum">     128 </span>            :     &quot;Predefined macros:\n&quot;
+<span class="lineNum">     129 </span>            :     &quot;  tcc -E -dM - &lt; nul\n&quot;
+<span class="lineNum">     130 </span>            : #else
+<span class="lineNum">     131 </span>            :     &quot;  -rpath=                       set dynamic library search path\n&quot;
+<span class="lineNum">     132 </span>            :     &quot;  -enable-new-dtags             set DT_RUNPATH instead of DT_RPATH\n&quot;
+<span class="lineNum">     133 </span>            :     &quot;  -soname=                      set DT_SONAME elf tag\n&quot;
+<span class="lineNum">     134 </span>            :     &quot;  -Bsymbolic                    set DT_SYMBOLIC elf tag\n&quot;
+<span class="lineNum">     135 </span>            :     &quot;  -oformat=[elf32/64-* binary]  set executable output format\n&quot;
+<span class="lineNum">     136 </span>            :     &quot;  -init= -fini= -as-needed -O   (ignored)\n&quot;
+<span class="lineNum">     137 </span>            :     &quot;Predefined macros:\n&quot;
+<span class="lineNum">     138 </span>            :     &quot;  tcc -E -dM - &lt; /dev/null\n&quot;
+<span class="lineNum">     139 </span>            : #endif
+<span class="lineNum">     140 </span>            :     &quot;See also the manual for more details.\n&quot;
+<span class="lineNum">     141 </span>            :     ;
+<span class="lineNum">     142 </span>            : 
+<span class="lineNum">     143 </span>            : static const char version[] =
+<span class="lineNum">     144 </span>            :     &quot;tcc version &quot;TCC_VERSION&quot; (&quot;
+<span class="lineNum">     145 </span>            : #ifdef TCC_TARGET_I386
+<span class="lineNum">     146 </span>            :         &quot;i386&quot;
+<span class="lineNum">     147 </span>            : #elif defined TCC_TARGET_X86_64
+<span class="lineNum">     148 </span>            :         &quot;x86_64&quot;
+<span class="lineNum">     149 </span>            : #elif defined TCC_TARGET_C67
+<span class="lineNum">     150 </span>            :         &quot;C67&quot;
+<span class="lineNum">     151 </span>            : #elif defined TCC_TARGET_ARM
+<span class="lineNum">     152 </span>            :         &quot;ARM&quot;
+<span class="lineNum">     153 </span>            : #elif defined TCC_TARGET_ARM64
+<span class="lineNum">     154 </span>            :         &quot;AArch64&quot;
+<span class="lineNum">     155 </span>            : #endif
+<span class="lineNum">     156 </span>            : #ifdef TCC_ARM_HARDFLOAT
+<span class="lineNum">     157 </span>            :         &quot; Hard Float&quot;
+<span class="lineNum">     158 </span>            : #endif
+<span class="lineNum">     159 </span>            : #ifdef TCC_TARGET_PE
+<span class="lineNum">     160 </span>            :         &quot; Windows&quot;
+<span class="lineNum">     161 </span>            : #elif defined(TCC_TARGET_MACHO)
+<span class="lineNum">     162 </span>            :         &quot; Darwin&quot;
+<span class="lineNum">     163 </span>            : #elif defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
+<span class="lineNum">     164 </span>            :         &quot; FreeBSD&quot;
+<span class="lineNum">     165 </span>            : #else
+<span class="lineNum">     166 </span>            :         &quot; Linux&quot;
+<span class="lineNum">     167 </span>            : #endif
+<span class="lineNum">     168 </span>            :     &quot;)\n&quot;
+<span class="lineNum">     169 </span>            :     ;
+<span class="lineNum">     170 </span>            : 
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 : static void print_dirs(const char *msg, char **paths, int nb_paths)</span>
+<span class="lineNum">     172 </span>            : {
+<span class="lineNum">     173 </span>            :     int i;
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :     printf(&quot;%s:\n%s&quot;, msg, nb_paths ? &quot;&quot; : &quot;  -\n&quot;);</span>
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :     for(i = 0; i &lt; nb_paths; i++)</span>
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :         printf(&quot;  %s\n&quot;, paths[i]);</span>
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     178 </span>            : 
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 : static void print_search_dirs(TCCState *s)</span>
+<span class="lineNum">     180 </span>            : {
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :     printf(&quot;install: %s\n&quot;, s-&gt;tcc_lib_path);</span>
+<span class="lineNum">     182 </span>            :     /* print_dirs(&quot;programs&quot;, NULL, 0); */
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :     print_dirs(&quot;include&quot;, s-&gt;sysinclude_paths, s-&gt;nb_sysinclude_paths);</span>
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :     print_dirs(&quot;libraries&quot;, s-&gt;library_paths, s-&gt;nb_library_paths);</span>
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 :     printf(&quot;libtcc1:\n  %s/&quot;TCC_LIBTCC1&quot;\n&quot;, s-&gt;tcc_lib_path);</span>
+<span class="lineNum">     186 </span>            : #ifndef TCC_TARGET_PE
+<span class="lineNum">     187 </span><span class="lineNoCov">          0 :     print_dirs(&quot;crt&quot;, s-&gt;crt_paths, s-&gt;nb_crt_paths);</span>
+<span class="lineNum">     188 </span><span class="lineNoCov">          0 :     printf(&quot;elfinterp:\n  %s\n&quot;,  DEFAULT_ELFINTERP(s));</span>
+<span class="lineNum">     189 </span>            : #endif
+<a name="190"><span class="lineNum">     190 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     191 </span>            : 
+<span class="lineNum">     192 </span><span class="lineCov">          1 : static void set_environment(TCCState *s)</span>
+<span class="lineNum">     193 </span>            : {
+<span class="lineNum">     194 </span>            :     char * path;
+<span class="lineNum">     195 </span>            : 
+<span class="lineNum">     196 </span><span class="lineCov">          1 :     path = getenv(&quot;C_INCLUDE_PATH&quot;);</span>
+<span class="lineNum">     197 </span><span class="lineCov">          1 :     if(path != NULL) {</span>
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :         tcc_add_sysinclude_path(s, path);</span>
+<span class="lineNum">     199 </span>            :     }
+<span class="lineNum">     200 </span><span class="lineCov">          1 :     path = getenv(&quot;CPATH&quot;);</span>
+<span class="lineNum">     201 </span><span class="lineCov">          1 :     if(path != NULL) {</span>
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :         tcc_add_include_path(s, path);</span>
+<span class="lineNum">     203 </span>            :     }
+<span class="lineNum">     204 </span><span class="lineCov">          1 :     path = getenv(&quot;LIBRARY_PATH&quot;);</span>
+<span class="lineNum">     205 </span><span class="lineCov">          1 :     if(path != NULL) {</span>
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :         tcc_add_library_path(s, path);</span>
+<span class="lineNum">     207 </span>            :     }
+<span class="lineNum">     208 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     209 </span>            : 
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 : static char *default_outputfile(TCCState *s, const char *first_file)</span>
+<span class="lineNum">     211 </span>            : {
+<span class="lineNum">     212 </span>            :     char buf[1024];
+<span class="lineNum">     213 </span>            :     char *ext;
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 :     const char *name = &quot;a&quot;;</span>
+<span class="lineNum">     215 </span>            : 
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :     if (first_file &amp;&amp; strcmp(first_file, &quot;-&quot;))</span>
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :         name = tcc_basename(first_file);</span>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :     snprintf(buf, sizeof(buf), &quot;%s&quot;, name);</span>
+<span class="lineNum">     219 </span><span class="lineNoCov">          0 :     ext = tcc_fileextension(buf);</span>
+<span class="lineNum">     220 </span>            : #ifdef TCC_TARGET_PE
+<span class="lineNum">     221 </span>            :     if (s-&gt;output_type == TCC_OUTPUT_DLL)
+<span class="lineNum">     222 </span>            :         strcpy(ext, &quot;.dll&quot;);
+<span class="lineNum">     223 </span>            :     else
+<span class="lineNum">     224 </span>            :     if (s-&gt;output_type == TCC_OUTPUT_EXE)
+<span class="lineNum">     225 </span>            :         strcpy(ext, &quot;.exe&quot;);
+<span class="lineNum">     226 </span>            :     else
+<span class="lineNum">     227 </span>            : #endif
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :     if (s-&gt;output_type == TCC_OUTPUT_OBJ &amp;&amp; !s-&gt;option_r &amp;&amp; *ext)</span>
+<span class="lineNum">     229 </span>            :         strcpy(ext, &quot;.o&quot;);
+<span class="lineNum">     230 </span>            :     else
+<span class="lineNum">     231 </span>            :         strcpy(buf, &quot;a.out&quot;);
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :     return tcc_strdup(buf);</span>
+<span class="lineNum">     233 </span>            : }
+<span class="lineNum">     234 </span>            : 
+<span class="lineNum">     235 </span>            : static unsigned getclock_ms(void)
+<span class="lineNum">     236 </span>            : {
+<span class="lineNum">     237 </span>            : #ifdef _WIN32
+<span class="lineNum">     238 </span>            :     return GetTickCount();
+<span class="lineNum">     239 </span>            : #else
+<span class="lineNum">     240 </span>            :     struct timeval tv;
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :     gettimeofday(&amp;tv, NULL);</span>
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :     return tv.tv_sec*1000 + (tv.tv_usec+500)/1000;</span>
+<span class="lineNum">     243 </span>            : #endif
+<span class="lineNum">     244 </span>            : }
+<span class="lineNum">     245 </span>            : 
+<span class="lineNum">     246 </span><span class="lineCov">          1 : int main(int argc0, char **argv0)</span>
+<span class="lineNum">     247 </span>            : {
+<span class="lineNum">     248 </span>            :     TCCState *s;
+<span class="lineNum">     249 </span><span class="lineCov">          1 :     int ret, opt, n = 0, t = 0;</span>
+<span class="lineNum">     250 </span><span class="lineCov">          1 :     unsigned start_time = 0;</span>
+<span class="lineNum">     251 </span>            :     const char *first_file;
+<span class="lineNum">     252 </span>            :     int argc; char **argv;
+<span class="lineNum">     253 </span><span class="lineCov">          1 :     FILE *ppfp = stdout;</span>
+<span class="lineNum">     254 </span>            : 
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 : redo:</span>
+<span class="lineNum">     256 </span><span class="lineCov">          1 :     argc = argc0, argv = argv0;</span>
+<span class="lineNum">     257 </span><span class="lineCov">          1 :     s = tcc_new();</span>
+<span class="lineNum">     258 </span><span class="lineCov">          1 :     opt = tcc_parse_args(s, &amp;argc, &amp;argv, 1);</span>
+<span class="lineNum">     259 </span>            : 
+<span class="lineNum">     260 </span><span class="lineCov">          1 :     if ((n | t) == 0) {</span>
+<span class="lineNum">     261 </span><span class="lineCov">          1 :         if (opt == OPT_HELP)</span>
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 :             return printf(help), 1;</span>
+<span class="lineNum">     263 </span><span class="lineCov">          1 :         if (opt == OPT_HELP2)</span>
+<span class="lineNum">     264 </span><span class="lineNoCov">          0 :             return printf(help2), 1;</span>
+<span class="lineNum">     265 </span><span class="lineCov">          1 :         if (opt == OPT_M32 || opt == OPT_M64)</span>
+<span class="lineNum">     266 </span><span class="lineNoCov">          0 :             tcc_tool_cross(s, argv, opt); /* never returns */</span>
+<span class="lineNum">     267 </span><span class="lineCov">          1 :         if (s-&gt;verbose)</span>
+<span class="lineNum">     268 </span>            :             printf(version);
+<span class="lineNum">     269 </span><span class="lineCov">          1 :         if (opt == OPT_AR)</span>
+<span class="lineNum">     270 </span><span class="lineNoCov">          0 :             return tcc_tool_ar(s, argc, argv);</span>
+<span class="lineNum">     271 </span>            : #ifdef TCC_TARGET_PE
+<span class="lineNum">     272 </span>            :         if (opt == OPT_IMPDEF)
+<span class="lineNum">     273 </span>            :             return tcc_tool_impdef(s, argc, argv);
+<span class="lineNum">     274 </span>            : #endif
+<span class="lineNum">     275 </span><span class="lineCov">          1 :         if (opt == OPT_V)</span>
+<span class="lineNum">     276 </span>            :             return 0;
+<span class="lineNum">     277 </span><span class="lineCov">          1 :         if (opt == OPT_PRINT_DIRS) {</span>
+<span class="lineNum">     278 </span>            :             /* initialize search dirs */
+<span class="lineNum">     279 </span><span class="lineNoCov">          0 :             set_environment(s);</span>
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :             tcc_set_output_type(s, TCC_OUTPUT_MEMORY);</span>
+<span class="lineNum">     281 </span><span class="lineNoCov">          0 :             print_search_dirs(s);</span>
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 :             return 0;</span>
+<span class="lineNum">     283 </span>            :         }
+<span class="lineNum">     284 </span>            : 
+<span class="lineNum">     285 </span><span class="lineCov">          1 :         n = s-&gt;nb_files;</span>
+<span class="lineNum">     286 </span><span class="lineCov">          1 :         if (n == 0)</span>
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :             tcc_error(&quot;no input files\n&quot;);</span>
+<span class="lineNum">     288 </span>            : 
+<span class="lineNum">     289 </span><span class="lineCov">          1 :         if (s-&gt;output_type == TCC_OUTPUT_PREPROCESS) {</span>
+<span class="lineNum">     290 </span><span class="lineNoCov">          0 :             if (s-&gt;outfile) {</span>
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 :                 ppfp = fopen(s-&gt;outfile, &quot;w&quot;);</span>
+<span class="lineNum">     292 </span><span class="lineNoCov">          0 :                 if (!ppfp)</span>
+<span class="lineNum">     293 </span><span class="lineNoCov">          0 :                     tcc_error(&quot;could not write '%s'&quot;, s-&gt;outfile);</span>
+<span class="lineNum">     294 </span>            :             }
+<span class="lineNum">     295 </span><span class="lineCov">          1 :         } else if (s-&gt;output_type == TCC_OUTPUT_OBJ &amp;&amp; !s-&gt;option_r) {</span>
+<span class="lineNum">     296 </span><span class="lineNoCov">          0 :             if (s-&gt;nb_libraries)</span>
+<span class="lineNum">     297 </span><span class="lineNoCov">          0 :                 tcc_error(&quot;cannot specify libraries with -c&quot;);</span>
+<span class="lineNum">     298 </span><span class="lineNoCov">          0 :             if (n &gt; 1 &amp;&amp; s-&gt;outfile)</span>
+<span class="lineNum">     299 </span><span class="lineNoCov">          0 :                 tcc_error(&quot;cannot specify output file with -c many files&quot;);</span>
+<span class="lineNum">     300 </span>            :         } else {
+<span class="lineNum">     301 </span><span class="lineCov">          1 :             if (s-&gt;option_pthread)</span>
+<span class="lineNum">     302 </span><span class="lineNoCov">          0 :                 tcc_set_options(s, &quot;-lpthread&quot;);</span>
+<span class="lineNum">     303 </span>            :         }
+<span class="lineNum">     304 </span>            : 
+<span class="lineNum">     305 </span><span class="lineCov">          1 :         if (s-&gt;do_bench)</span>
+<span class="lineNum">     306 </span><span class="lineNoCov">          0 :             start_time = getclock_ms();</span>
+<span class="lineNum">     307 </span>            :     }
+<span class="lineNum">     308 </span>            : 
+<span class="lineNum">     309 </span><span class="lineCov">          1 :     set_environment(s);</span>
+<span class="lineNum">     310 </span><span class="lineCov">          1 :     if (s-&gt;output_type == 0)</span>
+<span class="lineNum">     311 </span><span class="lineCov">          1 :         s-&gt;output_type = TCC_OUTPUT_EXE;</span>
+<span class="lineNum">     312 </span><span class="lineCov">          1 :     tcc_set_output_type(s, s-&gt;output_type);</span>
+<span class="lineNum">     313 </span><span class="lineCov">          1 :     s-&gt;ppfp = ppfp;</span>
+<span class="lineNum">     314 </span>            : 
+<span class="lineNum">     315 </span><span class="lineCov">          2 :     if ((s-&gt;output_type == TCC_OUTPUT_MEMORY</span>
+<span class="lineNum">     316 </span><span class="lineCov">          1 :       || s-&gt;output_type == TCC_OUTPUT_PREPROCESS) &amp;&amp; (s-&gt;dflag &amp; 16))</span>
+<span class="lineNum">     317 </span><span class="lineNoCov">          0 :         s-&gt;dflag |= t ? 32 : 0, s-&gt;run_test = ++t, n = s-&gt;nb_files;</span>
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span>            :     /* compile or add each files or library */
+<span class="lineNum">     320 </span><span class="lineCov">          1 :     for (first_file = NULL, ret = 0;;) {</span>
+<span class="lineNum">     321 </span><span class="lineCov">          1 :         struct filespec *f = s-&gt;files[s-&gt;nb_files - n];</span>
+<span class="lineNum">     322 </span><span class="lineCov">          1 :         s-&gt;filetype = f-&gt;type;</span>
+<span class="lineNum">     323 </span><span class="lineCov">          1 :         s-&gt;alacarte_link = f-&gt;alacarte;</span>
+<span class="lineNum">     324 </span><span class="lineCov">          1 :         if (f-&gt;type == AFF_TYPE_LIB) {</span>
+<span class="lineNum">     325 </span><span class="lineNoCov">          0 :             if (tcc_add_library_err(s, f-&gt;name) &lt; 0)</span>
+<span class="lineNum">     326 </span><span class="lineNoCov">          0 :                 ret = 1;</span>
+<span class="lineNum">     327 </span>            :         } else {
+<span class="lineNum">     328 </span><span class="lineCov">          1 :             if (1 == s-&gt;verbose)</span>
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 :                 printf(&quot;-&gt; %s\n&quot;, f-&gt;name);</span>
+<span class="lineNum">     330 </span><span class="lineCov">          1 :             if (!first_file)</span>
+<span class="lineNum">     331 </span><span class="lineCov">          1 :                 first_file = f-&gt;name;</span>
+<span class="lineNum">     332 </span><span class="lineCov">          1 :             if (tcc_add_file(s, f-&gt;name) &lt; 0)</span>
+<span class="lineNum">     333 </span><span class="lineNoCov">          0 :                 ret = 1;</span>
+<span class="lineNum">     334 </span>            :         }
+<span class="lineNum">     335 </span><span class="lineCov">          1 :         s-&gt;filetype = 0;</span>
+<span class="lineNum">     336 </span><span class="lineCov">          1 :         s-&gt;alacarte_link = 1;</span>
+<span class="lineNum">     337 </span><span class="lineCov">          1 :         if (--n == 0 || ret</span>
+<span class="lineNum">     338 </span><span class="lineNoCov">          0 :             || (s-&gt;output_type == TCC_OUTPUT_OBJ &amp;&amp; !s-&gt;option_r))</span>
+<span class="lineNum">     339 </span>            :             break;
+<span class="lineNum">     340 </span>            :     }
+<span class="lineNum">     341 </span>            : 
+<span class="lineNum">     342 </span><span class="lineCov">          1 :     if (s-&gt;run_test) {</span>
+<span class="lineNum">     343 </span>            :         t = 0;
+<span class="lineNum">     344 </span><span class="lineCov">          1 :     } else if (s-&gt;output_type == TCC_OUTPUT_PREPROCESS) {</span>
+<span class="lineNum">     345 </span>            :         ;
+<span class="lineNum">     346 </span><span class="lineCov">          1 :     } else if (0 == ret) {</span>
+<span class="lineNum">     347 </span><span class="lineCov">          1 :         if (s-&gt;output_type == TCC_OUTPUT_MEMORY) {</span>
+<span class="lineNum">     348 </span>            : #ifdef TCC_IS_NATIVE
+<span class="lineNum">     349 </span><span class="lineNoCov">          0 :             ret = tcc_run(s, argc, argv);</span>
+<span class="lineNum">     350 </span>            : #endif
+<span class="lineNum">     351 </span>            :         } else {
+<span class="lineNum">     352 </span><span class="lineCov">          1 :             if (!s-&gt;outfile)</span>
+<span class="lineNum">     353 </span><span class="lineNoCov">          0 :                 s-&gt;outfile = default_outputfile(s, first_file);</span>
+<span class="lineNum">     354 </span><span class="lineCov">          1 :             if (tcc_output_file(s, s-&gt;outfile))</span>
+<span class="lineNum">     355 </span>            :                 ret = 1;
+<span class="lineNum">     356 </span><span class="lineCov">          1 :             else if (s-&gt;gen_deps)</span>
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 :                 gen_makedeps(s, s-&gt;outfile, s-&gt;deps_outfile);</span>
+<span class="lineNum">     358 </span>            :         }
+<span class="lineNum">     359 </span>            :     }
+<span class="lineNum">     360 </span>            : 
+<span class="lineNum">     361 </span><span class="lineCov">          1 :     if (s-&gt;do_bench &amp;&amp; (n | t | ret) == 0)</span>
+<span class="lineNum">     362 </span><span class="lineNoCov">          0 :         tcc_print_stats(s, getclock_ms() - start_time);</span>
+<span class="lineNum">     363 </span><span class="lineCov">          1 :     tcc_delete(s);</span>
+<span class="lineNum">     364 </span><span class="lineCov">          1 :     if (ret == 0 &amp;&amp; n)</span>
+<span class="lineNum">     365 </span>            :         goto redo; /* compile more files with -c */
+<span class="lineNum">     366 </span><span class="lineCov">          1 :     if (t)</span>
+<span class="lineNum">     367 </span>            :         goto redo; /* run more tests with -dt -run */
+<span class="lineNum">     368 </span><span class="lineCov">          1 :     if (ppfp &amp;&amp; ppfp != stdout)</span>
+<span class="lineNum">     369 </span><span class="lineNoCov">          0 :         fclose(ppfp);</span>
+<span class="lineNum">     370 </span>            :     return ret;
+<span class="lineNum">     371 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

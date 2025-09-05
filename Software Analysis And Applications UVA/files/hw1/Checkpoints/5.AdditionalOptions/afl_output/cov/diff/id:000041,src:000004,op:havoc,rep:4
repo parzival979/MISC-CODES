@@ -1,0 +1,4 @@
+diff id:000040,src:000004,op:havoc,rep:64,+cov -> id:000041,src:000004,op:havoc,rep:4
+Src file: /root/tinycc/tccpp.c
+  New 'line' coverage: 482
+  New 'line' coverage: 492

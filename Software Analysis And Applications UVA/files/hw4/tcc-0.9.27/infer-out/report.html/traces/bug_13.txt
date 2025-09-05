@@ -1,0 +1,11 @@
+i386-asm.c:922: error: UNINITIALIZED_VALUE
+  The value read from op_type[_] was never initialized.
+Showing all 1 steps of the trace
+
+
+i386-asm.c:922:10: 
+920.   	int default64 = 0;
+921.   	for(i = 0; i < nb_ops; i++) {
+922. > 	    if (op_type[i] == OP_REG64 && pa->opcode != 0xb8) {
+923.   		/* If only 64bit regs are accepted in one operand
+924.   		   this is a default64 instruction without need for

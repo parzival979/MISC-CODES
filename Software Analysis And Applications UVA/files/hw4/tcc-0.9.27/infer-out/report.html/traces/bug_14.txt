@@ -1,0 +1,11 @@
+i386-asm.c:954: error: UNINITIALIZED_VALUE
+  The value read from op_type[_] was never initialized.
+Showing all 1 steps of the trace
+
+
+i386-asm.c:954:9: 
+952.           nb_ops = 3;
+953.           ops[2] = ops[1];
+954. >         op_type[2] = op_type[1];
+955.       } else if (v == 0xcd && ops[0].e.v == 3 && !ops[0].e.sym) {
+956.           v--; /* int $3 case */

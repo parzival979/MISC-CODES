@@ -1,0 +1,22 @@
+diff id:000001,orig:bufferoverflow.c -> id:000002,orig:complex.s
+Src file: /root/tinycc/tccasm.c
+  New 'line' coverage: 427
+  New 'line' coverage: 428
+  New 'line' coverage: 429
+  New 'line' coverage: 435
+  New 'line' coverage: 436
+  New 'line' coverage: 820
+  New 'line' coverage: 824
+  New 'line' coverage: 826
+  New 'line' coverage: 828
+  New 'line' coverage: 829
+  New 'line' coverage: 830
+  New 'line' coverage: 831
+  New 'line' coverage: 834
+  New 'line' coverage: 835
+  New 'line' coverage: 837
+  New 'line' coverage: 850
+  New 'line' coverage: 851
+  New 'line' coverage: 858
+  New 'line' coverage: 859
+  New 'line' coverage: 861

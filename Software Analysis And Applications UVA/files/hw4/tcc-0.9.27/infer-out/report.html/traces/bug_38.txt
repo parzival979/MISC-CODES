@@ -1,0 +1,11 @@
+libtcc.c:1880: error: UNINITIALIZED_VALUE
+  The value read from optarg was never initialized.
+Showing all 1 steps of the trace
+
+
+libtcc.c:1880:6: 
+1878.               break;
+1879.   	case TCC_OPTION_Wp:
+1880. > 	    r = optarg;
+1881.   	    goto reparse;
+1882.           case TCC_OPTION_E:

@@ -1,0 +1,11 @@
+tccgen.c:5252: error: UNINITIALIZED_VALUE
+  The value read from ret.r was never initialized.
+Showing all 1 steps of the trace
+
+
+tccgen.c:5252:54: 
+5250.   
+5251.               /* return value */
+5252. >             for (r = ret.r + ret_nregs + !ret_nregs; r-- > ret.r;) {
+5253.                   vsetc(&ret.type, r, &ret.c);
+5254.                   vtop->r2 = ret.r2; /* Loop only happens when r2 is VT_CONST */

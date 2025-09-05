@@ -1,0 +1,11 @@
+libtcc.c:1903: error: UNINITIALIZED_VALUE
+  The value read from *optarg was never initialized.
+Showing all 1 steps of the trace
+
+
+libtcc.c:1903:22: 
+1901.               else if (*optarg == 'a')
+1902.                   s->filetype = AFF_TYPE_ASMPP;
+1903. >             else if (*optarg == 'n')
+1904.                   s->filetype = AFF_TYPE_NONE;
+1905.               else

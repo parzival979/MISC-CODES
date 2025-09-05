@@ -1,0 +1,37 @@
+diff id:000002,orig:bitfields.c -> id:000003,orig:bufferoverflow.c
+Src file: /root/tinycc/x86_64-gen.c
+  New 'function' coverage: gen_static_call()
+  New 'line' coverage: 1600
+  New 'line' coverage: 1601
+  New 'line' coverage: 1604
+  New 'line' coverage: 1605
+  New 'line' coverage: 1606
+  New 'line' coverage: 1607
+  New 'line' coverage: 1608
+  New 'line' coverage: 1609
+  New 'line' coverage: 1610
+  New 'line' coverage: 1611
+  New 'line' coverage: 1614
+  New 'line' coverage: 1615
+  New 'line' coverage: 1616
+  New 'line' coverage: 1617
+  New 'line' coverage: 1618
+  New 'line' coverage: 657
+  New 'line' coverage: 659
+  New 'line' coverage: 660
+  New 'line' coverage: 661
+  New 'line' coverage: 662
+Src file: /root/tinycc/tccelf.c
+  New 'line' coverage: 1063
+  New 'line' coverage: 1533
+  New 'line' coverage: 695
+Src file: /root/tinycc/tccgen.c
+  New 'line' coverage: 4350
+  New 'line' coverage: 4351
+  New 'line' coverage: 6906
+  New 'line' coverage: 6918
+  New 'line' coverage: 6920
+  New 'line' coverage: 6921
+  New 'line' coverage: 6922
+  New 'line' coverage: 7216
+  New 'line' coverage: 7361

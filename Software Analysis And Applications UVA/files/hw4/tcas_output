@@ -1,0 +1,12 @@
+[1mtcas5.c:75:34: [31merror:[39m Array 'Positive_RA_Alt_Thresh[4]' accessed at index 4, which is out of bounds. [arrayIndexOutOfBounds][0m
+    alim = Positive_RA_Alt_Thresh[4];
+                                 ^
+[1mtcas5.c:61:39: [31merror:[39m Signed integer overflow for expression 'Local_Positive_RA_Alt_Thresh*altitude'. [integerOverflow][0m
+  alim = Local_Positive_RA_Alt_Thresh * altitude;
+                                      ^
+[1mtcas5.c:60:34: [2mnote:[0m Assignment 'Local_Positive_RA_Alt_Thresh=740', assigned value is 740
+  Local_Positive_RA_Alt_Thresh = 740;
+                                 ^
+[1mtcas5.c:61:39: [2mnote:[0m Integer overflow
+  alim = Local_Positive_RA_Alt_Thresh * altitude;
+                                      ^

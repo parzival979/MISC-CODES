@@ -1,0 +1,11 @@
+libtcc.c:1779: error: UNINITIALIZED_VALUE
+  The value read from *optarg was never initialized.
+Showing all 1 steps of the trace
+
+
+libtcc.c:1779:22: 
+1777.               if (*optarg == 'D')
+1778.                   s->dflag = 3;
+1779. >             else if (*optarg == 'M')
+1780.                   s->dflag = 7;
+1781.               else if (*optarg == 't')

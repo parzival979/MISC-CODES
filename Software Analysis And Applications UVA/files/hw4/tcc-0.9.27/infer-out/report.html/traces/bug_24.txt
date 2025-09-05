@@ -1,0 +1,11 @@
+i386-asm.c:1300: error: UNINITIALIZED_VALUE
+  The value read from sorted_op[_] was never initialized.
+Showing all 1 steps of the trace
+
+
+i386-asm.c:1300:9: 
+1298.       /* allocate registers and generate corresponding asm moves */
+1299.       for(i=0;i<nb_operands;i++) {
+1300. >         j = sorted_op[i];
+1301.           op = &operands[j];
+1302.           str = op->constraint;

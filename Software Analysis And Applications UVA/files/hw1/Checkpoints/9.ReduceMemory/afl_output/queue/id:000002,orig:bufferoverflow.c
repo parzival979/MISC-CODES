@@ -1,0 +1,4 @@
+#include];
+    strcpy(buf, "This is too long!");
+    return 0;
+}

@@ -1,0 +1,7 @@
+diff id:000019,src:000002,op:flip1,pos:0 -> id:000020,src:000002,op:flip1,pos:0,+cov
+Src file: /root/tinycc/tccgen.c
+  New 'line' coverage: 7173
+Src file: /root/tinycc/tccpp.c
+  New 'function' coverage: expect()
+  New 'line' coverage: 106
+  New 'line' coverage: 108

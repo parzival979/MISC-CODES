@@ -1,0 +1,11 @@
+tccelf.c:2712: error: UNINITIALIZED_VALUE
+  The value read from ehdr.e_shoff was never initialized.
+Showing all 1 steps of the trace
+
+
+tccelf.c:2712:12: 
+2710.   
+2711.       /* read sections */
+2712. >     shdr = load_data(fd, ehdr.e_shoff, sizeof(ElfW(Shdr)) * ehdr.e_shnum);
+2713.   
+2714.       /* load dynamic section and dynamic symbols */

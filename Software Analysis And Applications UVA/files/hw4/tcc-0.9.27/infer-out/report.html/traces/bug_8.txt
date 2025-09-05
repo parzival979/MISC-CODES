@@ -1,0 +1,11 @@
+libtcc.c:441: error: UNINITIALIZED_VALUE
+  The value read from c was never initialized.
+Showing all 1 steps of the trace
+
+
+libtcc.c:441:43: 
+439.   
+440.           cstr_new(&str);
+441. >         for (p = in; c = *p, c != '\0' && c != PATHSEP[0]; ++p) {
+442.               if (c == '{' && p[1] && p[2] == '}') {
+443.                   c = p[1], p += 2;

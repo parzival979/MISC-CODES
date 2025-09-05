@@ -1,0 +1,11 @@
+i386-asm.c:1005: error: UNINITIALIZED_VALUE
+  The value read from op_type[_] was never initialized.
+Showing all 1 steps of the trace
+
+
+i386-asm.c:1005:13: 
+1003.              used instead of group */
+1004.           for(i = 0;i < nb_ops; i++) {
+1005. >             int t = op_type[i];
+1006.               if (i != modrm_index &&
+1007.                   (t & (OP_REG | OP_MMX | OP_SSE | OP_CR | OP_TR | OP_DB | OP_SEG))) {

@@ -1,0 +1,4 @@
+   st2cny(buf, "This is #include];
+    st2cny(buf, "This is too long!") 
+    return 0;
+}

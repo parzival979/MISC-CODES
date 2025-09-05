@@ -1,0 +1,11 @@
+libtcc.c:1855: error: UNINITIALIZED_VALUE
+  The value read from x was never initialized.
+Showing all 1 steps of the trace
+
+
+libtcc.c:1855:39: 
+1853.           case TCC_OPTION_m:
+1854.               if (set_flag(s, options_m, optarg) < 0) {
+1855. >                 if (x = atoi(optarg), x != 32 && x != 64)
+1856.                       goto unsupported_option;
+1857.                   if (PTR_SIZE != x/8)

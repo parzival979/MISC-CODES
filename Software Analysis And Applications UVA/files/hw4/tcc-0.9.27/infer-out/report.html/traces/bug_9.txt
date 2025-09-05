@@ -1,0 +1,11 @@
+i386-asm.c:659: error: UNINITIALIZED_VALUE
+  The value read from op_vals[_] was never initialized.
+Showing all 1 steps of the trace
+
+
+i386-asm.c:659:25: 
+657.                   for(j=0;j<nb_op_vals;j++) {
+658.                       //if (pa->op_type[i] == op_vals[j])
+659. >                     if (pa->instr_type == op_vals[j])
+660.                           goto found;
+661.                   }

@@ -1,0 +1,11 @@
+tccgen.c:3737: error: UNINITIALIZED_VALUE
+  The value read from px was never initialized.
+Showing all 1 steps of the trace
+
+
+tccgen.c:3737:13: 
+3735.           }
+3736.   
+3737. >         if (px + bit_size <= s * 8 && cx + s <= c) {
+3738.               /* update offset and bit position */
+3739.               f->c = cx;

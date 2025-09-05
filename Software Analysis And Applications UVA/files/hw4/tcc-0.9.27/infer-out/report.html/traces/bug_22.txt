@@ -1,0 +1,11 @@
+i386-asm.c:1280: error: UNINITIALIZED_VALUE
+  The value read from sorted_op[_] was never initialized.
+Showing all 1 steps of the trace
+
+
+i386-asm.c:1280:17: 
+1278.               p2 = operands[sorted_op[j]].priority;
+1279.               if (p2 < p1) {
+1280. >                 tmp = sorted_op[i];
+1281.                   sorted_op[i] = sorted_op[j];
+1282.                   sorted_op[j] = tmp;

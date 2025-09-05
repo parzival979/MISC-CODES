@@ -1,0 +1,29 @@
+diff id:000008,orig:invalid.s -> id:000009,orig:labels.s
+Src file: /root/tinycc/tccasm.c
+  New 'line' coverage: 164
+  New 'line' coverage: 165
+  New 'line' coverage: 168
+  New 'line' coverage: 169
+  New 'line' coverage: 170
+  New 'line' coverage: 176
+  New 'line' coverage: 177
+  New 'line' coverage: 178
+  New 'line' coverage: 180
+  New 'line' coverage: 184
+  New 'line' coverage: 388
+  New 'line' coverage: 389
+Src file: /root/tinycc/i386-asm.c
+  New 'line' coverage: 1035
+  New 'line' coverage: 1036
+  New 'line' coverage: 1038
+  New 'line' coverage: 1039
+  New 'line' coverage: 1041
+  New 'line' coverage: 1042
+  New 'line' coverage: 1043
+  New 'line' coverage: 1119
+  New 'line' coverage: 818
+  New 'line' coverage: 820
+  New 'line' coverage: 821
+  New 'line' coverage: 822
+  New 'line' coverage: 823
+  New 'line' coverage: 824

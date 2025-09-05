@@ -1,0 +1,11 @@
+tccrun.c:467: error: UNINITIALIZED_VALUE
+  The value read from incl_files[_] was never initialized.
+Showing all 1 steps of the trace
+
+
+tccrun.c:467:13: 
+465.           fprintf(stderr, " (included from ");
+466.           for (;;) {
+467. >             fprintf(stderr, "%s", incl_files[i]);
+468.               if (--i < 0)
+469.                   break;

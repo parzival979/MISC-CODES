@@ -1,0 +1,374 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - tinycc/x86_64-link.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">tinycc</a> - x86_64-link.c<span style="font-size: 80%;"> (source / <a href="x86_64-link.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">86</td>
+            <td class="headerCovTableEntry">122</td>
+            <td class="headerCovTableEntryLo">70.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2025-02-02 05:46:20</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #ifdef TARGET_DEFS_ONLY</a>
+<span class="lineNum">       2 </span>            : 
+<span class="lineNum">       3 </span>            : #define EM_TCC_TARGET EM_X86_64
+<span class="lineNum">       4 </span>            : 
+<span class="lineNum">       5 </span>            : /* relocation type for 32 bit data relocation */
+<span class="lineNum">       6 </span>            : #define R_DATA_32   R_X86_64_32S
+<span class="lineNum">       7 </span>            : #define R_DATA_PTR  R_X86_64_64
+<span class="lineNum">       8 </span>            : #define R_JMP_SLOT  R_X86_64_JUMP_SLOT
+<span class="lineNum">       9 </span>            : #define R_GLOB_DAT  R_X86_64_GLOB_DAT
+<span class="lineNum">      10 </span>            : #define R_COPY      R_X86_64_COPY
+<span class="lineNum">      11 </span>            : #define R_RELATIVE  R_X86_64_RELATIVE
+<span class="lineNum">      12 </span>            : 
+<span class="lineNum">      13 </span>            : #define R_NUM       R_X86_64_NUM
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : #define ELF_START_ADDR 0x400000
+<span class="lineNum">      16 </span>            : #define ELF_PAGE_SIZE  0x200000
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #define PCRELATIVE_DLLPLT 1
+<span class="lineNum">      19 </span>            : #define RELOCATE_DLLPLT 1
+<span class="lineNum">      20 </span>            : 
+<span class="lineNum">      21 </span>            : #else /* !TARGET_DEFS_ONLY */
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : #include &quot;tcc.h&quot;
+<span class="lineNum">      24 </span>            : 
+<a name="25"><span class="lineNum">      25 </span>            : /* Returns 1 for a code relocation, 0 for a data relocation. For unknown</a>
+<span class="lineNum">      26 </span>            :    relocations, returns -1. */
+<span class="lineNum">      27 </span><span class="lineCov">       2416 : int code_reloc (int reloc_type)</span>
+<span class="lineNum">      28 </span>            : {
+<span class="lineNum">      29 </span>            :     switch (reloc_type) {
+<span class="lineNum">      30 </span>            :         case R_X86_64_32:
+<span class="lineNum">      31 </span>            :         case R_X86_64_32S:
+<span class="lineNum">      32 </span>            :         case R_X86_64_64:
+<span class="lineNum">      33 </span>            :         case R_X86_64_GOTPC32:
+<span class="lineNum">      34 </span>            :         case R_X86_64_GOTPC64:
+<span class="lineNum">      35 </span>            :         case R_X86_64_GOTPCREL:
+<span class="lineNum">      36 </span>            :         case R_X86_64_GOTPCRELX:
+<span class="lineNum">      37 </span>            :         case R_X86_64_REX_GOTPCRELX:
+<span class="lineNum">      38 </span>            :         case R_X86_64_GOTTPOFF:
+<span class="lineNum">      39 </span>            :         case R_X86_64_GOT32:
+<span class="lineNum">      40 </span>            :         case R_X86_64_GOT64:
+<span class="lineNum">      41 </span>            :         case R_X86_64_GLOB_DAT:
+<span class="lineNum">      42 </span>            :         case R_X86_64_COPY:
+<span class="lineNum">      43 </span>            :         case R_X86_64_RELATIVE:
+<span class="lineNum">      44 </span>            :         case R_X86_64_GOTOFF64:
+<span class="lineNum">      45 </span>            :             return 0;
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span><span class="lineCov">       1289 :         case R_X86_64_PC32:</span>
+<span class="lineNum">      48 </span>            :         case R_X86_64_PC64:
+<span class="lineNum">      49 </span>            :         case R_X86_64_PLT32:
+<span class="lineNum">      50 </span>            :         case R_X86_64_PLTOFF64:
+<span class="lineNum">      51 </span>            :         case R_X86_64_JUMP_SLOT:
+<span class="lineNum">      52 </span><span class="lineCov">       1289 :             return 1;</span>
+<span class="lineNum">      53 </span>            :     }
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span><span class="lineNoCov">          0 :     tcc_error (&quot;Unknown relocation type: %d&quot;, reloc_type);</span>
+<span class="lineNum">      56 </span>            :     return -1;
+<span class="lineNum">      57 </span>            : }
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span>            : /* Returns an enumerator to describe whether and when the relocation needs a
+<a name="60"><span class="lineNum">      60 </span>            :    GOT and/or PLT entry to be created. See tcc.h for a description of the</a>
+<span class="lineNum">      61 </span>            :    different values. */
+<span class="lineNum">      62 </span><span class="lineCov">       6308 : int gotplt_entry_type (int reloc_type)</span>
+<span class="lineNum">      63 </span>            : {
+<span class="lineNum">      64 </span><span class="lineCov">       6308 :     switch (reloc_type) {</span>
+<span class="lineNum">      65 </span>            :         case R_X86_64_GLOB_DAT:
+<span class="lineNum">      66 </span>            :         case R_X86_64_JUMP_SLOT:
+<span class="lineNum">      67 </span>            :         case R_X86_64_COPY:
+<span class="lineNum">      68 </span>            :         case R_X86_64_RELATIVE:
+<span class="lineNum">      69 </span>            :             return NO_GOTPLT_ENTRY;
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            :         /* The following relocs wouldn't normally need GOT or PLT
+<span class="lineNum">      72 </span>            :            slots, but we need them for simplicity in the link
+<span class="lineNum">      73 </span>            :            editor part.  See our caller for comments.  */
+<span class="lineNum">      74 </span><span class="lineCov">       2004 :         case R_X86_64_32:</span>
+<span class="lineNum">      75 </span>            :         case R_X86_64_32S:
+<span class="lineNum">      76 </span>            :         case R_X86_64_64:
+<span class="lineNum">      77 </span>            :         case R_X86_64_PC32:
+<span class="lineNum">      78 </span>            :         case R_X86_64_PC64:
+<span class="lineNum">      79 </span><span class="lineCov">       2004 :             return AUTO_GOTPLT_ENTRY;</span>
+<span class="lineNum">      80 </span>            : 
+<span class="lineNum">      81 </span><span class="lineNoCov">          0 :         case R_X86_64_GOTTPOFF:</span>
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :             return BUILD_GOT_ONLY;</span>
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span><span class="lineCov">       4304 :         case R_X86_64_GOT32:</span>
+<span class="lineNum">      85 </span>            :         case R_X86_64_GOT64:
+<span class="lineNum">      86 </span>            :         case R_X86_64_GOTPC32:
+<span class="lineNum">      87 </span>            :         case R_X86_64_GOTPC64:
+<span class="lineNum">      88 </span>            :         case R_X86_64_GOTOFF64:
+<span class="lineNum">      89 </span>            :         case R_X86_64_GOTPCREL:
+<span class="lineNum">      90 </span>            :         case R_X86_64_GOTPCRELX:
+<span class="lineNum">      91 </span>            :         case R_X86_64_REX_GOTPCRELX:
+<span class="lineNum">      92 </span>            :         case R_X86_64_PLT32:
+<span class="lineNum">      93 </span>            :         case R_X86_64_PLTOFF64:
+<span class="lineNum">      94 </span><span class="lineCov">       4304 :             return ALWAYS_GOTPLT_ENTRY;</span>
+<span class="lineNum">      95 </span>            :     }
+<span class="lineNum">      96 </span>            : 
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :     tcc_error (&quot;Unknown relocation type: %d&quot;, reloc_type);</span>
+<span class="lineNum">      98 </span>            :     return -1;
+<a name="99"><span class="lineNum">      99 </span>            : }</a>
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span><span class="lineCov">        584 : ST_FUNC unsigned create_plt_entry(TCCState *s1, unsigned got_offset, struct sym_attr *attr)</span>
+<span class="lineNum">     102 </span>            : {
+<span class="lineNum">     103 </span><span class="lineCov">        584 :     Section *plt = s1-&gt;plt;</span>
+<span class="lineNum">     104 </span>            :     uint8_t *p;
+<span class="lineNum">     105 </span>            :     int modrm;
+<span class="lineNum">     106 </span>            :     unsigned plt_offset, relofs;
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span><span class="lineCov">        584 :     modrm = 0x25;</span>
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span>            :     /* empty PLT: create PLT0 entry that pushes the library identifier
+<span class="lineNum">     111 </span>            :        (GOT + PTR_SIZE) and jumps to ld.so resolution routine
+<span class="lineNum">     112 </span>            :        (GOT + 2 * PTR_SIZE) */
+<span class="lineNum">     113 </span><span class="lineCov">        584 :     if (plt-&gt;data_offset == 0) {</span>
+<span class="lineNum">     114 </span><span class="lineCov">         32 :         p = section_ptr_add(plt, 16);</span>
+<span class="lineNum">     115 </span><span class="lineCov">         32 :         p[0] = 0xff; /* pushl got + PTR_SIZE */</span>
+<span class="lineNum">     116 </span><span class="lineCov">         32 :         p[1] = modrm + 0x10;</span>
+<span class="lineNum">     117 </span><span class="lineCov">         64 :         write32le(p + 2, PTR_SIZE);</span>
+<span class="lineNum">     118 </span><span class="lineCov">         32 :         p[6] = 0xff; /* jmp *(got + PTR_SIZE * 2) */</span>
+<span class="lineNum">     119 </span><span class="lineCov">         32 :         p[7] = modrm;</span>
+<span class="lineNum">     120 </span><span class="lineCov">         32 :         write32le(p + 8, PTR_SIZE * 2);</span>
+<span class="lineNum">     121 </span>            :     }
+<span class="lineNum">     122 </span><span class="lineCov">        584 :     plt_offset = plt-&gt;data_offset;</span>
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span>            :     /* The PLT slot refers to the relocation entry it needs via offset.
+<span class="lineNum">     125 </span>            :        The reloc entry is created below, so its offset is the current
+<span class="lineNum">     126 </span>            :        data_offset */
+<span class="lineNum">     127 </span><span class="lineCov">        584 :     relofs = s1-&gt;got-&gt;reloc ? s1-&gt;got-&gt;reloc-&gt;data_offset : 0;</span>
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span>            :     /* Jump to GOT entry where ld.so initially put the address of ip + 4 */
+<span class="lineNum">     130 </span><span class="lineCov">        584 :     p = section_ptr_add(plt, 16);</span>
+<span class="lineNum">     131 </span><span class="lineCov">        584 :     p[0] = 0xff; /* jmp *(got + x) */</span>
+<span class="lineNum">     132 </span><span class="lineCov">        584 :     p[1] = modrm;</span>
+<span class="lineNum">     133 </span><span class="lineCov">       1168 :     write32le(p + 2, got_offset);</span>
+<span class="lineNum">     134 </span><span class="lineCov">        584 :     p[6] = 0x68; /* push $xxx */</span>
+<span class="lineNum">     135 </span>            :     /* On x86-64, the relocation is referred to by _index_ */
+<span class="lineNum">     136 </span><span class="lineCov">       1168 :     write32le(p + 7, relofs / sizeof (ElfW_Rel));</span>
+<span class="lineNum">     137 </span><span class="lineCov">        584 :     p[11] = 0xe9; /* jmp plt_start */</span>
+<span class="lineNum">     138 </span><span class="lineCov">       1168 :     write32le(p + 12, -(plt-&gt;data_offset));</span>
+<span class="lineNum">     139 </span><span class="lineCov">        584 :     return plt_offset;</span>
+<span class="lineNum">     140 </span>            : }
+<span class="lineNum">     141 </span>            : 
+<a name="142"><span class="lineNum">     142 </span>            : /* relocate the PLT: compute addresses and offsets in the PLT now that final</a>
+<span class="lineNum">     143 </span>            :    address for PLT and GOT are known (see fill_program_header) */
+<span class="lineNum">     144 </span><span class="lineCov">         32 : ST_FUNC void relocate_plt(TCCState *s1)</span>
+<span class="lineNum">     145 </span>            : {
+<span class="lineNum">     146 </span>            :     uint8_t *p, *p_end;
+<span class="lineNum">     147 </span>            : 
+<span class="lineNum">     148 </span><span class="lineCov">         32 :     if (!s1-&gt;plt)</span>
+<span class="lineNum">     149 </span>            :       return;
+<span class="lineNum">     150 </span>            : 
+<span class="lineNum">     151 </span><span class="lineCov">         32 :     p = s1-&gt;plt-&gt;data;</span>
+<span class="lineNum">     152 </span><span class="lineCov">         32 :     p_end = p + s1-&gt;plt-&gt;data_offset;</span>
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span><span class="lineCov">         32 :     if (p &lt; p_end) {</span>
+<span class="lineNum">     155 </span><span class="lineCov">         32 :         int x = s1-&gt;got-&gt;sh_addr - s1-&gt;plt-&gt;sh_addr - 6;</span>
+<span class="lineNum">     156 </span><span class="lineCov">         64 :         add32le(p + 2, x);</span>
+<span class="lineNum">     157 </span><span class="lineCov">         64 :         add32le(p + 8, x - 6);</span>
+<span class="lineNum">     158 </span><span class="lineCov">         32 :         p += 16;</span>
+<span class="lineNum">     159 </span><span class="lineCov">        648 :         while (p &lt; p_end) {</span>
+<span class="lineNum">     160 </span><span class="lineCov">       1168 :             add32le(p + 2, x + s1-&gt;plt-&gt;data - p);</span>
+<span class="lineNum">     161 </span><span class="lineCov">        584 :             p += 16;</span>
+<span class="lineNum">     162 </span>            :         }
+<span class="lineNum">     163 </span>            :     }
+<span class="lineNum">     164 </span>            : }
+<span class="lineNum">     165 </span>            : 
+<a name="166"><span class="lineNum">     166 </span>            : static ElfW_Rel *qrel; /* ptr to next reloc entry reused */</a>
+<span class="lineNum">     167 </span>            : 
+<span class="lineNum">     168 </span><span class="lineCov">        114 : void relocate_init(Section *sr)</span>
+<span class="lineNum">     169 </span>            : {
+<span class="lineNum">     170 </span><span class="lineCov">        114 :     qrel = (ElfW_Rel *) sr-&gt;data;</span>
+<a name="171"><span class="lineNum">     171 </span><span class="lineCov">        114 : }</span></a>
+<span class="lineNum">     172 </span>            : 
+<span class="lineNum">     173 </span><span class="lineCov">       6308 : void relocate(TCCState *s1, ElfW_Rel *rel, int type, unsigned char *ptr, addr_t addr, addr_t val)</span>
+<span class="lineNum">     174 </span>            : {
+<span class="lineNum">     175 </span>            :     int sym_index, esym_index;
+<span class="lineNum">     176 </span>            : 
+<span class="lineNum">     177 </span><span class="lineCov">       6308 :     sym_index = ELFW(R_SYM)(rel-&gt;r_info);</span>
+<span class="lineNum">     178 </span>            : 
+<span class="lineNum">     179 </span><span class="lineCov">       6308 :     switch (type) {</span>
+<span class="lineNum">     180 </span><span class="lineCov">         33 :         case R_X86_64_64:</span>
+<span class="lineNum">     181 </span><span class="lineCov">         33 :             if (s1-&gt;output_type == TCC_OUTPUT_DLL) {</span>
+<span class="lineNum">     182 </span><span class="lineCov">         33 :                 esym_index = s1-&gt;sym_attrs[sym_index].dyn_index;</span>
+<span class="lineNum">     183 </span><span class="lineCov">         33 :                 qrel-&gt;r_offset = rel-&gt;r_offset;</span>
+<span class="lineNum">     184 </span><span class="lineCov">         33 :                 if (esym_index) {</span>
+<span class="lineNum">     185 </span><span class="lineCov">          4 :                     qrel-&gt;r_info = ELFW(R_INFO)(esym_index, R_X86_64_64);</span>
+<span class="lineNum">     186 </span><span class="lineCov">          4 :                     qrel-&gt;r_addend = rel-&gt;r_addend;</span>
+<span class="lineNum">     187 </span><span class="lineCov">          4 :                     qrel++;</span>
+<span class="lineNum">     188 </span><span class="lineCov">          4 :                     break;</span>
+<span class="lineNum">     189 </span>            :                 } else {
+<span class="lineNum">     190 </span><span class="lineCov">         29 :                     qrel-&gt;r_info = ELFW(R_INFO)(0, R_X86_64_RELATIVE);</span>
+<span class="lineNum">     191 </span><span class="lineCov">         29 :                     qrel-&gt;r_addend = read64le(ptr) + val;</span>
+<span class="lineNum">     192 </span><span class="lineCov">         29 :                     qrel++;</span>
+<span class="lineNum">     193 </span>            :                 }
+<span class="lineNum">     194 </span>            :             }
+<span class="lineNum">     195 </span><span class="lineCov">         29 :             add64le(ptr, val);</span>
+<span class="lineNum">     196 </span><span class="lineCov">         29 :             break;</span>
+<span class="lineNum">     197 </span><span class="lineCov">        140 :         case R_X86_64_32:</span>
+<span class="lineNum">     198 </span>            :         case R_X86_64_32S:
+<span class="lineNum">     199 </span><span class="lineCov">        140 :             if (s1-&gt;output_type == TCC_OUTPUT_DLL) {</span>
+<span class="lineNum">     200 </span>            :                 /* XXX: this logic may depend on TCC's codegen
+<span class="lineNum">     201 </span>            :                    now TCC uses R_X86_64_32 even for a 64bit pointer */
+<span class="lineNum">     202 </span><span class="lineCov">        140 :                 qrel-&gt;r_info = ELFW(R_INFO)(0, R_X86_64_RELATIVE);</span>
+<span class="lineNum">     203 </span>            :                 /* Use sign extension! */
+<span class="lineNum">     204 </span><span class="lineCov">        140 :                 qrel-&gt;r_addend = (int)read32le(ptr) + val;</span>
+<span class="lineNum">     205 </span><span class="lineCov">        140 :                 qrel++;</span>
+<span class="lineNum">     206 </span>            :             }
+<span class="lineNum">     207 </span><span class="lineCov">        140 :             add32le(ptr, val);</span>
+<span class="lineNum">     208 </span>            :             break;
+<span class="lineNum">     209 </span>            : 
+<span class="lineNum">     210 </span><span class="lineCov">       3719 :         case R_X86_64_PC32:</span>
+<span class="lineNum">     211 </span><span class="lineCov">       3719 :             if (s1-&gt;output_type == TCC_OUTPUT_DLL) {</span>
+<span class="lineNum">     212 </span>            :                 /* DLL relocation */
+<span class="lineNum">     213 </span><span class="lineCov">       3719 :                 esym_index = s1-&gt;sym_attrs[sym_index].dyn_index;</span>
+<span class="lineNum">     214 </span><span class="lineCov">       3719 :                 if (esym_index) {</span>
+<span class="lineNum">     215 </span><span class="lineCov">         33 :                     qrel-&gt;r_offset = rel-&gt;r_offset;</span>
+<span class="lineNum">     216 </span><span class="lineCov">         33 :                     qrel-&gt;r_info = ELFW(R_INFO)(esym_index, R_X86_64_PC32);</span>
+<span class="lineNum">     217 </span>            :                     /* Use sign extension! */
+<span class="lineNum">     218 </span><span class="lineCov">         33 :                     qrel-&gt;r_addend = (int)read32le(ptr) + rel-&gt;r_addend;</span>
+<span class="lineNum">     219 </span><span class="lineCov">         33 :                     qrel++;</span>
+<span class="lineNum">     220 </span><span class="lineCov">         33 :                     break;</span>
+<span class="lineNum">     221 </span>            :                 }
+<span class="lineNum">     222 </span>            :             }
+<span class="lineNum">     223 </span>            :             goto plt32pc32;
+<span class="lineNum">     224 </span>            : 
+<span class="lineNum">     225 </span>            :         case R_X86_64_PLT32:
+<span class="lineNum">     226 </span>            :             /* fallthrough: val already holds the PLT slot address */
+<span class="lineNum">     227 </span>            : 
+<span class="lineNum">     228 </span><span class="lineCov">       4975 :         plt32pc32:</span>
+<span class="lineNum">     229 </span>            :         {
+<span class="lineNum">     230 </span>            :             long long diff;
+<span class="lineNum">     231 </span><span class="lineCov">       4975 :             diff = (long long)val - addr;</span>
+<span class="lineNum">     232 </span><span class="lineCov">       4975 :             if (diff &lt; -2147483648LL || diff &gt; 2147483647LL) {</span>
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 :                 tcc_error(&quot;internal error: relocation failed&quot;);</span>
+<span class="lineNum">     234 </span>            :             }
+<span class="lineNum">     235 </span><span class="lineCov">       4975 :             add32le(ptr, diff);</span>
+<span class="lineNum">     236 </span>            :         }
+<span class="lineNum">     237 </span>            :             break;
+<span class="lineNum">     238 </span>            : 
+<span class="lineNum">     239 </span><span class="lineNoCov">          0 :         case R_X86_64_PLTOFF64:</span>
+<span class="lineNum">     240 </span><span class="lineNoCov">          0 :             add64le(ptr, val - s1-&gt;got-&gt;sh_addr + rel-&gt;r_addend);</span>
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     242 </span>            : 
+<span class="lineNum">     243 </span><span class="lineNoCov">          0 :         case R_X86_64_PC64:</span>
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :             if (s1-&gt;output_type == TCC_OUTPUT_DLL) {</span>
+<span class="lineNum">     245 </span>            :                 /* DLL relocation */
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :                 esym_index = s1-&gt;sym_attrs[sym_index].dyn_index;</span>
+<span class="lineNum">     247 </span><span class="lineNoCov">          0 :                 if (esym_index) {</span>
+<span class="lineNum">     248 </span><span class="lineNoCov">          0 :                     qrel-&gt;r_offset = rel-&gt;r_offset;</span>
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :                     qrel-&gt;r_info = ELFW(R_INFO)(esym_index, R_X86_64_PC64);</span>
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :                     qrel-&gt;r_addend = read64le(ptr) + rel-&gt;r_addend;</span>
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :                     qrel++;</span>
+<span class="lineNum">     252 </span><span class="lineNoCov">          0 :                     break;</span>
+<span class="lineNum">     253 </span>            :                 }
+<span class="lineNum">     254 </span>            :             }
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 :             add64le(ptr, val - addr);</span>
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     257 </span>            : 
+<span class="lineNum">     258 </span><span class="lineNoCov">          0 :         case R_X86_64_GLOB_DAT:</span>
+<span class="lineNum">     259 </span>            :         case R_X86_64_JUMP_SLOT:
+<span class="lineNum">     260 </span>            :             /* They don't need addend */
+<span class="lineNum">     261 </span><span class="lineNoCov">          0 :             write64le(ptr, val - rel-&gt;r_addend);</span>
+<span class="lineNum">     262 </span>            :             break;
+<span class="lineNum">     263 </span><span class="lineCov">       1127 :         case R_X86_64_GOTPCREL:</span>
+<span class="lineNum">     264 </span>            :         case R_X86_64_GOTPCRELX:
+<span class="lineNum">     265 </span>            :         case R_X86_64_REX_GOTPCRELX:
+<span class="lineNum">     266 </span><span class="lineCov">       3381 :             add32le(ptr, s1-&gt;got-&gt;sh_addr - addr +</span>
+<span class="lineNum">     267 </span><span class="lineCov">       2254 :                          s1-&gt;sym_attrs[sym_index].got_offset - 4);</span>
+<span class="lineNum">     268 </span>            :             break;
+<span class="lineNum">     269 </span><span class="lineNoCov">          0 :         case R_X86_64_GOTPC32:</span>
+<span class="lineNum">     270 </span><span class="lineNoCov">          0 :             add32le(ptr, s1-&gt;got-&gt;sh_addr - addr + rel-&gt;r_addend);</span>
+<span class="lineNum">     271 </span>            :             break;
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :         case R_X86_64_GOTPC64:</span>
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 :             add64le(ptr, s1-&gt;got-&gt;sh_addr - addr + rel-&gt;r_addend);</span>
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     275 </span><span class="lineNoCov">          0 :         case R_X86_64_GOTTPOFF:</span>
+<span class="lineNum">     276 </span><span class="lineNoCov">          0 :             add32le(ptr, val - s1-&gt;got-&gt;sh_addr);</span>
+<span class="lineNum">     277 </span>            :             break;
+<span class="lineNum">     278 </span><span class="lineNoCov">          0 :         case R_X86_64_GOT32:</span>
+<span class="lineNum">     279 </span>            :             /* we load the got offset */
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :             add32le(ptr, s1-&gt;sym_attrs[sym_index].got_offset);</span>
+<span class="lineNum">     281 </span>            :             break;
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 :         case R_X86_64_GOT64:</span>
+<span class="lineNum">     283 </span>            :             /* we load the got offset */
+<span class="lineNum">     284 </span><span class="lineNoCov">          0 :             add64le(ptr, s1-&gt;sym_attrs[sym_index].got_offset);</span>
+<span class="lineNum">     285 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 :         case R_X86_64_GOTOFF64:</span>
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :             add64le(ptr, val - s1-&gt;got-&gt;sh_addr);</span>
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">     289 </span>            :         case R_X86_64_RELATIVE:
+<span class="lineNum">     290 </span>            : #ifdef TCC_TARGET_PE
+<span class="lineNum">     291 </span>            :             add32le(ptr, val - s1-&gt;pe_imagebase);
+<span class="lineNum">     292 </span>            : #endif
+<span class="lineNum">     293 </span>            :             /* do nothing */
+<span class="lineNum">     294 </span>            :             break;
+<span class="lineNum">     295 </span>            :     }
+<span class="lineNum">     296 </span><span class="lineCov">       6308 : }</span>
+<span class="lineNum">     297 </span>            : 
+<span class="lineNum">     298 </span>            : #endif /* !TARGET_DEFS_ONLY */
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

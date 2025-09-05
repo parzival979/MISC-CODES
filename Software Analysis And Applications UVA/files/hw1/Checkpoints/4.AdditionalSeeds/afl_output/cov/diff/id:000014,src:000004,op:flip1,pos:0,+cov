@@ -1,0 +1,12 @@
+diff id:000013,orig:variadic.c -> id:000014,src:000004,op:flip1,pos:0,+cov
+Src file: /root/tinycc/tccpp.c
+  New 'line' coverage: 102
+  New 'line' coverage: 2954
+  New 'line' coverage: 2955
+  New 'line' coverage: 555
+  New 'line' coverage: 556
+  New 'line' coverage: 562
+  New 'line' coverage: 564
+  New 'line' coverage: 568
+  New 'line' coverage: 569
+  New 'line' coverage: 570

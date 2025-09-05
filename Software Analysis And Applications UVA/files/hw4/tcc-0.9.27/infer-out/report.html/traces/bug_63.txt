@@ -1,0 +1,239 @@
+tccgen.c:4108: error: NULL_DEREFERENCE
+  pointer `type->ref` last assigned on line 4012 could be null and is dereferenced by call to `parse_btype_qualify()` at line 4108, column 13.
+Showing all 31 steps of the trace
+
+
+tccgen.c:4001:1: start of procedure parse_btype()
+3999.      and skip it. 
+4000.    */
+4001. > static int parse_btype(CType *type, AttributeDef *ad)
+4002.   {
+4003.       int t, u, bt, st, type_found, typespec_found, g;
+
+tccgen.c:4007:5: 
+4005.       CType type1;
+4006.   
+4007. >     memset(ad, 0, sizeof(AttributeDef));
+4008.       type_found = 0;
+4009.       typespec_found = 0;
+
+tccgen.c:4008:5: 
+4006.   
+4007.       memset(ad, 0, sizeof(AttributeDef));
+4008. >     type_found = 0;
+4009.       typespec_found = 0;
+4010.       t = VT_INT;
+
+tccgen.c:4009:5: 
+4007.       memset(ad, 0, sizeof(AttributeDef));
+4008.       type_found = 0;
+4009. >     typespec_found = 0;
+4010.       t = VT_INT;
+4011.       bt = st = -1;
+
+tccgen.c:4010:5: 
+4008.       type_found = 0;
+4009.       typespec_found = 0;
+4010. >     t = VT_INT;
+4011.       bt = st = -1;
+4012.       type->ref = NULL;
+
+tccgen.c:4011:5: 
+4009.       typespec_found = 0;
+4010.       t = VT_INT;
+4011. >     bt = st = -1;
+4012.       type->ref = NULL;
+4013.   
+
+tccgen.c:4012:5: 
+4010.       t = VT_INT;
+4011.       bt = st = -1;
+4012. >     type->ref = NULL;
+4013.   
+4014.       while(1) {
+
+tccgen.c:4014:11: Loop condition is true. Entering loop body
+4012.       type->ref = NULL;
+4013.   
+4014.       while(1) {
+                  ^
+4015.           switch(tok) {
+4016.           case TOK_EXTENSION:
+
+tccgen.c:4015:9: 
+4013.   
+4014.       while(1) {
+4015. >         switch(tok) {
+4016.           case TOK_EXTENSION:
+4017.               /* currently, we really ignore extension */
+
+tccgen.c:4016:9: Switch condition is false. Skipping switch case
+4014.       while(1) {
+4015.           switch(tok) {
+4016.           case TOK_EXTENSION:
+                ^
+4017.               /* currently, we really ignore extension */
+4018.               next();
+
+tccgen.c:4022:9: Switch condition is false. Skipping switch case
+4020.   
+4021.               /* basic types */
+4022.           case TOK_CHAR:
+                ^
+4023.               u = VT_BYTE;
+4024.           basic_type:
+
+tccgen.c:4040:9: Switch condition is false. Skipping switch case
+4038.               typespec_found = 1;
+4039.               break;
+4040.           case TOK_VOID:
+                ^
+4041.               u = VT_VOID;
+4042.               goto basic_type;
+
+tccgen.c:4043:9: Switch condition is false. Skipping switch case
+4041.               u = VT_VOID;
+4042.               goto basic_type;
+4043.           case TOK_SHORT:
+                ^
+4044.               u = VT_SHORT;
+4045.               goto basic_type;
+
+tccgen.c:4046:9: Switch condition is false. Skipping switch case
+4044.               u = VT_SHORT;
+4045.               goto basic_type;
+4046.           case TOK_INT:
+                ^
+4047.               u = VT_INT;
+4048.               goto basic_type;
+
+tccgen.c:4049:9: Switch condition is false. Skipping switch case
+4047.               u = VT_INT;
+4048.               goto basic_type;
+4049.           case TOK_LONG:
+                ^
+4050.               if ((t & VT_BTYPE) == VT_DOUBLE) {
+4051.                   t = (t & ~(VT_BTYPE|VT_LONG)) | VT_LDOUBLE;
+
+tccgen.c:4067:9: Switch condition is false. Skipping switch case
+4065.               goto basic_type;
+4066.   #endif
+4067.           case TOK_BOOL:
+                ^
+4068.               u = VT_BOOL;
+4069.               goto basic_type;
+
+tccgen.c:4070:9: Switch condition is false. Skipping switch case
+4068.               u = VT_BOOL;
+4069.               goto basic_type;
+4070.           case TOK_FLOAT:
+                ^
+4071.               u = VT_FLOAT;
+4072.               goto basic_type;
+
+tccgen.c:4073:9: Switch condition is false. Skipping switch case
+4071.               u = VT_FLOAT;
+4072.               goto basic_type;
+4073.           case TOK_DOUBLE:
+                ^
+4074.               if ((t & (VT_BTYPE|VT_LONG)) == VT_LONG) {
+4075.                   t = (t & ~(VT_BTYPE|VT_LONG)) | VT_LDOUBLE;
+
+tccgen.c:4082:9: Switch condition is false. Skipping switch case
+4080.               next();
+4081.               break;
+4082.           case TOK_ENUM:
+                ^
+4083.               struct_decl(&type1, VT_ENUM);
+4084.           basic_type2:
+
+tccgen.c:4088:9: Switch condition is false. Skipping switch case
+4086.               type->ref = type1.ref;
+4087.               goto basic_type1;
+4088.           case TOK_STRUCT:
+                ^
+4089.               struct_decl(&type1, VT_STRUCT);
+4090.               goto basic_type2;
+
+tccgen.c:4091:9: Switch condition is false. Skipping switch case
+4089.               struct_decl(&type1, VT_STRUCT);
+4090.               goto basic_type2;
+4091.           case TOK_UNION:
+                ^
+4092.               struct_decl(&type1, VT_UNION);
+4093.               goto basic_type2;
+
+tccgen.c:4096:9: Switch condition is false. Skipping switch case
+4094.   
+4095.               /* type modifiers */
+4096.           case TOK_CONST1:
+                ^
+4097.           case TOK_CONST2:
+4098.           case TOK_CONST3:
+
+tccgen.c:4097:9: Switch condition is false. Skipping switch case
+4095.               /* type modifiers */
+4096.           case TOK_CONST1:
+4097.           case TOK_CONST2:
+                ^
+4098.           case TOK_CONST3:
+4099.               type->t = t;
+
+tccgen.c:4098:9: Switch condition is false. Skipping switch case
+4096.           case TOK_CONST1:
+4097.           case TOK_CONST2:
+4098.           case TOK_CONST3:
+                ^
+4099.               type->t = t;
+4100.               parse_btype_qualify(type, VT_CONSTANT);
+
+tccgen.c:4104:9: Switch condition is true. Entering switch case
+4102.               next();
+4103.               break;
+4104.           case TOK_VOLATILE1:
+                ^
+4105.           case TOK_VOLATILE2:
+4106.           case TOK_VOLATILE3:
+
+tccgen.c:4107:13: 
+4105.           case TOK_VOLATILE2:
+4106.           case TOK_VOLATILE3:
+4107. >             type->t = t;
+4108.               parse_btype_qualify(type, VT_VOLATILE);
+4109.               t = type->t;
+
+tccgen.c:4108:13: 
+4106.           case TOK_VOLATILE3:
+4107.               type->t = t;
+4108. >             parse_btype_qualify(type, VT_VOLATILE);
+4109.               t = type->t;
+4110.               next();
+
+tccgen.c:3989:1: start of procedure parse_btype_qualify()
+  3987.   /* Add type qualifiers to a type. If the type is an array then the qualifiers
+  3988.      are added to the element type, copied because it could be a typedef. */
+  3989. > static void parse_btype_qualify(CType *type, int qualifiers)
+  3990.   {
+  3991.       while (type->t & VT_ARRAY) {
+
+tccgen.c:3991:12: Loop condition is false. Leaving loop
+  3989.   static void parse_btype_qualify(CType *type, int qualifiers)
+  3990.   {
+  3991.       while (type->t & VT_ARRAY) {
+                     ^
+  3992.           type->ref = sym_push(SYM_FIELD, &type->ref->type, 0, type->ref->c);
+  3993.           type = &type->ref->type;
+
+tccgen.c:3995:5: 
+  3993.           type = &type->ref->type;
+  3994.       }
+  3995. >     type->t |= qualifiers;
+  3996.   }
+  3997.   
+
+tccgen.c:3996:1: return from a call to parse_btype_qualify
+  3994.       }
+  3995.       type->t |= qualifiers;
+  3996. > }
+  3997.   
+  3998.   /* return 0 if no type declaration. otherwise, return the basic type

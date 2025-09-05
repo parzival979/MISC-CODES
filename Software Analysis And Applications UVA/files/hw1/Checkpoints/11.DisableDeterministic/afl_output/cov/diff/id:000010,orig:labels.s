@@ -1,0 +1,29 @@
+diff id:000009,orig:invalid.s -> id:000010,orig:labels.s
+Src file: /root/tinycc/tccasm.c
+  New 'function' coverage: asm_new_label1.isra.2()
+  New 'line' coverage: 366
+  New 'line' coverage: 372
+  New 'line' coverage: 373
+  New 'line' coverage: 388
+  New 'line' coverage: 389
+  New 'line' coverage: 391
+  New 'line' coverage: 392
+  New 'line' coverage: 393
+  New 'line' coverage: 394
+  New 'line' coverage: 395
+  New 'line' coverage: 396
+  New 'line' coverage: 397
+  New 'line' coverage: 398
+  New 'line' coverage: 40
+  New 'line' coverage: 403
+  New 'line' coverage: 41
+  New 'line' coverage: 51
+  New 'line' coverage: 52
+  New 'line' coverage: 946
+  New 'line' coverage: 947
+  New 'line' coverage: 948
+Src file: /root/tinycc/tccgen.c
+  New 'function' coverage: elfsym()
+  New 'function' coverage: sym_find()
+  New 'line' coverage: 284
+  New 'line' coverage: 540

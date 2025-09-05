@@ -1,0 +1,6 @@
+diff id:000029,orig:weird_identifiers.c -> id:000030,src:000004,op:flip1,pos:0,+cov
+Src file: /root/tinycc/tccgen.c
+  New 'line' coverage: 7170
+Src file: /root/tinycc/tccpp.c
+  New 'line' coverage: 2954
+  New 'line' coverage: 2955

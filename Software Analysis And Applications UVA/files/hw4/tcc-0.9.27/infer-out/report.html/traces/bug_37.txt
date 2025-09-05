@@ -1,0 +1,11 @@
+libtcc.c:1834: error: UNINITIALIZED_VALUE
+  The value read from optarg was never initialized.
+Showing all 1 steps of the trace
+
+
+libtcc.c:1834:38: 
+1832.               goto set_output_type;
+1833.           case TCC_OPTION_v:
+1834. >             do ++s->verbose; while (*optarg++ == 'v');
+1835.               ++noaction;
+1836.               break;

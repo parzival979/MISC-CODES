@@ -1,0 +1,71 @@
+libtcc.c:217: error: NULL_DEREFERENCE
+  pointer `ptr` last assigned on line 216 could be null and is dereferenced by call to `memset()` at line 217, column 5.
+Showing all 9 steps of the trace
+
+
+libtcc.c:213:10: start of procedure tcc_mallocz()
+211.   }
+212.   
+213.   PUB_FUNC void *tcc_mallocz(unsigned long size)
+                ^
+214.   {
+215.       void *ptr;
+
+libtcc.c:216:5: 
+214.   {
+215.       void *ptr;
+216. >     ptr = tcc_malloc(size);
+217.       memset(ptr, 0, size);
+218.       return ptr;
+
+libtcc.c:204:10: start of procedure tcc_malloc()
+  202.   }
+  203.   
+  204.   PUB_FUNC void *tcc_malloc(unsigned long size)
+                  ^
+  205.   {
+  206.       void *ptr;
+
+libtcc.c:207:5: 
+  205.   {
+  206.       void *ptr;
+  207. >     ptr = malloc(size);
+  208.       if (!ptr && size)
+  209.           tcc_error("memory full (malloc)");
+
+libtcc.c:208:10: Taking true branch
+  206.       void *ptr;
+  207.       ptr = malloc(size);
+  208.       if (!ptr && size)
+                  ^
+  209.           tcc_error("memory full (malloc)");
+  210.       return ptr;
+
+libtcc.c:208:17: Taking false branch
+  206.       void *ptr;
+  207.       ptr = malloc(size);
+  208.       if (!ptr && size)
+                         ^
+  209.           tcc_error("memory full (malloc)");
+  210.       return ptr;
+
+libtcc.c:210:5: 
+  208.       if (!ptr && size)
+  209.           tcc_error("memory full (malloc)");
+  210. >     return ptr;
+  211.   }
+  212.   
+
+libtcc.c:211:1: return from a call to tcc_malloc
+  209.           tcc_error("memory full (malloc)");
+  210.       return ptr;
+  211. > }
+  212.   
+  213.   PUB_FUNC void *tcc_mallocz(unsigned long size)
+
+libtcc.c:217:5: 
+215.       void *ptr;
+216.       ptr = tcc_malloc(size);
+217. >     memset(ptr, 0, size);
+218.       return ptr;
+219.   }

@@ -1,0 +1,15 @@
+services:
+  main:
+    platform: linux/amd64
+    build: .
+    command: tail -f /dev/null
+    volumes: 
+      - ./files:/root/files/
+    environment:
+      - PATH=/root/infer/bin:/root/cppcheck/build/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      - DISPLAY=novnc:0.0
+    networks:
+      - x11
+    hostname: uvacs
+networks:
+  x11:

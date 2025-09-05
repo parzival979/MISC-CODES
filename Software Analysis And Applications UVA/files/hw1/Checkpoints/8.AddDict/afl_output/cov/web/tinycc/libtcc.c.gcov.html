@@ -1,0 +1,2057 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - trace.lcov_info_final - tinycc/libtcc.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">tinycc</a> - libtcc.c<span style="font-size: 80%;"> (source / <a href="libtcc.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">trace.lcov_info_final</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">419</td>
+            <td class="headerCovTableEntry">763</td>
+            <td class="headerCovTableEntryLo">54.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2025-02-01 05:28:28</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">36</td>
+            <td class="headerCovTableEntry">57</td>
+            <td class="headerCovTableEntryLo">63.2 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  *  TCC - Tiny C Compiler
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  *  Copyright (c) 2001-2004 Fabrice Bellard
+<span class="lineNum">       5 </span>            :  *
+<span class="lineNum">       6 </span>            :  * This library is free software; you can redistribute it and/or
+<span class="lineNum">       7 </span>            :  * modify it under the terms of the GNU Lesser General Public
+<span class="lineNum">       8 </span>            :  * License as published by the Free Software Foundation; either
+<span class="lineNum">       9 </span>            :  * version 2 of the License, or (at your option) any later version.
+<span class="lineNum">      10 </span>            :  *
+<span class="lineNum">      11 </span>            :  * This library is distributed in the hope that it will be useful,
+<span class="lineNum">      12 </span>            :  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      13 </span>            :  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+<span class="lineNum">      14 </span>            :  * Lesser General Public License for more details.
+<span class="lineNum">      15 </span>            :  *
+<span class="lineNum">      16 </span>            :  * You should have received a copy of the GNU Lesser General Public
+<span class="lineNum">      17 </span>            :  * License along with this library; if not, write to the Free Software
+<span class="lineNum">      18 </span>            :  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+<span class="lineNum">      19 </span>            :  */
+<span class="lineNum">      20 </span>            : 
+<span class="lineNum">      21 </span>            : #include &quot;tcc.h&quot;
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : /********************************************************/
+<span class="lineNum">      24 </span>            : /* global variables */
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : /* use GNU C extensions */
+<span class="lineNum">      27 </span>            : ST_DATA int gnu_ext = 1;
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span>            : /* use TinyCC extensions */
+<span class="lineNum">      30 </span>            : ST_DATA int tcc_ext = 1;
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : /* XXX: get rid of this ASAP */
+<span class="lineNum">      33 </span>            : ST_DATA struct TCCState *tcc_state;
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : static int nb_states;
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            : /********************************************************/
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : #if ONE_SOURCE
+<span class="lineNum">      40 </span>            : #include &quot;tccpp.c&quot;
+<span class="lineNum">      41 </span>            : #include &quot;tccgen.c&quot;
+<span class="lineNum">      42 </span>            : #include &quot;tccelf.c&quot;
+<span class="lineNum">      43 </span>            : #include &quot;tccrun.c&quot;
+<span class="lineNum">      44 </span>            : #ifdef TCC_TARGET_I386
+<span class="lineNum">      45 </span>            : #include &quot;i386-gen.c&quot;
+<span class="lineNum">      46 </span>            : #include &quot;i386-link.c&quot;
+<span class="lineNum">      47 </span>            : #include &quot;i386-asm.c&quot;
+<span class="lineNum">      48 </span>            : #endif
+<span class="lineNum">      49 </span>            : #ifdef TCC_TARGET_ARM
+<span class="lineNum">      50 </span>            : #include &quot;arm-gen.c&quot;
+<span class="lineNum">      51 </span>            : #include &quot;arm-link.c&quot;
+<span class="lineNum">      52 </span>            : #include &quot;arm-asm.c&quot;
+<span class="lineNum">      53 </span>            : #endif
+<span class="lineNum">      54 </span>            : #ifdef TCC_TARGET_ARM64
+<span class="lineNum">      55 </span>            : #include &quot;arm64-gen.c&quot;
+<span class="lineNum">      56 </span>            : #include &quot;arm64-link.c&quot;
+<span class="lineNum">      57 </span>            : #endif
+<span class="lineNum">      58 </span>            : #ifdef TCC_TARGET_C67
+<span class="lineNum">      59 </span>            : #include &quot;c67-gen.c&quot;
+<span class="lineNum">      60 </span>            : #include &quot;c67-link.c&quot;
+<span class="lineNum">      61 </span>            : #include &quot;tcccoff.c&quot;
+<span class="lineNum">      62 </span>            : #endif
+<span class="lineNum">      63 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">      64 </span>            : #include &quot;x86_64-gen.c&quot;
+<span class="lineNum">      65 </span>            : #include &quot;x86_64-link.c&quot;
+<span class="lineNum">      66 </span>            : #include &quot;i386-asm.c&quot;
+<span class="lineNum">      67 </span>            : #endif
+<span class="lineNum">      68 </span>            : #ifdef CONFIG_TCC_ASM
+<span class="lineNum">      69 </span>            : #include &quot;tccasm.c&quot;
+<span class="lineNum">      70 </span>            : #endif
+<span class="lineNum">      71 </span>            : #ifdef TCC_TARGET_PE
+<span class="lineNum">      72 </span>            : #include &quot;tccpe.c&quot;
+<span class="lineNum">      73 </span>            : #endif
+<span class="lineNum">      74 </span>            : #endif /* ONE_SOURCE */
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span>            : /********************************************************/
+<span class="lineNum">      77 </span>            : #ifndef CONFIG_TCC_ASM
+<span class="lineNum">      78 </span>            : ST_FUNC void asm_instr(void)
+<span class="lineNum">      79 </span>            : {
+<span class="lineNum">      80 </span>            :     tcc_error(&quot;inline asm() not supported&quot;);
+<span class="lineNum">      81 </span>            : }
+<span class="lineNum">      82 </span>            : ST_FUNC void asm_global_instr(void)
+<span class="lineNum">      83 </span>            : {
+<span class="lineNum">      84 </span>            :     tcc_error(&quot;inline asm() not supported&quot;);
+<span class="lineNum">      85 </span>            : }
+<span class="lineNum">      86 </span>            : #endif
+<span class="lineNum">      87 </span>            : 
+<span class="lineNum">      88 </span>            : /********************************************************/
+<span class="lineNum">      89 </span>            : #ifdef _WIN32
+<span class="lineNum">      90 </span>            : ST_FUNC char *normalize_slashes(char *path)
+<span class="lineNum">      91 </span>            : {
+<span class="lineNum">      92 </span>            :     char *p;
+<span class="lineNum">      93 </span>            :     for (p = path; *p; ++p)
+<span class="lineNum">      94 </span>            :         if (*p == '\\')
+<span class="lineNum">      95 </span>            :             *p = '/';
+<span class="lineNum">      96 </span>            :     return path;
+<span class="lineNum">      97 </span>            : }
+<span class="lineNum">      98 </span>            : 
+<span class="lineNum">      99 </span>            : static HMODULE tcc_module;
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span>            : /* on win32, we suppose the lib and includes are at the location of 'tcc.exe' */
+<span class="lineNum">     102 </span>            : static void tcc_set_lib_path_w32(TCCState *s)
+<span class="lineNum">     103 </span>            : {
+<span class="lineNum">     104 </span>            :     char path[1024], *p;
+<span class="lineNum">     105 </span>            :     GetModuleFileNameA(tcc_module, path, sizeof path);
+<span class="lineNum">     106 </span>            :     p = tcc_basename(normalize_slashes(strlwr(path)));
+<span class="lineNum">     107 </span>            :     if (p &gt; path)
+<span class="lineNum">     108 </span>            :         --p;
+<span class="lineNum">     109 </span>            :     *p = 0;
+<span class="lineNum">     110 </span>            :     tcc_set_lib_path(s, path);
+<span class="lineNum">     111 </span>            : }
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span>            : #ifdef TCC_TARGET_PE
+<span class="lineNum">     114 </span>            : static void tcc_add_systemdir(TCCState *s)
+<span class="lineNum">     115 </span>            : {
+<span class="lineNum">     116 </span>            :     char buf[1000];
+<span class="lineNum">     117 </span>            :     GetSystemDirectory(buf, sizeof buf);
+<span class="lineNum">     118 </span>            :     tcc_add_library_path(s, normalize_slashes(buf));
+<span class="lineNum">     119 </span>            : }
+<span class="lineNum">     120 </span>            : #endif
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span>            : #ifdef LIBTCC_AS_DLL
+<span class="lineNum">     123 </span>            : BOOL WINAPI DllMain (HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
+<span class="lineNum">     124 </span>            : {
+<span class="lineNum">     125 </span>            :     if (DLL_PROCESS_ATTACH == dwReason)
+<span class="lineNum">     126 </span>            :         tcc_module = hDll;
+<span class="lineNum">     127 </span>            :     return TRUE;
+<span class="lineNum">     128 </span>            : }
+<span class="lineNum">     129 </span>            : #endif
+<span class="lineNum">     130 </span>            : #endif
+<span class="lineNum">     131 </span>            : 
+<a name="132"><span class="lineNum">     132 </span>            : /********************************************************/</a>
+<span class="lineNum">     133 </span>            : /* copy a string and truncate it. */
+<span class="lineNum">     134 </span><span class="lineCov">       1586 : ST_FUNC char *pstrcpy(char *buf, int buf_size, const char *s)</span>
+<span class="lineNum">     135 </span>            : {
+<span class="lineNum">     136 </span>            :     char *q, *q_end;
+<span class="lineNum">     137 </span>            :     int c;
+<span class="lineNum">     138 </span>            : 
+<span class="lineNum">     139 </span><span class="lineCov">       4645 :     if (buf_size &gt; 0) {</span>
+<span class="lineNum">     140 </span><span class="lineCov">       6761 :         q = buf;</span>
+<span class="lineNum">     141 </span><span class="lineCov">       6761 :         q_end = buf + buf_size - 1;</span>
+<span class="lineNum">     142 </span><span class="lineCov">     106137 :         while (q &lt; q_end) {</span>
+<span class="lineNum">     143 </span><span class="lineCov">     104551 :             c = *s++;</span>
+<span class="lineNum">     144 </span><span class="lineCov">     104551 :             if (c == '\0')</span>
+<span class="lineNum">     145 </span>            :                 break;
+<span class="lineNum">     146 </span><span class="lineCov">      97790 :             *q++ = c;</span>
+<span class="lineNum">     147 </span>            :         }
+<span class="lineNum">     148 </span><span class="lineCov">       6761 :         *q = '\0';</span>
+<span class="lineNum">     149 </span>            :     }
+<span class="lineNum">     150 </span><span class="lineCov">       1586 :     return buf;</span>
+<span class="lineNum">     151 </span>            : }
+<a name="152"><span class="lineNum">     152 </span>            : </a>
+<span class="lineNum">     153 </span>            : /* strcat and truncate. */
+<span class="lineNum">     154 </span><span class="lineCov">       3059 : ST_FUNC char *pstrcat(char *buf, int buf_size, const char *s)</span>
+<span class="lineNum">     155 </span>            : {
+<span class="lineNum">     156 </span>            :     int len;
+<span class="lineNum">     157 </span><span class="lineCov">       3059 :     len = strlen(buf);</span>
+<span class="lineNum">     158 </span><span class="lineCov">       3059 :     if (len &lt; buf_size)</span>
+<span class="lineNum">     159 </span><span class="lineCov">       3059 :         pstrcpy(buf + len, buf_size - len, s);</span>
+<span class="lineNum">     160 </span><span class="lineCov">       3059 :     return buf;</span>
+<a name="161"><span class="lineNum">     161 </span>            : }</a>
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 : ST_FUNC char *pstrncpy(char *out, const char *in, size_t num)</span>
+<span class="lineNum">     164 </span>            : {
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :     memcpy(out, in, num);</span>
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 :     out[num] = '\0';</span>
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :     return out;</span>
+<span class="lineNum">     168 </span>            : }
+<a name="169"><span class="lineNum">     169 </span>            : </a>
+<span class="lineNum">     170 </span>            : /* extract the basename of a file */
+<span class="lineNum">     171 </span><span class="lineCov">         54 : PUB_FUNC char *tcc_basename(const char *name)</span>
+<span class="lineNum">     172 </span>            : {
+<span class="lineNum">     173 </span><span class="lineCov">        148 :     char *p = strchr(name, 0);</span>
+<span class="lineNum">     174 </span><span class="lineCov">       3698 :     while (p &gt; name &amp;&amp; !IS_DIRSEP(p[-1]))</span>
+<span class="lineNum">     175 </span><span class="lineCov">       3496 :         --p;</span>
+<span class="lineNum">     176 </span><span class="lineCov">         54 :     return p;</span>
+<span class="lineNum">     177 </span>            : }
+<span class="lineNum">     178 </span>            : 
+<span class="lineNum">     179 </span>            : /* extract extension part of a file
+<span class="lineNum">     180 </span>            :  *
+<a name="181"><span class="lineNum">     181 </span>            :  * (if no extension, return pointer to end-of-string)</a>
+<span class="lineNum">     182 </span>            :  */
+<span class="lineNum">     183 </span><span class="lineCov">         94 : PUB_FUNC char *tcc_fileextension (const char *name)</span>
+<span class="lineNum">     184 </span>            : {
+<span class="lineNum">     185 </span><span class="lineCov">         94 :     char *b = tcc_basename(name);</span>
+<span class="lineNum">     186 </span><span class="lineCov">         94 :     char *e = strrchr(b, '.');</span>
+<span class="lineNum">     187 </span><span class="lineCov">         94 :     return e ? e : strchr(b, 0);</span>
+<span class="lineNum">     188 </span>            : }
+<span class="lineNum">     189 </span>            : 
+<span class="lineNum">     190 </span>            : /********************************************************/
+<span class="lineNum">     191 </span>            : /* memory management */
+<span class="lineNum">     192 </span>            : 
+<span class="lineNum">     193 </span>            : #undef free
+<span class="lineNum">     194 </span>            : #undef malloc
+<span class="lineNum">     195 </span>            : #undef realloc
+<span class="lineNum">     196 </span>            : 
+<a name="197"><span class="lineNum">     197 </span>            : #ifndef MEM_DEBUG</a>
+<span class="lineNum">     198 </span>            : 
+<span class="lineNum">     199 </span><span class="lineCov">       3771 : PUB_FUNC void tcc_free(void *ptr)</span>
+<span class="lineNum">     200 </span>            : {
+<span class="lineNum">     201 </span><span class="lineCov">      11415 :     free(ptr);</span>
+<a name="202"><span class="lineNum">     202 </span><span class="lineCov">       3771 : }</span></a>
+<span class="lineNum">     203 </span>            : 
+<span class="lineNum">     204 </span><span class="lineCov">       7671 : PUB_FUNC void *tcc_malloc(unsigned long size)</span>
+<span class="lineNum">     205 </span>            : {
+<span class="lineNum">     206 </span>            :     void *ptr;
+<span class="lineNum">     207 </span><span class="lineCov">       7671 :     ptr = malloc(size);</span>
+<span class="lineNum">     208 </span><span class="lineCov">       7671 :     if (!ptr &amp;&amp; size)</span>
+<span class="lineNum">     209 </span><span class="lineNoCov">          0 :         tcc_error(&quot;memory full (malloc)&quot;);</span>
+<span class="lineNum">     210 </span><span class="lineCov">       7671 :     return ptr;</span>
+<a name="211"><span class="lineNum">     211 </span>            : }</a>
+<span class="lineNum">     212 </span>            : 
+<span class="lineNum">     213 </span><span class="lineCov">       4471 : PUB_FUNC void *tcc_mallocz(unsigned long size)</span>
+<span class="lineNum">     214 </span>            : {
+<span class="lineNum">     215 </span>            :     void *ptr;
+<span class="lineNum">     216 </span><span class="lineCov">       4471 :     ptr = tcc_malloc(size);</span>
+<span class="lineNum">     217 </span><span class="lineCov">       4471 :     memset(ptr, 0, size);</span>
+<span class="lineNum">     218 </span><span class="lineCov">       4471 :     return ptr;</span>
+<a name="219"><span class="lineNum">     219 </span>            : }</a>
+<span class="lineNum">     220 </span>            : 
+<span class="lineNum">     221 </span><span class="lineCov">       6755 : PUB_FUNC void *tcc_realloc(void *ptr, unsigned long size)</span>
+<span class="lineNum">     222 </span>            : {
+<span class="lineNum">     223 </span>            :     void *ptr1;
+<span class="lineNum">     224 </span><span class="lineCov">       6755 :     ptr1 = realloc(ptr, size);</span>
+<span class="lineNum">     225 </span><span class="lineCov">       6755 :     if (!ptr1 &amp;&amp; size)</span>
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :         tcc_error(&quot;memory full (realloc)&quot;);</span>
+<span class="lineNum">     227 </span><span class="lineCov">       6755 :     return ptr1;</span>
+<a name="228"><span class="lineNum">     228 </span>            : }</a>
+<span class="lineNum">     229 </span>            : 
+<span class="lineNum">     230 </span><span class="lineCov">       1715 : PUB_FUNC char *tcc_strdup(const char *str)</span>
+<span class="lineNum">     231 </span>            : {
+<span class="lineNum">     232 </span>            :     char *ptr;
+<span class="lineNum">     233 </span><span class="lineCov">       1715 :     ptr = tcc_malloc(strlen(str) + 1);</span>
+<span class="lineNum">     234 </span><span class="lineCov">       1715 :     strcpy(ptr, str);</span>
+<span class="lineNum">     235 </span><span class="lineCov">       1715 :     return ptr;</span>
+<a name="236"><span class="lineNum">     236 </span>            : }</a>
+<span class="lineNum">     237 </span>            : 
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 : PUB_FUNC void tcc_memcheck(void)</span>
+<span class="lineNum">     239 </span>            : {
+<span class="lineNum">     240 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     241 </span>            : 
+<span class="lineNum">     242 </span>            : #else
+<span class="lineNum">     243 </span>            : 
+<span class="lineNum">     244 </span>            : #define MEM_DEBUG_MAGIC1 0xFEEDDEB1
+<span class="lineNum">     245 </span>            : #define MEM_DEBUG_MAGIC2 0xFEEDDEB2
+<span class="lineNum">     246 </span>            : #define MEM_DEBUG_MAGIC3 0xFEEDDEB3
+<span class="lineNum">     247 </span>            : #define MEM_DEBUG_FILE_LEN 40
+<span class="lineNum">     248 </span>            : #define MEM_DEBUG_CHECK3(header) \
+<span class="lineNum">     249 </span>            :     ((mem_debug_header_t*)((char*)header + header-&gt;size))-&gt;magic3
+<span class="lineNum">     250 </span>            : #define MEM_USER_PTR(header) \
+<span class="lineNum">     251 </span>            :     ((char *)header + offsetof(mem_debug_header_t, magic3))
+<span class="lineNum">     252 </span>            : #define MEM_HEADER_PTR(ptr) \
+<span class="lineNum">     253 </span>            :     (mem_debug_header_t *)((char*)ptr - offsetof(mem_debug_header_t, magic3))
+<span class="lineNum">     254 </span>            : 
+<span class="lineNum">     255 </span>            : struct mem_debug_header {
+<span class="lineNum">     256 </span>            :     unsigned magic1;
+<span class="lineNum">     257 </span>            :     unsigned size;
+<span class="lineNum">     258 </span>            :     struct mem_debug_header *prev;
+<span class="lineNum">     259 </span>            :     struct mem_debug_header *next;
+<span class="lineNum">     260 </span>            :     int line_num;
+<span class="lineNum">     261 </span>            :     char file_name[MEM_DEBUG_FILE_LEN + 1];
+<span class="lineNum">     262 </span>            :     unsigned magic2;
+<span class="lineNum">     263 </span>            :     ALIGNED(16) unsigned magic3;
+<span class="lineNum">     264 </span>            : };
+<span class="lineNum">     265 </span>            : 
+<span class="lineNum">     266 </span>            : typedef struct mem_debug_header mem_debug_header_t;
+<span class="lineNum">     267 </span>            : 
+<span class="lineNum">     268 </span>            : static mem_debug_header_t *mem_debug_chain;
+<span class="lineNum">     269 </span>            : static unsigned mem_cur_size;
+<span class="lineNum">     270 </span>            : static unsigned mem_max_size;
+<span class="lineNum">     271 </span>            : 
+<span class="lineNum">     272 </span>            : static mem_debug_header_t *malloc_check(void *ptr, const char *msg)
+<span class="lineNum">     273 </span>            : {
+<span class="lineNum">     274 </span>            :     mem_debug_header_t * header = MEM_HEADER_PTR(ptr);
+<span class="lineNum">     275 </span>            :     if (header-&gt;magic1 != MEM_DEBUG_MAGIC1 ||
+<span class="lineNum">     276 </span>            :         header-&gt;magic2 != MEM_DEBUG_MAGIC2 ||
+<span class="lineNum">     277 </span>            :         MEM_DEBUG_CHECK3(header) != MEM_DEBUG_MAGIC3 ||
+<span class="lineNum">     278 </span>            :         header-&gt;size == (unsigned)-1) {
+<span class="lineNum">     279 </span>            :         fprintf(stderr, &quot;%s check failed\n&quot;, msg);
+<span class="lineNum">     280 </span>            :         if (header-&gt;magic1 == MEM_DEBUG_MAGIC1)
+<span class="lineNum">     281 </span>            :             fprintf(stderr, &quot;%s:%u: block allocated here.\n&quot;,
+<span class="lineNum">     282 </span>            :                 header-&gt;file_name, header-&gt;line_num);
+<span class="lineNum">     283 </span>            :         exit(1);
+<span class="lineNum">     284 </span>            :     }
+<span class="lineNum">     285 </span>            :     return header;
+<span class="lineNum">     286 </span>            : }
+<span class="lineNum">     287 </span>            : 
+<span class="lineNum">     288 </span>            : PUB_FUNC void *tcc_malloc_debug(unsigned long size, const char *file, int line)
+<span class="lineNum">     289 </span>            : {
+<span class="lineNum">     290 </span>            :     int ofs;
+<span class="lineNum">     291 </span>            :     mem_debug_header_t *header;
+<span class="lineNum">     292 </span>            : 
+<span class="lineNum">     293 </span>            :     header = malloc(sizeof(mem_debug_header_t) + size);
+<span class="lineNum">     294 </span>            :     if (!header)
+<span class="lineNum">     295 </span>            :         tcc_error(&quot;memory full (malloc)&quot;);
+<span class="lineNum">     296 </span>            : 
+<span class="lineNum">     297 </span>            :     header-&gt;magic1 = MEM_DEBUG_MAGIC1;
+<span class="lineNum">     298 </span>            :     header-&gt;magic2 = MEM_DEBUG_MAGIC2;
+<span class="lineNum">     299 </span>            :     header-&gt;size = size;
+<span class="lineNum">     300 </span>            :     MEM_DEBUG_CHECK3(header) = MEM_DEBUG_MAGIC3;
+<span class="lineNum">     301 </span>            :     header-&gt;line_num = line;
+<span class="lineNum">     302 </span>            :     ofs = strlen(file) - MEM_DEBUG_FILE_LEN;
+<span class="lineNum">     303 </span>            :     strncpy(header-&gt;file_name, file + (ofs &gt; 0 ? ofs : 0), MEM_DEBUG_FILE_LEN);
+<span class="lineNum">     304 </span>            :     header-&gt;file_name[MEM_DEBUG_FILE_LEN] = 0;
+<span class="lineNum">     305 </span>            : 
+<span class="lineNum">     306 </span>            :     header-&gt;next = mem_debug_chain;
+<span class="lineNum">     307 </span>            :     header-&gt;prev = NULL;
+<span class="lineNum">     308 </span>            :     if (header-&gt;next)
+<span class="lineNum">     309 </span>            :         header-&gt;next-&gt;prev = header;
+<span class="lineNum">     310 </span>            :     mem_debug_chain = header;
+<span class="lineNum">     311 </span>            : 
+<span class="lineNum">     312 </span>            :     mem_cur_size += size;
+<span class="lineNum">     313 </span>            :     if (mem_cur_size &gt; mem_max_size)
+<span class="lineNum">     314 </span>            :         mem_max_size = mem_cur_size;
+<span class="lineNum">     315 </span>            : 
+<span class="lineNum">     316 </span>            :     return MEM_USER_PTR(header);
+<span class="lineNum">     317 </span>            : }
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span>            : PUB_FUNC void tcc_free_debug(void *ptr)
+<span class="lineNum">     320 </span>            : {
+<span class="lineNum">     321 </span>            :     mem_debug_header_t *header;
+<span class="lineNum">     322 </span>            :     if (!ptr)
+<span class="lineNum">     323 </span>            :         return;
+<span class="lineNum">     324 </span>            :     header = malloc_check(ptr, &quot;tcc_free&quot;);
+<span class="lineNum">     325 </span>            :     mem_cur_size -= header-&gt;size;
+<span class="lineNum">     326 </span>            :     header-&gt;size = (unsigned)-1;
+<span class="lineNum">     327 </span>            :     if (header-&gt;next)
+<span class="lineNum">     328 </span>            :         header-&gt;next-&gt;prev = header-&gt;prev;
+<span class="lineNum">     329 </span>            :     if (header-&gt;prev)
+<span class="lineNum">     330 </span>            :         header-&gt;prev-&gt;next = header-&gt;next;
+<span class="lineNum">     331 </span>            :     if (header == mem_debug_chain)
+<span class="lineNum">     332 </span>            :         mem_debug_chain = header-&gt;next;
+<span class="lineNum">     333 </span>            :     free(header);
+<span class="lineNum">     334 </span>            : }
+<span class="lineNum">     335 </span>            : 
+<span class="lineNum">     336 </span>            : PUB_FUNC void *tcc_mallocz_debug(unsigned long size, const char *file, int line)
+<span class="lineNum">     337 </span>            : {
+<span class="lineNum">     338 </span>            :     void *ptr;
+<span class="lineNum">     339 </span>            :     ptr = tcc_malloc_debug(size,file,line);
+<span class="lineNum">     340 </span>            :     memset(ptr, 0, size);
+<span class="lineNum">     341 </span>            :     return ptr;
+<span class="lineNum">     342 </span>            : }
+<span class="lineNum">     343 </span>            : 
+<span class="lineNum">     344 </span>            : PUB_FUNC void *tcc_realloc_debug(void *ptr, unsigned long size, const char *file, int line)
+<span class="lineNum">     345 </span>            : {
+<span class="lineNum">     346 </span>            :     mem_debug_header_t *header;
+<span class="lineNum">     347 </span>            :     int mem_debug_chain_update = 0;
+<span class="lineNum">     348 </span>            :     if (!ptr)
+<span class="lineNum">     349 </span>            :         return tcc_malloc_debug(size, file, line);
+<span class="lineNum">     350 </span>            :     header = malloc_check(ptr, &quot;tcc_realloc&quot;);
+<span class="lineNum">     351 </span>            :     mem_cur_size -= header-&gt;size;
+<span class="lineNum">     352 </span>            :     mem_debug_chain_update = (header == mem_debug_chain);
+<span class="lineNum">     353 </span>            :     header = realloc(header, sizeof(mem_debug_header_t) + size);
+<span class="lineNum">     354 </span>            :     if (!header)
+<span class="lineNum">     355 </span>            :         tcc_error(&quot;memory full (realloc)&quot;);
+<span class="lineNum">     356 </span>            :     header-&gt;size = size;
+<span class="lineNum">     357 </span>            :     MEM_DEBUG_CHECK3(header) = MEM_DEBUG_MAGIC3;
+<span class="lineNum">     358 </span>            :     if (header-&gt;next)
+<span class="lineNum">     359 </span>            :         header-&gt;next-&gt;prev = header;
+<span class="lineNum">     360 </span>            :     if (header-&gt;prev)
+<span class="lineNum">     361 </span>            :         header-&gt;prev-&gt;next = header;
+<span class="lineNum">     362 </span>            :     if (mem_debug_chain_update)
+<span class="lineNum">     363 </span>            :         mem_debug_chain = header;
+<span class="lineNum">     364 </span>            :     mem_cur_size += size;
+<span class="lineNum">     365 </span>            :     if (mem_cur_size &gt; mem_max_size)
+<span class="lineNum">     366 </span>            :         mem_max_size = mem_cur_size;
+<span class="lineNum">     367 </span>            :     return MEM_USER_PTR(header);
+<span class="lineNum">     368 </span>            : }
+<span class="lineNum">     369 </span>            : 
+<span class="lineNum">     370 </span>            : PUB_FUNC char *tcc_strdup_debug(const char *str, const char *file, int line)
+<span class="lineNum">     371 </span>            : {
+<span class="lineNum">     372 </span>            :     char *ptr;
+<span class="lineNum">     373 </span>            :     ptr = tcc_malloc_debug(strlen(str) + 1, file, line);
+<span class="lineNum">     374 </span>            :     strcpy(ptr, str);
+<span class="lineNum">     375 </span>            :     return ptr;
+<span class="lineNum">     376 </span>            : }
+<span class="lineNum">     377 </span>            : 
+<span class="lineNum">     378 </span>            : PUB_FUNC void tcc_memcheck(void)
+<span class="lineNum">     379 </span>            : {
+<span class="lineNum">     380 </span>            :     if (mem_cur_size) {
+<span class="lineNum">     381 </span>            :         mem_debug_header_t *header = mem_debug_chain;
+<span class="lineNum">     382 </span>            :         fprintf(stderr, &quot;MEM_DEBUG: mem_leak= %d bytes, mem_max_size= %d bytes\n&quot;,
+<span class="lineNum">     383 </span>            :             mem_cur_size, mem_max_size);
+<span class="lineNum">     384 </span>            :         while (header) {
+<span class="lineNum">     385 </span>            :             fprintf(stderr, &quot;%s:%u: error: %u bytes leaked\n&quot;,
+<span class="lineNum">     386 </span>            :                 header-&gt;file_name, header-&gt;line_num, header-&gt;size);
+<span class="lineNum">     387 </span>            :             header = header-&gt;next;
+<span class="lineNum">     388 </span>            :         }
+<span class="lineNum">     389 </span>            : #if MEM_DEBUG-0 == 2
+<span class="lineNum">     390 </span>            :         exit(2);
+<span class="lineNum">     391 </span>            : #endif
+<span class="lineNum">     392 </span>            :     }
+<span class="lineNum">     393 </span>            : }
+<span class="lineNum">     394 </span>            : #endif /* MEM_DEBUG */
+<span class="lineNum">     395 </span>            : 
+<span class="lineNum">     396 </span>            : #define free(p) use_tcc_free(p)
+<span class="lineNum">     397 </span>            : #define malloc(s) use_tcc_malloc(s)
+<span class="lineNum">     398 </span>            : #define realloc(p, s) use_tcc_realloc(p, s)
+<span class="lineNum">     399 </span>            : 
+<span class="lineNum">     400 </span>            : /********************************************************/
+<a name="401"><span class="lineNum">     401 </span>            : /* dynarrays */</a>
+<span class="lineNum">     402 </span>            : 
+<span class="lineNum">     403 </span><span class="lineCov">       3743 : ST_FUNC void dynarray_add(void *ptab, int *nb_ptr, void *data)</span>
+<span class="lineNum">     404 </span>            : {
+<span class="lineNum">     405 </span>            :     int nb, nb_alloc;
+<span class="lineNum">     406 </span>            :     void **pp;
+<span class="lineNum">     407 </span>            : 
+<span class="lineNum">     408 </span><span class="lineCov">       3743 :     nb = *nb_ptr;</span>
+<span class="lineNum">     409 </span><span class="lineCov">       3743 :     pp = *(void ***)ptab;</span>
+<span class="lineNum">     410 </span>            :     /* every power of two we double array size */
+<span class="lineNum">     411 </span><span class="lineCov">       3743 :     if ((nb &amp; (nb - 1)) == 0) {</span>
+<span class="lineNum">     412 </span><span class="lineCov">       1982 :         if (!nb)</span>
+<span class="lineNum">     413 </span>            :             nb_alloc = 1;
+<span class="lineNum">     414 </span>            :         else
+<span class="lineNum">     415 </span><span class="lineCov">       1253 :             nb_alloc = nb * 2;</span>
+<span class="lineNum">     416 </span><span class="lineCov">       1982 :         pp = tcc_realloc(pp, nb_alloc * sizeof(void *));</span>
+<span class="lineNum">     417 </span><span class="lineCov">       1982 :         *(void***)ptab = pp;</span>
+<span class="lineNum">     418 </span>            :     }
+<span class="lineNum">     419 </span><span class="lineCov">       3743 :     pp[nb++] = data;</span>
+<span class="lineNum">     420 </span><span class="lineCov">       3743 :     *nb_ptr = nb;</span>
+<a name="421"><span class="lineNum">     421 </span><span class="lineCov">       3743 : }</span></a>
+<span class="lineNum">     422 </span>            : 
+<span class="lineNum">     423 </span><span class="lineCov">       1177 : ST_FUNC void dynarray_reset(void *pp, int *n)</span>
+<span class="lineNum">     424 </span>            : {
+<span class="lineNum">     425 </span>            :     void **p;
+<span class="lineNum">     426 </span><span class="lineCov">       4920 :     for (p = *(void***)pp; *n; ++p, --*n)</span>
+<span class="lineNum">     427 </span><span class="lineCov">       3743 :         if (*p)</span>
+<span class="lineNum">     428 </span><span class="lineCov">       3667 :             tcc_free(*p);</span>
+<span class="lineNum">     429 </span><span class="lineCov">       2354 :     tcc_free(*(void**)pp);</span>
+<span class="lineNum">     430 </span><span class="lineCov">       1177 :     *(void**)pp = NULL;</span>
+<a name="431"><span class="lineNum">     431 </span><span class="lineCov">       1177 : }</span></a>
+<span class="lineNum">     432 </span>            : 
+<span class="lineNum">     433 </span><span class="lineCov">        304 : static void tcc_split_path(TCCState *s, void *p_ary, int *p_nb_ary, const char *in)</span>
+<span class="lineNum">     434 </span>            : {
+<span class="lineNum">     435 </span>            :     const char *p;
+<span class="lineNum">     436 </span>            :     do {
+<span class="lineNum">     437 </span>            :         int c;
+<span class="lineNum">     438 </span>            :         CString str;
+<span class="lineNum">     439 </span>            : 
+<span class="lineNum">     440 </span><span class="lineCov">        988 :         cstr_new(&amp;str);</span>
+<span class="lineNum">     441 </span><span class="lineCov">      20140 :         for (p = in; c = *p, c != '\0' &amp;&amp; c != PATHSEP[0]; ++p) {</span>
+<span class="lineNum">     442 </span><span class="lineCov">      19228 :             if (c == '{' &amp;&amp; p[1] &amp;&amp; p[2] == '}') {</span>
+<span class="lineNum">     443 </span><span class="lineCov">         76 :                 c = p[1], p += 2;</span>
+<span class="lineNum">     444 </span><span class="lineCov">         76 :                 if (c == 'B')</span>
+<span class="lineNum">     445 </span><span class="lineCov">         76 :                     cstr_cat(&amp;str, s-&gt;tcc_lib_path, -1);</span>
+<span class="lineNum">     446 </span>            :             } else {
+<span class="lineNum">     447 </span><span class="lineCov">      19076 :                 cstr_ccat(&amp;str, c);</span>
+<span class="lineNum">     448 </span>            :             }
+<span class="lineNum">     449 </span>            :         }
+<span class="lineNum">     450 </span><span class="lineCov">        988 :         if (str.size) {</span>
+<span class="lineNum">     451 </span><span class="lineCov">        988 :             cstr_ccat(&amp;str, '\0');</span>
+<span class="lineNum">     452 </span><span class="lineCov">        988 :             dynarray_add(p_ary, p_nb_ary, tcc_strdup(str.data));</span>
+<span class="lineNum">     453 </span>            :         }
+<span class="lineNum">     454 </span><span class="lineCov">        988 :         cstr_free(&amp;str);</span>
+<span class="lineNum">     455 </span><span class="lineCov">        988 :         in = p+1;</span>
+<span class="lineNum">     456 </span><span class="lineCov">        988 :     } while (*p);</span>
+<span class="lineNum">     457 </span><span class="lineCov">        304 : }</span>
+<span class="lineNum">     458 </span>            : 
+<a name="459"><span class="lineNum">     459 </span>            : /********************************************************/</a>
+<span class="lineNum">     460 </span>            : 
+<span class="lineNum">     461 </span><span class="lineCov">        174 : static void strcat_vprintf(char *buf, int buf_size, const char *fmt, va_list ap)</span>
+<span class="lineNum">     462 </span>            : {
+<span class="lineNum">     463 </span>            :     int len;
+<span class="lineNum">     464 </span><span class="lineCov">        174 :     len = strlen(buf);</span>
+<span class="lineNum">     465 </span><span class="lineCov">        348 :     vsnprintf(buf + len, buf_size - len, fmt, ap);</span>
+<a name="466"><span class="lineNum">     466 </span><span class="lineCov">        174 : }</span></a>
+<span class="lineNum">     467 </span>            : 
+<span class="lineNum">     468 </span><span class="lineCov">        116 : static void strcat_printf(char *buf, int buf_size, const char *fmt, ...)</span>
+<span class="lineNum">     469 </span>            : {
+<span class="lineNum">     470 </span>            :     va_list ap;
+<span class="lineNum">     471 </span><span class="lineCov">        116 :     va_start(ap, fmt);</span>
+<span class="lineNum">     472 </span><span class="lineCov">        116 :     strcat_vprintf(buf, buf_size, fmt, ap);</span>
+<span class="lineNum">     473 </span><span class="lineCov">        116 :     va_end(ap);</span>
+<a name="474"><span class="lineNum">     474 </span><span class="lineCov">        116 : }</span></a>
+<span class="lineNum">     475 </span>            : 
+<span class="lineNum">     476 </span><span class="lineCov">         58 : static void error1(TCCState *s1, int is_warning, const char *fmt, va_list ap)</span>
+<span class="lineNum">     477 </span>            : {
+<span class="lineNum">     478 </span>            :     char buf[2048];
+<span class="lineNum">     479 </span>            :     BufferedFile **pf, *f;
+<span class="lineNum">     480 </span>            : 
+<span class="lineNum">     481 </span><span class="lineCov">         58 :     buf[0] = '\0';</span>
+<span class="lineNum">     482 </span>            :     /* use upper file if inline &quot;:asm:&quot; or token &quot;:paste:&quot; */
+<span class="lineNum">     483 </span><span class="lineCov">         58 :     for (f = file; f &amp;&amp; f-&gt;filename[0] == ':'; f = f-&gt;prev)</span>
+<span class="lineNum">     484 </span>            :      ;
+<span class="lineNum">     485 </span><span class="lineCov">         58 :     if (f) {</span>
+<span class="lineNum">     486 </span><span class="lineCov">         58 :         for(pf = s1-&gt;include_stack; pf &lt; s1-&gt;include_stack_ptr; pf++)</span>
+<span class="lineNum">     487 </span><span class="lineNoCov">          0 :             strcat_printf(buf, sizeof(buf), &quot;In file included from %s:%d:\n&quot;,</span>
+<span class="lineNum">     488 </span><span class="lineNoCov">          0 :                 (*pf)-&gt;filename, (*pf)-&gt;line_num);</span>
+<span class="lineNum">     489 </span><span class="lineCov">         58 :         if (s1-&gt;error_set_jmp_enabled) {</span>
+<span class="lineNum">     490 </span><span class="lineCov">        116 :             strcat_printf(buf, sizeof(buf), &quot;%s:%d: &quot;,</span>
+<span class="lineNum">     491 </span><span class="lineCov">        116 :                 f-&gt;filename, f-&gt;line_num - !!(tok_flags &amp; TOK_FLAG_BOL));</span>
+<span class="lineNum">     492 </span>            :         } else {
+<span class="lineNum">     493 </span><span class="lineNoCov">          0 :             strcat_printf(buf, sizeof(buf), &quot;%s: &quot;,</span>
+<span class="lineNum">     494 </span><span class="lineNoCov">          0 :                 f-&gt;filename);</span>
+<span class="lineNum">     495 </span>            :         }
+<span class="lineNum">     496 </span>            :     } else {
+<span class="lineNum">     497 </span><span class="lineNoCov">          0 :         strcat_printf(buf, sizeof(buf), &quot;tcc: &quot;);</span>
+<span class="lineNum">     498 </span>            :     }
+<span class="lineNum">     499 </span><span class="lineCov">         58 :     if (is_warning)</span>
+<span class="lineNum">     500 </span><span class="lineNoCov">          0 :         strcat_printf(buf, sizeof(buf), &quot;warning: &quot;);</span>
+<span class="lineNum">     501 </span>            :     else
+<span class="lineNum">     502 </span><span class="lineCov">         58 :         strcat_printf(buf, sizeof(buf), &quot;error: &quot;);</span>
+<span class="lineNum">     503 </span><span class="lineCov">         58 :     strcat_vprintf(buf, sizeof(buf), fmt, ap);</span>
+<span class="lineNum">     504 </span>            : 
+<span class="lineNum">     505 </span><span class="lineCov">         58 :     if (!s1-&gt;error_func) {</span>
+<span class="lineNum">     506 </span>            :         /* default case: stderr */
+<span class="lineNum">     507 </span><span class="lineCov">         58 :         if (s1-&gt;output_type == TCC_OUTPUT_PREPROCESS &amp;&amp; s1-&gt;ppfp == stdout)</span>
+<span class="lineNum">     508 </span>            :             /* print a newline during tcc -E */
+<span class="lineNum">     509 </span><span class="lineNoCov">          0 :             printf(&quot;\n&quot;), fflush(stdout);</span>
+<span class="lineNum">     510 </span><span class="lineCov">         58 :         fflush(stdout); /* flush -v output */</span>
+<span class="lineNum">     511 </span><span class="lineCov">        116 :         fprintf(stderr, &quot;%s\n&quot;, buf);</span>
+<span class="lineNum">     512 </span><span class="lineCov">         58 :         fflush(stderr); /* print error/warning now (win32) */</span>
+<span class="lineNum">     513 </span>            :     } else {
+<span class="lineNum">     514 </span><span class="lineNoCov">          0 :         s1-&gt;error_func(s1-&gt;error_opaque, buf);</span>
+<span class="lineNum">     515 </span>            :     }
+<span class="lineNum">     516 </span><span class="lineCov">         58 :     if (!is_warning || s1-&gt;warn_error)</span>
+<span class="lineNum">     517 </span><span class="lineCov">         58 :         s1-&gt;nb_errors++;</span>
+<a name="518"><span class="lineNum">     518 </span><span class="lineCov">         58 : }</span></a>
+<span class="lineNum">     519 </span>            : 
+<span class="lineNum">     520 </span><span class="lineNoCov">          0 : LIBTCCAPI void tcc_set_error_func(TCCState *s, void *error_opaque,</span>
+<span class="lineNum">     521 </span>            :                         void (*error_func)(void *opaque, const char *msg))
+<span class="lineNum">     522 </span>            : {
+<span class="lineNum">     523 </span><span class="lineNoCov">          0 :     s-&gt;error_opaque = error_opaque;</span>
+<span class="lineNum">     524 </span><span class="lineNoCov">          0 :     s-&gt;error_func = error_func;</span>
+<span class="lineNum">     525 </span><span class="lineNoCov">          0 : }</span>
+<a name="526"><span class="lineNum">     526 </span>            : </a>
+<span class="lineNum">     527 </span>            : /* error without aborting current compilation */
+<span class="lineNum">     528 </span><span class="lineNoCov">          0 : PUB_FUNC void tcc_error_noabort(const char *fmt, ...)</span>
+<span class="lineNum">     529 </span>            : {
+<span class="lineNum">     530 </span><span class="lineNoCov">          0 :     TCCState *s1 = tcc_state;</span>
+<span class="lineNum">     531 </span>            :     va_list ap;
+<span class="lineNum">     532 </span>            : 
+<span class="lineNum">     533 </span><span class="lineNoCov">          0 :     va_start(ap, fmt);</span>
+<span class="lineNum">     534 </span><span class="lineNoCov">          0 :     error1(s1, 0, fmt, ap);</span>
+<span class="lineNum">     535 </span><span class="lineNoCov">          0 :     va_end(ap);</span>
+<a name="536"><span class="lineNum">     536 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     537 </span>            : 
+<span class="lineNum">     538 </span><span class="lineCov">         58 : PUB_FUNC void tcc_error(const char *fmt, ...)</span>
+<span class="lineNum">     539 </span>            : {
+<span class="lineNum">     540 </span><span class="lineCov">         58 :     TCCState *s1 = tcc_state;</span>
+<span class="lineNum">     541 </span>            :     va_list ap;
+<span class="lineNum">     542 </span>            : 
+<span class="lineNum">     543 </span><span class="lineCov">         58 :     va_start(ap, fmt);</span>
+<span class="lineNum">     544 </span><span class="lineCov">         58 :     error1(s1, 0, fmt, ap);</span>
+<span class="lineNum">     545 </span><span class="lineCov">         58 :     va_end(ap);</span>
+<span class="lineNum">     546 </span>            :     /* better than nothing: in some cases, we accept to handle errors */
+<span class="lineNum">     547 </span><span class="lineCov">         58 :     if (s1-&gt;error_set_jmp_enabled) {</span>
+<span class="lineNum">     548 </span><span class="lineCov">         58 :         longjmp(s1-&gt;error_jmp_buf, 1);</span>
+<span class="lineNum">     549 </span>            :     } else {
+<span class="lineNum">     550 </span>            :         /* XXX: eliminate this someday */
+<span class="lineNum">     551 </span><span class="lineNoCov">          0 :         exit(1);</span>
+<span class="lineNum">     552 </span>            :     }
+<a name="553"><span class="lineNum">     553 </span>            : }</a>
+<span class="lineNum">     554 </span>            : 
+<span class="lineNum">     555 </span><span class="lineNoCov">          0 : PUB_FUNC void tcc_warning(const char *fmt, ...)</span>
+<span class="lineNum">     556 </span>            : {
+<span class="lineNum">     557 </span><span class="lineNoCov">          0 :     TCCState *s1 = tcc_state;</span>
+<span class="lineNum">     558 </span>            :     va_list ap;
+<span class="lineNum">     559 </span>            : 
+<span class="lineNum">     560 </span><span class="lineNoCov">          0 :     if (s1-&gt;warn_none)</span>
+<span class="lineNum">     561 </span><span class="lineNoCov">          0 :         return;</span>
+<span class="lineNum">     562 </span>            : 
+<span class="lineNum">     563 </span><span class="lineNoCov">          0 :     va_start(ap, fmt);</span>
+<span class="lineNum">     564 </span><span class="lineNoCov">          0 :     error1(s1, 1, fmt, ap);</span>
+<span class="lineNum">     565 </span><span class="lineNoCov">          0 :     va_end(ap);</span>
+<span class="lineNum">     566 </span>            : }
+<span class="lineNum">     567 </span>            : 
+<span class="lineNum">     568 </span>            : /********************************************************/
+<a name="569"><span class="lineNum">     569 </span>            : /* I/O layer */</a>
+<span class="lineNum">     570 </span>            : 
+<span class="lineNum">     571 </span><span class="lineCov">       2116 : ST_FUNC void tcc_open_bf(TCCState *s1, const char *filename, int initlen)</span>
+<span class="lineNum">     572 </span>            : {
+<span class="lineNum">     573 </span>            :     BufferedFile *bf;
+<span class="lineNum">     574 </span><span class="lineCov">       2116 :     int buflen = initlen ? initlen : IO_BUF_SIZE;</span>
+<span class="lineNum">     575 </span>            : 
+<span class="lineNum">     576 </span><span class="lineCov">       2116 :     bf = tcc_mallocz(sizeof(BufferedFile) + buflen);</span>
+<span class="lineNum">     577 </span><span class="lineCov">       2116 :     bf-&gt;buf_ptr = bf-&gt;buffer;</span>
+<span class="lineNum">     578 </span><span class="lineCov">       2116 :     bf-&gt;buf_end = bf-&gt;buffer + initlen;</span>
+<span class="lineNum">     579 </span><span class="lineCov">       2116 :     bf-&gt;buf_end[0] = CH_EOB; /* put eob symbol */</span>
+<span class="lineNum">     580 </span><span class="lineCov">       4232 :     pstrcpy(bf-&gt;filename, sizeof(bf-&gt;filename), filename);</span>
+<span class="lineNum">     581 </span><span class="lineCov">       2116 :     bf-&gt;true_filename = bf-&gt;filename;</span>
+<span class="lineNum">     582 </span><span class="lineCov">       2116 :     bf-&gt;line_num = 1;</span>
+<span class="lineNum">     583 </span><span class="lineCov">       2116 :     bf-&gt;ifdef_stack_ptr = s1-&gt;ifdef_stack_ptr;</span>
+<span class="lineNum">     584 </span><span class="lineCov">       2116 :     bf-&gt;fd = -1;</span>
+<span class="lineNum">     585 </span><span class="lineCov">       2116 :     bf-&gt;prev = file;</span>
+<span class="lineNum">     586 </span><span class="lineCov">       2116 :     file = bf;</span>
+<span class="lineNum">     587 </span><span class="lineCov">       2116 :     tok_flags = TOK_FLAG_BOL | TOK_FLAG_BOF;</span>
+<a name="588"><span class="lineNum">     588 </span><span class="lineCov">       2116 : }</span></a>
+<span class="lineNum">     589 </span>            : 
+<span class="lineNum">     590 </span><span class="lineCov">       2116 : ST_FUNC void tcc_close(void)</span>
+<span class="lineNum">     591 </span>            : {
+<span class="lineNum">     592 </span><span class="lineCov">       2116 :     BufferedFile *bf = file;</span>
+<span class="lineNum">     593 </span><span class="lineCov">       2116 :     if (bf-&gt;fd &gt; 0) {</span>
+<span class="lineNum">     594 </span><span class="lineCov">        539 :         close(bf-&gt;fd);</span>
+<span class="lineNum">     595 </span><span class="lineCov">        539 :         total_lines += bf-&gt;line_num;</span>
+<span class="lineNum">     596 </span>            :     }
+<span class="lineNum">     597 </span><span class="lineCov">       2116 :     if (bf-&gt;true_filename != bf-&gt;filename)</span>
+<span class="lineNum">     598 </span><span class="lineNoCov">          0 :         tcc_free(bf-&gt;true_filename);</span>
+<span class="lineNum">     599 </span><span class="lineCov">       2116 :     file = bf-&gt;prev;</span>
+<span class="lineNum">     600 </span><span class="lineCov">       2116 :     tcc_free(bf);</span>
+<a name="601"><span class="lineNum">     601 </span><span class="lineCov">       2116 : }</span></a>
+<span class="lineNum">     602 </span>            : 
+<span class="lineNum">     603 </span><span class="lineCov">       1754 : ST_FUNC int tcc_open(TCCState *s1, const char *filename)</span>
+<span class="lineNum">     604 </span>            : {
+<span class="lineNum">     605 </span>            :     int fd;
+<span class="lineNum">     606 </span><span class="lineCov">       1754 :     if (strcmp(filename, &quot;-&quot;) == 0)</span>
+<span class="lineNum">     607 </span>            :         fd = 0, filename = &quot;&lt;stdin&gt;&quot;;
+<span class="lineNum">     608 </span>            :     else
+<span class="lineNum">     609 </span><span class="lineCov">       1754 :         fd = open(filename, O_RDONLY | O_BINARY);</span>
+<span class="lineNum">     610 </span><span class="lineCov">       1754 :     if ((s1-&gt;verbose == 2 &amp;&amp; fd &gt;= 0) || s1-&gt;verbose == 3)</span>
+<span class="lineNum">     611 </span><span class="lineNoCov">          0 :         printf(&quot;%s %*s%s\n&quot;, fd &lt; 0 ? &quot;nf&quot;:&quot;-&gt;&quot;,</span>
+<span class="lineNum">     612 </span><span class="lineNoCov">          0 :                (int)(s1-&gt;include_stack_ptr - s1-&gt;include_stack), &quot;&quot;, filename);</span>
+<span class="lineNum">     613 </span><span class="lineCov">       1754 :     if (fd &lt; 0)</span>
+<span class="lineNum">     614 </span>            :         return -1;
+<span class="lineNum">     615 </span><span class="lineCov">        539 :     tcc_open_bf(s1, filename, 0);</span>
+<span class="lineNum">     616 </span>            : #ifdef _WIN32
+<span class="lineNum">     617 </span>            :     normalize_slashes(file-&gt;filename);
+<span class="lineNum">     618 </span>            : #endif
+<span class="lineNum">     619 </span><span class="lineCov">        539 :     file-&gt;fd = fd;</span>
+<span class="lineNum">     620 </span><span class="lineCov">        539 :     return fd;</span>
+<span class="lineNum">     621 </span>            : }
+<a name="622"><span class="lineNum">     622 </span>            : </a>
+<span class="lineNum">     623 </span>            : /* compile the file opened in 'file'. Return non zero if errors. */
+<span class="lineNum">     624 </span><span class="lineCov">         76 : static int tcc_compile(TCCState *s1)</span>
+<span class="lineNum">     625 </span>            : {
+<span class="lineNum">     626 </span>            :     Sym *define_start;
+<span class="lineNum">     627 </span>            :     int filetype, is_asm;
+<span class="lineNum">     628 </span>            : 
+<span class="lineNum">     629 </span><span class="lineCov">         76 :     define_start = define_stack;</span>
+<span class="lineNum">     630 </span><span class="lineCov">         76 :     filetype = s1-&gt;filetype;</span>
+<span class="lineNum">     631 </span><span class="lineCov">         76 :     is_asm = filetype == AFF_TYPE_ASM || filetype == AFF_TYPE_ASMPP;</span>
+<span class="lineNum">     632 </span><span class="lineCov">         76 :     tccelf_begin_file(s1);</span>
+<span class="lineNum">     633 </span>            : 
+<span class="lineNum">     634 </span><span class="lineCov">         76 :     if (setjmp(s1-&gt;error_jmp_buf) == 0) {</span>
+<span class="lineNum">     635 </span><span class="lineCov">         76 :         s1-&gt;nb_errors = 0;</span>
+<span class="lineNum">     636 </span><span class="lineCov">         76 :         s1-&gt;error_set_jmp_enabled = 1;</span>
+<span class="lineNum">     637 </span>            : 
+<span class="lineNum">     638 </span><span class="lineCov">         76 :         preprocess_start(s1, is_asm);</span>
+<span class="lineNum">     639 </span><span class="lineCov">         76 :         if (s1-&gt;output_type == TCC_OUTPUT_PREPROCESS) {</span>
+<span class="lineNum">     640 </span><span class="lineNoCov">          0 :             tcc_preprocess(s1);</span>
+<span class="lineNum">     641 </span><span class="lineCov">         76 :         } else if (is_asm) {</span>
+<span class="lineNum">     642 </span>            : #ifdef CONFIG_TCC_ASM
+<span class="lineNum">     643 </span><span class="lineCov">          6 :             tcc_assemble(s1, filetype == AFF_TYPE_ASMPP);</span>
+<span class="lineNum">     644 </span>            : #else
+<span class="lineNum">     645 </span>            :             tcc_error_noabort(&quot;asm not supported&quot;);
+<span class="lineNum">     646 </span>            : #endif
+<span class="lineNum">     647 </span>            :         } else {
+<span class="lineNum">     648 </span><span class="lineCov">         70 :             tccgen_compile(s1);</span>
+<span class="lineNum">     649 </span>            :         }
+<span class="lineNum">     650 </span>            :     }
+<span class="lineNum">     651 </span><span class="lineCov">         76 :     s1-&gt;error_set_jmp_enabled = 0;</span>
+<span class="lineNum">     652 </span>            : 
+<span class="lineNum">     653 </span><span class="lineCov">         76 :     preprocess_end(s1);</span>
+<span class="lineNum">     654 </span><span class="lineCov">         76 :     free_inline_functions(s1);</span>
+<span class="lineNum">     655 </span>            :     /* reset define stack, but keep -D and built-ins */
+<span class="lineNum">     656 </span><span class="lineCov">         76 :     free_defines(define_start);</span>
+<span class="lineNum">     657 </span><span class="lineCov">         76 :     sym_pop(&amp;global_stack, NULL, 0);</span>
+<span class="lineNum">     658 </span><span class="lineCov">         76 :     sym_pop(&amp;local_stack, NULL, 0);</span>
+<span class="lineNum">     659 </span><span class="lineCov">         76 :     tccelf_end_file(s1);</span>
+<span class="lineNum">     660 </span><span class="lineCov">         76 :     return s1-&gt;nb_errors != 0 ? -1 : 0;</span>
+<a name="661"><span class="lineNum">     661 </span>            : }</a>
+<span class="lineNum">     662 </span>            : 
+<span class="lineNum">     663 </span><span class="lineNoCov">          0 : LIBTCCAPI int tcc_compile_string(TCCState *s, const char *str)</span>
+<span class="lineNum">     664 </span>            : {
+<span class="lineNum">     665 </span>            :     int len, ret;
+<span class="lineNum">     666 </span>            : 
+<span class="lineNum">     667 </span><span class="lineNoCov">          0 :     len = strlen(str);</span>
+<span class="lineNum">     668 </span><span class="lineNoCov">          0 :     tcc_open_bf(s, &quot;&lt;string&gt;&quot;, len);</span>
+<span class="lineNum">     669 </span><span class="lineNoCov">          0 :     memcpy(file-&gt;buffer, str, len);</span>
+<span class="lineNum">     670 </span><span class="lineNoCov">          0 :     ret = tcc_compile(s);</span>
+<span class="lineNum">     671 </span><span class="lineNoCov">          0 :     tcc_close();</span>
+<span class="lineNum">     672 </span><span class="lineNoCov">          0 :     return ret;</span>
+<span class="lineNum">     673 </span>            : }
+<a name="674"><span class="lineNum">     674 </span>            : </a>
+<span class="lineNum">     675 </span>            : /* define a preprocessor symbol. A value can also be provided with the '=' operator */
+<span class="lineNum">     676 </span><span class="lineCov">       1526 : LIBTCCAPI void tcc_define_symbol(TCCState *s1, const char *sym, const char *value)</span>
+<span class="lineNum">     677 </span>            : {
+<span class="lineNum">     678 </span>            :     int len1, len2;
+<span class="lineNum">     679 </span>            :     /* default value */
+<span class="lineNum">     680 </span><span class="lineCov">       1526 :     if (!value)</span>
+<span class="lineNum">     681 </span><span class="lineCov">        766 :         value = &quot;1&quot;;</span>
+<span class="lineNum">     682 </span><span class="lineCov">       1526 :     len1 = strlen(sym);</span>
+<span class="lineNum">     683 </span><span class="lineCov">       1526 :     len2 = strlen(value);</span>
+<span class="lineNum">     684 </span>            : 
+<span class="lineNum">     685 </span>            :     /* init file structure */
+<span class="lineNum">     686 </span><span class="lineCov">       1526 :     tcc_open_bf(s1, &quot;&lt;define&gt;&quot;, len1 + len2 + 1);</span>
+<span class="lineNum">     687 </span><span class="lineCov">       3052 :     memcpy(file-&gt;buffer, sym, len1);</span>
+<span class="lineNum">     688 </span><span class="lineCov">       1526 :     file-&gt;buffer[len1] = ' ';</span>
+<span class="lineNum">     689 </span><span class="lineCov">       3052 :     memcpy(file-&gt;buffer + len1 + 1, value, len2);</span>
+<span class="lineNum">     690 </span>            : 
+<span class="lineNum">     691 </span>            :     /* parse with define parser */
+<span class="lineNum">     692 </span><span class="lineCov">       1526 :     next_nomacro();</span>
+<span class="lineNum">     693 </span><span class="lineCov">       1526 :     parse_define();</span>
+<span class="lineNum">     694 </span><span class="lineCov">       1526 :     tcc_close();</span>
+<span class="lineNum">     695 </span><span class="lineCov">       1526 : }</span>
+<a name="696"><span class="lineNum">     696 </span>            : </a>
+<span class="lineNum">     697 </span>            : /* undefine a preprocessor symbol */
+<span class="lineNum">     698 </span><span class="lineNoCov">          0 : LIBTCCAPI void tcc_undefine_symbol(TCCState *s1, const char *sym)</span>
+<span class="lineNum">     699 </span>            : {
+<span class="lineNum">     700 </span>            :     TokenSym *ts;
+<span class="lineNum">     701 </span>            :     Sym *s;
+<span class="lineNum">     702 </span><span class="lineNoCov">          0 :     ts = tok_alloc(sym, strlen(sym));</span>
+<span class="lineNum">     703 </span><span class="lineNoCov">          0 :     s = define_find(ts-&gt;tok);</span>
+<span class="lineNum">     704 </span>            :     /* undefine symbol by putting an invalid name */
+<span class="lineNum">     705 </span><span class="lineNoCov">          0 :     if (s)</span>
+<span class="lineNum">     706 </span><span class="lineNoCov">          0 :         define_undef(s);</span>
+<span class="lineNum">     707 </span><span class="lineNoCov">          0 : }</span>
+<a name="708"><span class="lineNum">     708 </span>            : </a>
+<span class="lineNum">     709 </span>            : /* cleanup all static data used during compilation */
+<span class="lineNum">     710 </span><span class="lineCov">        152 : static void tcc_cleanup(void)</span>
+<span class="lineNum">     711 </span>            : {
+<span class="lineNum">     712 </span><span class="lineCov">        152 :     if (NULL == tcc_state)</span>
+<span class="lineNum">     713 </span>            :         return;
+<span class="lineNum">     714 </span><span class="lineCov">         76 :     while (file)</span>
+<span class="lineNum">     715 </span><span class="lineNoCov">          0 :         tcc_close();</span>
+<span class="lineNum">     716 </span><span class="lineCov">         76 :     tccpp_delete(tcc_state);</span>
+<span class="lineNum">     717 </span><span class="lineCov">         76 :     tcc_state = NULL;</span>
+<span class="lineNum">     718 </span>            :     /* free sym_pools */
+<span class="lineNum">     719 </span><span class="lineCov">         76 :     dynarray_reset(&amp;sym_pools, &amp;nb_sym_pools);</span>
+<span class="lineNum">     720 </span>            :     /* reset symbol stack */
+<span class="lineNum">     721 </span><span class="lineCov">         76 :     sym_free_first = NULL;</span>
+<a name="722"><span class="lineNum">     722 </span>            : }</a>
+<span class="lineNum">     723 </span>            : 
+<span class="lineNum">     724 </span><span class="lineCov">         76 : LIBTCCAPI TCCState *tcc_new(void)</span>
+<span class="lineNum">     725 </span>            : {
+<span class="lineNum">     726 </span>            :     TCCState *s;
+<span class="lineNum">     727 </span>            : 
+<span class="lineNum">     728 </span><span class="lineCov">         76 :     tcc_cleanup();</span>
+<span class="lineNum">     729 </span>            : 
+<span class="lineNum">     730 </span><span class="lineCov">         76 :     s = tcc_mallocz(sizeof(TCCState));</span>
+<span class="lineNum">     731 </span><span class="lineCov">         76 :     if (!s)</span>
+<span class="lineNum">     732 </span>            :         return NULL;
+<span class="lineNum">     733 </span><span class="lineCov">         76 :     tcc_state = s;</span>
+<span class="lineNum">     734 </span><span class="lineCov">         76 :     ++nb_states;</span>
+<span class="lineNum">     735 </span>            : 
+<span class="lineNum">     736 </span><span class="lineCov">         76 :     s-&gt;alacarte_link = 1;</span>
+<span class="lineNum">     737 </span><span class="lineCov">         76 :     s-&gt;nocommon = 1;</span>
+<span class="lineNum">     738 </span><span class="lineCov">         76 :     s-&gt;warn_implicit_function_declaration = 1;</span>
+<span class="lineNum">     739 </span><span class="lineCov">         76 :     s-&gt;ms_extensions = 1;</span>
+<span class="lineNum">     740 </span>            : 
+<span class="lineNum">     741 </span>            : #ifdef CHAR_IS_UNSIGNED
+<span class="lineNum">     742 </span>            :     s-&gt;char_is_unsigned = 1;
+<span class="lineNum">     743 </span>            : #endif
+<span class="lineNum">     744 </span>            : #ifdef TCC_TARGET_I386
+<span class="lineNum">     745 </span>            :     s-&gt;seg_size = 32;
+<span class="lineNum">     746 </span>            : #endif
+<span class="lineNum">     747 </span>            :     /* enable this if you want symbols with leading underscore on windows: */
+<span class="lineNum">     748 </span>            : #if 0 /* def TCC_TARGET_PE */
+<span class="lineNum">     749 </span>            :     s-&gt;leading_underscore = 1;
+<span class="lineNum">     750 </span>            : #endif
+<span class="lineNum">     751 </span>            : #ifdef _WIN32
+<span class="lineNum">     752 </span>            :     tcc_set_lib_path_w32(s);
+<span class="lineNum">     753 </span>            : #else
+<span class="lineNum">     754 </span><span class="lineCov">         76 :     tcc_set_lib_path(s, CONFIG_TCCDIR);</span>
+<span class="lineNum">     755 </span>            : #endif
+<span class="lineNum">     756 </span><span class="lineCov">         76 :     tccelf_new(s);</span>
+<span class="lineNum">     757 </span><span class="lineCov">         76 :     tccpp_new(s);</span>
+<span class="lineNum">     758 </span>            : 
+<span class="lineNum">     759 </span>            :     /* we add dummy defines for some special macros to speed up tests
+<span class="lineNum">     760 </span>            :        and to have working defined() */
+<span class="lineNum">     761 </span><span class="lineCov">         76 :     define_push(TOK___LINE__, MACRO_OBJ, NULL, NULL);</span>
+<span class="lineNum">     762 </span><span class="lineCov">         76 :     define_push(TOK___FILE__, MACRO_OBJ, NULL, NULL);</span>
+<span class="lineNum">     763 </span><span class="lineCov">         76 :     define_push(TOK___DATE__, MACRO_OBJ, NULL, NULL);</span>
+<span class="lineNum">     764 </span><span class="lineCov">         76 :     define_push(TOK___TIME__, MACRO_OBJ, NULL, NULL);</span>
+<span class="lineNum">     765 </span><span class="lineCov">         76 :     define_push(TOK___COUNTER__, MACRO_OBJ, NULL, NULL);</span>
+<span class="lineNum">     766 </span>            :     {
+<span class="lineNum">     767 </span>            :         /* define __TINYC__ 92X  */
+<span class="lineNum">     768 </span>            :         char buffer[32]; int a,b,c;
+<span class="lineNum">     769 </span><span class="lineCov">         76 :         sscanf(TCC_VERSION, &quot;%d.%d.%d&quot;, &amp;a, &amp;b, &amp;c);</span>
+<span class="lineNum">     770 </span><span class="lineCov">        152 :         sprintf(buffer, &quot;%d&quot;, a*10000 + b*100 + c);</span>
+<span class="lineNum">     771 </span><span class="lineCov">         76 :         tcc_define_symbol(s, &quot;__TINYC__&quot;, buffer);</span>
+<span class="lineNum">     772 </span>            :     }
+<span class="lineNum">     773 </span>            : 
+<span class="lineNum">     774 </span>            :     /* standard defines */
+<span class="lineNum">     775 </span><span class="lineCov">         76 :     tcc_define_symbol(s, &quot;__STDC__&quot;, NULL);</span>
+<span class="lineNum">     776 </span><span class="lineCov">         76 :     tcc_define_symbol(s, &quot;__STDC_VERSION__&quot;, &quot;199901L&quot;);</span>
+<span class="lineNum">     777 </span><span class="lineCov">         76 :     tcc_define_symbol(s, &quot;__STDC_HOSTED__&quot;, NULL);</span>
+<span class="lineNum">     778 </span>            : 
+<span class="lineNum">     779 </span>            :     /* target defines */
+<span class="lineNum">     780 </span>            : #if defined(TCC_TARGET_I386)
+<span class="lineNum">     781 </span>            :     tcc_define_symbol(s, &quot;__i386__&quot;, NULL);
+<span class="lineNum">     782 </span>            :     tcc_define_symbol(s, &quot;__i386&quot;, NULL);
+<span class="lineNum">     783 </span>            :     tcc_define_symbol(s, &quot;i386&quot;, NULL);
+<span class="lineNum">     784 </span>            : #elif defined(TCC_TARGET_X86_64)
+<span class="lineNum">     785 </span><span class="lineCov">         76 :     tcc_define_symbol(s, &quot;__x86_64__&quot;, NULL);</span>
+<span class="lineNum">     786 </span>            : #elif defined(TCC_TARGET_ARM)
+<span class="lineNum">     787 </span>            :     tcc_define_symbol(s, &quot;__ARM_ARCH_4__&quot;, NULL);
+<span class="lineNum">     788 </span>            :     tcc_define_symbol(s, &quot;__arm_elf__&quot;, NULL);
+<span class="lineNum">     789 </span>            :     tcc_define_symbol(s, &quot;__arm_elf&quot;, NULL);
+<span class="lineNum">     790 </span>            :     tcc_define_symbol(s, &quot;arm_elf&quot;, NULL);
+<span class="lineNum">     791 </span>            :     tcc_define_symbol(s, &quot;__arm__&quot;, NULL);
+<span class="lineNum">     792 </span>            :     tcc_define_symbol(s, &quot;__arm&quot;, NULL);
+<span class="lineNum">     793 </span>            :     tcc_define_symbol(s, &quot;arm&quot;, NULL);
+<span class="lineNum">     794 </span>            :     tcc_define_symbol(s, &quot;__APCS_32__&quot;, NULL);
+<span class="lineNum">     795 </span>            :     tcc_define_symbol(s, &quot;__ARMEL__&quot;, NULL);
+<span class="lineNum">     796 </span>            : #if defined(TCC_ARM_EABI)
+<span class="lineNum">     797 </span>            :     tcc_define_symbol(s, &quot;__ARM_EABI__&quot;, NULL);
+<span class="lineNum">     798 </span>            : #endif
+<span class="lineNum">     799 </span>            : #if defined(TCC_ARM_HARDFLOAT)
+<span class="lineNum">     800 </span>            :     s-&gt;float_abi = ARM_HARD_FLOAT;
+<span class="lineNum">     801 </span>            :     tcc_define_symbol(s, &quot;__ARM_PCS_VFP&quot;, NULL);
+<span class="lineNum">     802 </span>            : #else
+<span class="lineNum">     803 </span>            :     s-&gt;float_abi = ARM_SOFTFP_FLOAT;
+<span class="lineNum">     804 </span>            : #endif
+<span class="lineNum">     805 </span>            : #elif defined(TCC_TARGET_ARM64)
+<span class="lineNum">     806 </span>            :     tcc_define_symbol(s, &quot;__aarch64__&quot;, NULL);
+<span class="lineNum">     807 </span>            : #elif defined TCC_TARGET_C67
+<span class="lineNum">     808 </span>            :     tcc_define_symbol(s, &quot;__C67__&quot;, NULL);
+<span class="lineNum">     809 </span>            : #endif
+<span class="lineNum">     810 </span>            : 
+<span class="lineNum">     811 </span>            : #ifdef TCC_TARGET_PE
+<span class="lineNum">     812 </span>            :     tcc_define_symbol(s, &quot;_WIN32&quot;, NULL);
+<span class="lineNum">     813 </span>            : # ifdef TCC_TARGET_X86_64
+<span class="lineNum">     814 </span>            :     tcc_define_symbol(s, &quot;_WIN64&quot;, NULL);
+<span class="lineNum">     815 </span>            : # endif
+<span class="lineNum">     816 </span>            : #else
+<span class="lineNum">     817 </span><span class="lineCov">         76 :     tcc_define_symbol(s, &quot;__unix__&quot;, NULL);</span>
+<span class="lineNum">     818 </span><span class="lineCov">         76 :     tcc_define_symbol(s, &quot;__unix&quot;, NULL);</span>
+<span class="lineNum">     819 </span><span class="lineCov">         76 :     tcc_define_symbol(s, &quot;unix&quot;, NULL);</span>
+<span class="lineNum">     820 </span>            : # if defined(__linux__)
+<span class="lineNum">     821 </span><span class="lineCov">         76 :     tcc_define_symbol(s, &quot;__linux__&quot;, NULL);</span>
+<span class="lineNum">     822 </span><span class="lineCov">         76 :     tcc_define_symbol(s, &quot;__linux&quot;, NULL);</span>
+<span class="lineNum">     823 </span>            : # endif
+<span class="lineNum">     824 </span>            : # if defined(__FreeBSD__)
+<span class="lineNum">     825 </span>            :     tcc_define_symbol(s, &quot;__FreeBSD__&quot;, &quot;__FreeBSD__&quot;);
+<span class="lineNum">     826 </span>            :     /* No 'Thread Storage Local' on FreeBSD with tcc */
+<span class="lineNum">     827 </span>            :     tcc_define_symbol(s, &quot;__NO_TLS&quot;, NULL);
+<span class="lineNum">     828 </span>            : # endif
+<span class="lineNum">     829 </span>            : # if defined(__FreeBSD_kernel__)
+<span class="lineNum">     830 </span>            :     tcc_define_symbol(s, &quot;__FreeBSD_kernel__&quot;, NULL);
+<span class="lineNum">     831 </span>            : # endif
+<span class="lineNum">     832 </span>            : # if defined(__NetBSD__)
+<span class="lineNum">     833 </span>            :     tcc_define_symbol(s, &quot;__NetBSD__&quot;, &quot;__NetBSD__&quot;);
+<span class="lineNum">     834 </span>            : # endif
+<span class="lineNum">     835 </span>            : # if defined(__OpenBSD__)
+<span class="lineNum">     836 </span>            :     tcc_define_symbol(s, &quot;__OpenBSD__&quot;, &quot;__OpenBSD__&quot;);
+<span class="lineNum">     837 </span>            : # endif
+<span class="lineNum">     838 </span>            : #endif
+<span class="lineNum">     839 </span>            : 
+<span class="lineNum">     840 </span>            :     /* TinyCC &amp; gcc defines */
+<span class="lineNum">     841 </span>            : #if PTR_SIZE == 4
+<span class="lineNum">     842 </span>            :     /* 32bit systems. */
+<span class="lineNum">     843 </span>            :     tcc_define_symbol(s, &quot;__SIZE_TYPE__&quot;, &quot;unsigned int&quot;);
+<span class="lineNum">     844 </span>            :     tcc_define_symbol(s, &quot;__PTRDIFF_TYPE__&quot;, &quot;int&quot;);
+<span class="lineNum">     845 </span>            :     tcc_define_symbol(s, &quot;__ILP32__&quot;, NULL);
+<span class="lineNum">     846 </span>            : #elif LONG_SIZE == 4
+<span class="lineNum">     847 </span>            :     /* 64bit Windows. */
+<span class="lineNum">     848 </span>            :     tcc_define_symbol(s, &quot;__SIZE_TYPE__&quot;, &quot;unsigned long long&quot;);
+<span class="lineNum">     849 </span>            :     tcc_define_symbol(s, &quot;__PTRDIFF_TYPE__&quot;, &quot;long long&quot;);
+<span class="lineNum">     850 </span>            :     tcc_define_symbol(s, &quot;__LLP64__&quot;, NULL);
+<span class="lineNum">     851 </span>            : #else
+<span class="lineNum">     852 </span>            :     /* Other 64bit systems. */
+<span class="lineNum">     853 </span><span class="lineCov">         76 :     tcc_define_symbol(s, &quot;__SIZE_TYPE__&quot;, &quot;unsigned long&quot;);</span>
+<span class="lineNum">     854 </span><span class="lineCov">         76 :     tcc_define_symbol(s, &quot;__PTRDIFF_TYPE__&quot;, &quot;long&quot;);</span>
+<span class="lineNum">     855 </span><span class="lineCov">         76 :     tcc_define_symbol(s, &quot;__LP64__&quot;, NULL);</span>
+<span class="lineNum">     856 </span>            : #endif
+<span class="lineNum">     857 </span>            : 
+<span class="lineNum">     858 </span>            : #ifdef TCC_TARGET_PE
+<span class="lineNum">     859 </span>            :     tcc_define_symbol(s, &quot;__WCHAR_TYPE__&quot;, &quot;unsigned short&quot;);
+<span class="lineNum">     860 </span>            :     tcc_define_symbol(s, &quot;__WINT_TYPE__&quot;, &quot;unsigned short&quot;);
+<span class="lineNum">     861 </span>            : #else
+<span class="lineNum">     862 </span><span class="lineCov">         76 :     tcc_define_symbol(s, &quot;__WCHAR_TYPE__&quot;, &quot;int&quot;);</span>
+<span class="lineNum">     863 </span>            :     /* wint_t is unsigned int by default, but (signed) int on BSDs
+<span class="lineNum">     864 </span>            :        and unsigned short on windows.  Other OSes might have still
+<span class="lineNum">     865 </span>            :        other conventions, sigh.  */
+<span class="lineNum">     866 </span>            : # if defined(__FreeBSD__) || defined (__FreeBSD_kernel__) \
+<span class="lineNum">     867 </span>            :   || defined(__NetBSD__) || defined(__OpenBSD__)
+<span class="lineNum">     868 </span>            :     tcc_define_symbol(s, &quot;__WINT_TYPE__&quot;, &quot;int&quot;);
+<span class="lineNum">     869 </span>            : #  ifdef __FreeBSD__
+<span class="lineNum">     870 </span>            :     /* define __GNUC__ to have some useful stuff from sys/cdefs.h
+<span class="lineNum">     871 </span>            :        that are unconditionally used in FreeBSDs other system headers :/ */
+<span class="lineNum">     872 </span>            :     tcc_define_symbol(s, &quot;__GNUC__&quot;, &quot;2&quot;);
+<span class="lineNum">     873 </span>            :     tcc_define_symbol(s, &quot;__GNUC_MINOR__&quot;, &quot;7&quot;);
+<span class="lineNum">     874 </span>            :     tcc_define_symbol(s, &quot;__builtin_alloca&quot;, &quot;alloca&quot;);
+<span class="lineNum">     875 </span>            : #  endif
+<span class="lineNum">     876 </span>            : # else
+<span class="lineNum">     877 </span><span class="lineCov">         76 :     tcc_define_symbol(s, &quot;__WINT_TYPE__&quot;, &quot;unsigned int&quot;);</span>
+<span class="lineNum">     878 </span>            :     /* glibc defines */
+<span class="lineNum">     879 </span><span class="lineCov">         76 :     tcc_define_symbol(s, &quot;__REDIRECT(name, proto, alias)&quot;,</span>
+<span class="lineNum">     880 </span>            :         &quot;name proto __asm__ (#alias)&quot;);
+<span class="lineNum">     881 </span><span class="lineCov">         76 :     tcc_define_symbol(s, &quot;__REDIRECT_NTH(name, proto, alias)&quot;,</span>
+<span class="lineNum">     882 </span>            :         &quot;name proto __asm__ (#alias) __THROW&quot;);
+<span class="lineNum">     883 </span>            : # endif
+<span class="lineNum">     884 </span>            : # if defined(TCC_MUSL)
+<span class="lineNum">     885 </span>            :     tcc_define_symbol(s, &quot;__DEFINED_va_list&quot;, &quot;&quot;);
+<span class="lineNum">     886 </span>            :     tcc_define_symbol(s, &quot;__DEFINED___isoc_va_list&quot;, &quot;&quot;);
+<span class="lineNum">     887 </span>            :     tcc_define_symbol(s, &quot;__isoc_va_list&quot;, &quot;void *&quot;);
+<span class="lineNum">     888 </span>            : # endif /* TCC_MUSL */
+<span class="lineNum">     889 </span>            :     /* Some GCC builtins that are simple to express as macros.  */
+<span class="lineNum">     890 </span><span class="lineCov">         76 :     tcc_define_symbol(s, &quot;__builtin_extract_return_addr(x)&quot;, &quot;x&quot;);</span>
+<span class="lineNum">     891 </span>            : #endif /* ndef TCC_TARGET_PE */
+<span class="lineNum">     892 </span><span class="lineCov">         76 :     return s;</span>
+<a name="893"><span class="lineNum">     893 </span>            : }</a>
+<span class="lineNum">     894 </span>            : 
+<span class="lineNum">     895 </span><span class="lineCov">         76 : LIBTCCAPI void tcc_delete(TCCState *s1)</span>
+<span class="lineNum">     896 </span>            : {
+<span class="lineNum">     897 </span><span class="lineCov">         76 :     tcc_cleanup();</span>
+<span class="lineNum">     898 </span>            : 
+<span class="lineNum">     899 </span>            :     /* free sections */
+<span class="lineNum">     900 </span><span class="lineCov">         76 :     tccelf_delete(s1);</span>
+<span class="lineNum">     901 </span>            : 
+<span class="lineNum">     902 </span>            :     /* free library paths */
+<span class="lineNum">     903 </span><span class="lineCov">         76 :     dynarray_reset(&amp;s1-&gt;library_paths, &amp;s1-&gt;nb_library_paths);</span>
+<span class="lineNum">     904 </span><span class="lineCov">         76 :     dynarray_reset(&amp;s1-&gt;crt_paths, &amp;s1-&gt;nb_crt_paths);</span>
+<span class="lineNum">     905 </span>            : 
+<span class="lineNum">     906 </span>            :     /* free include paths */
+<span class="lineNum">     907 </span><span class="lineCov">         76 :     dynarray_reset(&amp;s1-&gt;cached_includes, &amp;s1-&gt;nb_cached_includes);</span>
+<span class="lineNum">     908 </span><span class="lineCov">         76 :     dynarray_reset(&amp;s1-&gt;include_paths, &amp;s1-&gt;nb_include_paths);</span>
+<span class="lineNum">     909 </span><span class="lineCov">         76 :     dynarray_reset(&amp;s1-&gt;sysinclude_paths, &amp;s1-&gt;nb_sysinclude_paths);</span>
+<span class="lineNum">     910 </span><span class="lineCov">         76 :     dynarray_reset(&amp;s1-&gt;cmd_include_files, &amp;s1-&gt;nb_cmd_include_files);</span>
+<span class="lineNum">     911 </span>            : 
+<span class="lineNum">     912 </span><span class="lineCov">        152 :     tcc_free(s1-&gt;tcc_lib_path);</span>
+<span class="lineNum">     913 </span><span class="lineCov">        152 :     tcc_free(s1-&gt;soname);</span>
+<span class="lineNum">     914 </span><span class="lineCov">        152 :     tcc_free(s1-&gt;rpath);</span>
+<span class="lineNum">     915 </span><span class="lineCov">        152 :     tcc_free(s1-&gt;init_symbol);</span>
+<span class="lineNum">     916 </span><span class="lineCov">        152 :     tcc_free(s1-&gt;fini_symbol);</span>
+<span class="lineNum">     917 </span><span class="lineCov">        152 :     tcc_free(s1-&gt;outfile);</span>
+<span class="lineNum">     918 </span><span class="lineCov">        152 :     tcc_free(s1-&gt;deps_outfile);</span>
+<span class="lineNum">     919 </span><span class="lineCov">         76 :     dynarray_reset(&amp;s1-&gt;files, &amp;s1-&gt;nb_files);</span>
+<span class="lineNum">     920 </span><span class="lineCov">         76 :     dynarray_reset(&amp;s1-&gt;target_deps, &amp;s1-&gt;nb_target_deps);</span>
+<span class="lineNum">     921 </span><span class="lineCov">         76 :     dynarray_reset(&amp;s1-&gt;pragma_libs, &amp;s1-&gt;nb_pragma_libs);</span>
+<span class="lineNum">     922 </span><span class="lineCov">         76 :     dynarray_reset(&amp;s1-&gt;argv, &amp;s1-&gt;argc);</span>
+<span class="lineNum">     923 </span>            : 
+<span class="lineNum">     924 </span>            : #ifdef TCC_IS_NATIVE
+<span class="lineNum">     925 </span>            :     /* free runtime memory */
+<span class="lineNum">     926 </span><span class="lineCov">         76 :     tcc_run_free(s1);</span>
+<span class="lineNum">     927 </span>            : #endif
+<span class="lineNum">     928 </span>            : 
+<span class="lineNum">     929 </span><span class="lineCov">         76 :     tcc_free(s1);</span>
+<span class="lineNum">     930 </span><span class="lineCov">         76 :     if (0 == --nb_states)</span>
+<span class="lineNum">     931 </span>            :         tcc_memcheck();
+<a name="932"><span class="lineNum">     932 </span><span class="lineCov">         76 : }</span></a>
+<span class="lineNum">     933 </span>            : 
+<span class="lineNum">     934 </span><span class="lineCov">         76 : LIBTCCAPI int tcc_set_output_type(TCCState *s, int output_type)</span>
+<span class="lineNum">     935 </span>            : {
+<span class="lineNum">     936 </span><span class="lineCov">         76 :     s-&gt;output_type = output_type;</span>
+<span class="lineNum">     937 </span>            : 
+<span class="lineNum">     938 </span>            :     /* always elf for objects */
+<span class="lineNum">     939 </span><span class="lineCov">         76 :     if (output_type == TCC_OUTPUT_OBJ)</span>
+<span class="lineNum">     940 </span><span class="lineNoCov">          0 :         s-&gt;output_format = TCC_OUTPUT_FORMAT_ELF;</span>
+<span class="lineNum">     941 </span>            : 
+<span class="lineNum">     942 </span><span class="lineCov">         76 :     if (s-&gt;char_is_unsigned)</span>
+<span class="lineNum">     943 </span><span class="lineNoCov">          0 :         tcc_define_symbol(s, &quot;__CHAR_UNSIGNED__&quot;, NULL);</span>
+<span class="lineNum">     944 </span>            : 
+<span class="lineNum">     945 </span><span class="lineCov">         76 :     if (!s-&gt;nostdinc) {</span>
+<span class="lineNum">     946 </span>            :         /* default include paths */
+<span class="lineNum">     947 </span>            :         /* -isystem paths have already been handled */
+<span class="lineNum">     948 </span>            :         tcc_add_sysinclude_path(s, CONFIG_TCC_SYSINCLUDEPATHS);
+<span class="lineNum">     949 </span>            :     }
+<span class="lineNum">     950 </span>            : 
+<span class="lineNum">     951 </span>            : #ifdef CONFIG_TCC_BCHECK
+<span class="lineNum">     952 </span><span class="lineCov">         76 :     if (s-&gt;do_bounds_check) {</span>
+<span class="lineNum">     953 </span>            :         /* if bound checking, then add corresponding sections */
+<span class="lineNum">     954 </span><span class="lineCov">         76 :         tccelf_bounds_new(s);</span>
+<span class="lineNum">     955 </span>            :         /* define symbol */
+<span class="lineNum">     956 </span><span class="lineCov">         76 :         tcc_define_symbol(s, &quot;__BOUNDS_CHECKING_ON&quot;, NULL);</span>
+<span class="lineNum">     957 </span>            :     }
+<span class="lineNum">     958 </span>            : #endif
+<span class="lineNum">     959 </span><span class="lineCov">         76 :     if (s-&gt;do_debug) {</span>
+<span class="lineNum">     960 </span>            :         /* add debug sections */
+<span class="lineNum">     961 </span><span class="lineCov">         76 :         tccelf_stab_new(s);</span>
+<span class="lineNum">     962 </span>            :     }
+<span class="lineNum">     963 </span>            : 
+<span class="lineNum">     964 </span><span class="lineCov">         76 :     tcc_add_library_path(s, CONFIG_TCC_LIBPATHS);</span>
+<span class="lineNum">     965 </span>            : 
+<span class="lineNum">     966 </span>            : #ifdef TCC_TARGET_PE
+<span class="lineNum">     967 </span>            : # ifdef _WIN32
+<span class="lineNum">     968 </span>            :     if (!s-&gt;nostdlib &amp;&amp; output_type != TCC_OUTPUT_OBJ)
+<span class="lineNum">     969 </span>            :         tcc_add_systemdir(s);
+<span class="lineNum">     970 </span>            : # endif
+<span class="lineNum">     971 </span>            : #else
+<span class="lineNum">     972 </span>            :     /* paths for crt objects */
+<span class="lineNum">     973 </span><span class="lineCov">         76 :     tcc_split_path(s, &amp;s-&gt;crt_paths, &amp;s-&gt;nb_crt_paths, CONFIG_TCC_CRTPREFIX);</span>
+<span class="lineNum">     974 </span>            :     /* add libc crt1/crti objects */
+<span class="lineNum">     975 </span><span class="lineCov">        152 :     if ((output_type == TCC_OUTPUT_EXE || output_type == TCC_OUTPUT_DLL) &amp;&amp;</span>
+<span class="lineNum">     976 </span><span class="lineCov">         76 :         !s-&gt;nostdlib) {</span>
+<span class="lineNum">     977 </span><span class="lineCov">         76 :         if (output_type != TCC_OUTPUT_DLL)</span>
+<span class="lineNum">     978 </span><span class="lineNoCov">          0 :             tcc_add_crt(s, &quot;crt1.o&quot;);</span>
+<span class="lineNum">     979 </span><span class="lineCov">         76 :         tcc_add_crt(s, &quot;crti.o&quot;);</span>
+<span class="lineNum">     980 </span>            :     }
+<span class="lineNum">     981 </span>            : #endif
+<span class="lineNum">     982 </span><span class="lineCov">         76 :     return 0;</span>
+<a name="983"><span class="lineNum">     983 </span>            : }</a>
+<span class="lineNum">     984 </span>            : 
+<span class="lineNum">     985 </span><span class="lineNoCov">          0 : LIBTCCAPI int tcc_add_include_path(TCCState *s, const char *pathname)</span>
+<span class="lineNum">     986 </span>            : {
+<span class="lineNum">     987 </span><span class="lineCov">         76 :     tcc_split_path(s, &amp;s-&gt;include_paths, &amp;s-&gt;nb_include_paths, pathname);</span>
+<span class="lineNum">     988 </span><span class="lineNoCov">          0 :     return 0;</span>
+<a name="989"><span class="lineNum">     989 </span>            : }</a>
+<span class="lineNum">     990 </span>            : 
+<span class="lineNum">     991 </span><span class="lineNoCov">          0 : LIBTCCAPI int tcc_add_sysinclude_path(TCCState *s, const char *pathname)</span>
+<span class="lineNum">     992 </span>            : {
+<span class="lineNum">     993 </span><span class="lineCov">         76 :     tcc_split_path(s, &amp;s-&gt;sysinclude_paths, &amp;s-&gt;nb_sysinclude_paths, pathname);</span>
+<span class="lineNum">     994 </span><span class="lineNoCov">          0 :     return 0;</span>
+<a name="995"><span class="lineNum">     995 </span>            : }</a>
+<span class="lineNum">     996 </span>            : 
+<span class="lineNum">     997 </span><span class="lineCov">        332 : ST_FUNC int tcc_add_file_internal(TCCState *s1, const char *filename, int flags)</span>
+<span class="lineNum">     998 </span>            : {
+<span class="lineNum">     999 </span>            :     int ret;
+<span class="lineNum">    1000 </span>            : 
+<span class="lineNum">    1001 </span>            :     /* open the file */
+<span class="lineNum">    1002 </span><span class="lineCov">        332 :     ret = tcc_open(s1, filename);</span>
+<span class="lineNum">    1003 </span><span class="lineCov">        332 :     if (ret &lt; 0) {</span>
+<span class="lineNum">    1004 </span><span class="lineCov">         36 :         if (flags &amp; AFF_PRINT_ERROR)</span>
+<span class="lineNum">    1005 </span><span class="lineNoCov">          0 :             tcc_error_noabort(&quot;file '%s' not found&quot;, filename);</span>
+<span class="lineNum">    1006 </span>            :         return ret;
+<span class="lineNum">    1007 </span>            :     }
+<span class="lineNum">    1008 </span>            : 
+<span class="lineNum">    1009 </span>            :     /* update target deps */
+<span class="lineNum">    1010 </span><span class="lineCov">        296 :     dynarray_add(&amp;s1-&gt;target_deps, &amp;s1-&gt;nb_target_deps,</span>
+<span class="lineNum">    1011 </span><span class="lineCov">        296 :             tcc_strdup(filename));</span>
+<span class="lineNum">    1012 </span>            : 
+<span class="lineNum">    1013 </span><span class="lineCov">        296 :     if (flags &amp; AFF_TYPE_BIN) {</span>
+<span class="lineNum">    1014 </span>            :         ElfW(Ehdr) ehdr;
+<span class="lineNum">    1015 </span>            :         int fd, obj_type;
+<span class="lineNum">    1016 </span>            : 
+<span class="lineNum">    1017 </span><span class="lineCov">        220 :         fd = file-&gt;fd;</span>
+<span class="lineNum">    1018 </span><span class="lineCov">        220 :         obj_type = tcc_object_type(fd, &amp;ehdr);</span>
+<span class="lineNum">    1019 </span><span class="lineCov">        220 :         lseek(fd, 0, SEEK_SET);</span>
+<span class="lineNum">    1020 </span>            : 
+<span class="lineNum">    1021 </span>            : #ifdef TCC_TARGET_MACHO
+<span class="lineNum">    1022 </span>            :         if (0 == obj_type &amp;&amp; 0 == strcmp(tcc_fileextension(filename), &quot;.dylib&quot;))
+<span class="lineNum">    1023 </span>            :             obj_type = AFF_BINTYPE_DYN;
+<span class="lineNum">    1024 </span>            : #endif
+<span class="lineNum">    1025 </span>            : 
+<span class="lineNum">    1026 </span><span class="lineCov">        220 :         switch (obj_type) {</span>
+<span class="lineNum">    1027 </span><span class="lineCov">         94 :         case AFF_BINTYPE_REL:</span>
+<span class="lineNum">    1028 </span><span class="lineCov">         94 :             ret = tcc_load_object_file(s1, fd, 0);</span>
+<span class="lineNum">    1029 </span><span class="lineCov">         94 :             break;</span>
+<span class="lineNum">    1030 </span>            : #ifndef TCC_TARGET_PE
+<span class="lineNum">    1031 </span><span class="lineCov">         54 :         case AFF_BINTYPE_DYN:</span>
+<span class="lineNum">    1032 </span><span class="lineCov">         54 :             if (s1-&gt;output_type == TCC_OUTPUT_MEMORY) {</span>
+<span class="lineNum">    1033 </span><span class="lineNoCov">          0 :                 ret = 0;</span>
+<span class="lineNum">    1034 </span>            : #ifdef TCC_IS_NATIVE
+<span class="lineNum">    1035 </span><span class="lineNoCov">          0 :                 if (NULL == dlopen(filename, RTLD_GLOBAL | RTLD_LAZY))</span>
+<span class="lineNum">    1036 </span><span class="lineNoCov">          0 :                     ret = -1;</span>
+<span class="lineNum">    1037 </span>            : #endif
+<span class="lineNum">    1038 </span>            :             } else {
+<span class="lineNum">    1039 </span><span class="lineCov">         54 :                 ret = tcc_load_dll(s1, fd, filename,</span>
+<span class="lineNum">    1040 </span><span class="lineCov">         54 :                                    (flags &amp; AFF_REFERENCED_DLL) != 0);</span>
+<span class="lineNum">    1041 </span>            :             }
+<span class="lineNum">    1042 </span>            :             break;
+<span class="lineNum">    1043 </span>            : #endif
+<span class="lineNum">    1044 </span><span class="lineCov">         54 :         case AFF_BINTYPE_AR:</span>
+<span class="lineNum">    1045 </span><span class="lineCov">         54 :             ret = tcc_load_archive(s1, fd);</span>
+<span class="lineNum">    1046 </span><span class="lineCov">         54 :             break;</span>
+<span class="lineNum">    1047 </span>            : #ifdef TCC_TARGET_COFF
+<span class="lineNum">    1048 </span>            :         case AFF_BINTYPE_C67:
+<span class="lineNum">    1049 </span>            :             ret = tcc_load_coff(s1, fd);
+<span class="lineNum">    1050 </span>            :             break;
+<span class="lineNum">    1051 </span>            : #endif
+<span class="lineNum">    1052 </span><span class="lineCov">         18 :         default:</span>
+<span class="lineNum">    1053 </span>            : #ifdef TCC_TARGET_PE
+<span class="lineNum">    1054 </span>            :             ret = pe_load_file(s1, filename, fd);
+<span class="lineNum">    1055 </span>            : #else
+<span class="lineNum">    1056 </span>            :             /* as GNU ld, consider it is an ld script if not recognized */
+<span class="lineNum">    1057 </span><span class="lineCov">         18 :             ret = tcc_load_ldscript(s1);</span>
+<span class="lineNum">    1058 </span>            : #endif
+<span class="lineNum">    1059 </span><span class="lineCov">         18 :             if (ret &lt; 0)</span>
+<span class="lineNum">    1060 </span><span class="lineNoCov">          0 :                 tcc_error_noabort(&quot;unrecognized file type&quot;);</span>
+<span class="lineNum">    1061 </span>            :             break;
+<span class="lineNum">    1062 </span>            :         }
+<span class="lineNum">    1063 </span>            :     } else {
+<span class="lineNum">    1064 </span><span class="lineCov">         76 :         ret = tcc_compile(s1);</span>
+<span class="lineNum">    1065 </span>            :     }
+<span class="lineNum">    1066 </span><span class="lineCov">        296 :     tcc_close();</span>
+<span class="lineNum">    1067 </span><span class="lineCov">        296 :     return ret;</span>
+<a name="1068"><span class="lineNum">    1068 </span>            : }</a>
+<span class="lineNum">    1069 </span>            : 
+<span class="lineNum">    1070 </span><span class="lineCov">         94 : LIBTCCAPI int tcc_add_file(TCCState *s, const char *filename)</span>
+<span class="lineNum">    1071 </span>            : {
+<span class="lineNum">    1072 </span><span class="lineCov">         94 :     int filetype = s-&gt;filetype;</span>
+<span class="lineNum">    1073 </span><span class="lineCov">         94 :     int flags = AFF_PRINT_ERROR;</span>
+<span class="lineNum">    1074 </span><span class="lineCov">         94 :     if (filetype == 0) {</span>
+<span class="lineNum">    1075 </span>            :         /* use a file extension to detect a filetype */
+<span class="lineNum">    1076 </span><span class="lineCov">         94 :         const char *ext = tcc_fileextension(filename);</span>
+<span class="lineNum">    1077 </span><span class="lineCov">         94 :         if (ext[0]) {</span>
+<span class="lineNum">    1078 </span><span class="lineCov">         38 :             ext++;</span>
+<span class="lineNum">    1079 </span><span class="lineCov">         38 :             if (!strcmp(ext, &quot;S&quot;))</span>
+<span class="lineNum">    1080 </span>            :                 filetype = AFF_TYPE_ASMPP;
+<span class="lineNum">    1081 </span><span class="lineCov">         38 :             else if (!strcmp(ext, &quot;s&quot;))</span>
+<span class="lineNum">    1082 </span>            :                 filetype = AFF_TYPE_ASM;
+<span class="lineNum">    1083 </span><span class="lineCov">         32 :             else if (!PATHCMP(ext, &quot;c&quot;) || !PATHCMP(ext, &quot;i&quot;))</span>
+<span class="lineNum">    1084 </span>            :                 filetype = AFF_TYPE_C;
+<span class="lineNum">    1085 </span>            :             else
+<span class="lineNum">    1086 </span><span class="lineCov">         18 :                 flags |= AFF_TYPE_BIN;</span>
+<span class="lineNum">    1087 </span>            :         } else {
+<span class="lineNum">    1088 </span>            :             filetype = AFF_TYPE_C;
+<span class="lineNum">    1089 </span>            :         }
+<span class="lineNum">    1090 </span><span class="lineCov">         94 :         s-&gt;filetype = filetype;</span>
+<span class="lineNum">    1091 </span>            :     }
+<span class="lineNum">    1092 </span><span class="lineCov">         94 :     return tcc_add_file_internal(s, filename, flags);</span>
+<a name="1093"><span class="lineNum">    1093 </span>            : }</a>
+<span class="lineNum">    1094 </span>            : 
+<span class="lineNum">    1095 </span><span class="lineNoCov">          0 : LIBTCCAPI int tcc_add_library_path(TCCState *s, const char *pathname)</span>
+<span class="lineNum">    1096 </span>            : {
+<span class="lineNum">    1097 </span><span class="lineCov">         76 :     tcc_split_path(s, &amp;s-&gt;library_paths, &amp;s-&gt;nb_library_paths, pathname);</span>
+<span class="lineNum">    1098 </span><span class="lineNoCov">          0 :     return 0;</span>
+<a name="1099"><span class="lineNum">    1099 </span>            : }</a>
+<span class="lineNum">    1100 </span>            : 
+<span class="lineNum">    1101 </span><span class="lineCov">        130 : static int tcc_add_library_internal(TCCState *s, const char *fmt,</span>
+<span class="lineNum">    1102 </span>            :     const char *filename, int flags, char **paths, int nb_paths)
+<span class="lineNum">    1103 </span>            : {
+<span class="lineNum">    1104 </span>            :     char buf[1024];
+<span class="lineNum">    1105 </span>            :     int i;
+<span class="lineNum">    1106 </span>            : 
+<span class="lineNum">    1107 </span><span class="lineCov">        166 :     for(i = 0; i &lt; nb_paths; i++) {</span>
+<span class="lineNum">    1108 </span><span class="lineCov">        332 :         snprintf(buf, sizeof(buf), fmt, paths[i], filename);</span>
+<span class="lineNum">    1109 </span><span class="lineCov">        166 :         if (tcc_add_file_internal(s, buf, flags | AFF_TYPE_BIN) == 0)</span>
+<span class="lineNum">    1110 </span>            :             return 0;
+<span class="lineNum">    1111 </span>            :     }
+<span class="lineNum">    1112 </span>            :     return -1;
+<span class="lineNum">    1113 </span>            : }
+<span class="lineNum">    1114 </span>            : 
+<a name="1115"><span class="lineNum">    1115 </span>            : /* find and load a dll. Return non zero if not found */</a>
+<span class="lineNum">    1116 </span>            : /* XXX: add '-rpath' option support ? */
+<span class="lineNum">    1117 </span><span class="lineCov">         18 : ST_FUNC int tcc_add_dll(TCCState *s, const char *filename, int flags)</span>
+<span class="lineNum">    1118 </span>            : {
+<span class="lineNum">    1119 </span><span class="lineCov">         18 :     return tcc_add_library_internal(s, &quot;%s/%s&quot;, filename, flags,</span>
+<span class="lineNum">    1120 </span>            :         s-&gt;library_paths, s-&gt;nb_library_paths);
+<a name="1121"><span class="lineNum">    1121 </span>            : }</a>
+<span class="lineNum">    1122 </span>            : 
+<span class="lineNum">    1123 </span><span class="lineCov">         94 : ST_FUNC int tcc_add_crt(TCCState *s, const char *filename)</span>
+<span class="lineNum">    1124 </span>            : {
+<span class="lineNum">    1125 </span><span class="lineCov">         94 :     if (-1 == tcc_add_library_internal(s, &quot;%s/%s&quot;,</span>
+<span class="lineNum">    1126 </span>            :         filename, 0, s-&gt;crt_paths, s-&gt;nb_crt_paths))
+<span class="lineNum">    1127 </span><span class="lineNoCov">          0 :         tcc_error_noabort(&quot;file '%s' not found&quot;, filename);</span>
+<span class="lineNum">    1128 </span><span class="lineCov">         94 :     return 0;</span>
+<span class="lineNum">    1129 </span>            : }
+<a name="1130"><span class="lineNum">    1130 </span>            : </a>
+<span class="lineNum">    1131 </span>            : /* the library name is the same as the argument of the '-l' option */
+<span class="lineNum">    1132 </span><span class="lineCov">         18 : LIBTCCAPI int tcc_add_library(TCCState *s, const char *libraryname)</span>
+<span class="lineNum">    1133 </span>            : {
+<span class="lineNum">    1134 </span>            : #if defined TCC_TARGET_PE
+<span class="lineNum">    1135 </span>            :     const char *libs[] = { &quot;%s/%s.def&quot;, &quot;%s/lib%s.def&quot;, &quot;%s/%s.dll&quot;, &quot;%s/lib%s.dll&quot;, &quot;%s/lib%s.a&quot;, NULL };
+<span class="lineNum">    1136 </span>            :     const char **pp = s-&gt;static_link ? libs + 4 : libs;
+<span class="lineNum">    1137 </span>            : #elif defined TCC_TARGET_MACHO
+<span class="lineNum">    1138 </span>            :     const char *libs[] = { &quot;%s/lib%s.dylib&quot;, &quot;%s/lib%s.a&quot;, NULL };
+<span class="lineNum">    1139 </span>            :     const char **pp = s-&gt;static_link ? libs + 1 : libs;
+<span class="lineNum">    1140 </span>            : #else
+<span class="lineNum">    1141 </span><span class="lineCov">         18 :     const char *libs[] = { &quot;%s/lib%s.so&quot;, &quot;%s/lib%s.a&quot;, NULL };</span>
+<span class="lineNum">    1142 </span><span class="lineCov">         18 :     const char **pp = s-&gt;static_link ? libs + 1 : libs;</span>
+<span class="lineNum">    1143 </span>            : #endif
+<span class="lineNum">    1144 </span><span class="lineCov">         18 :     while (*pp) {</span>
+<span class="lineNum">    1145 </span><span class="lineCov">         18 :         if (0 == tcc_add_library_internal(s, *pp,</span>
+<span class="lineNum">    1146 </span>            :             libraryname, 0, s-&gt;library_paths, s-&gt;nb_library_paths))
+<span class="lineNum">    1147 </span>            :             return 0;
+<span class="lineNum">    1148 </span><span class="lineNoCov">          0 :         ++pp;</span>
+<span class="lineNum">    1149 </span>            :     }
+<span class="lineNum">    1150 </span>            :     return -1;
+<a name="1151"><span class="lineNum">    1151 </span>            : }</a>
+<span class="lineNum">    1152 </span>            : 
+<span class="lineNum">    1153 </span><span class="lineCov">         18 : PUB_FUNC int tcc_add_library_err(TCCState *s, const char *libname)</span>
+<span class="lineNum">    1154 </span>            : {
+<span class="lineNum">    1155 </span><span class="lineCov">         18 :     int ret = tcc_add_library(s, libname);</span>
+<span class="lineNum">    1156 </span><span class="lineCov">         18 :     if (ret &lt; 0)</span>
+<span class="lineNum">    1157 </span><span class="lineNoCov">          0 :         tcc_error_noabort(&quot;library '%s' not found&quot;, libname);</span>
+<span class="lineNum">    1158 </span><span class="lineCov">         18 :     return ret;</span>
+<span class="lineNum">    1159 </span>            : }
+<a name="1160"><span class="lineNum">    1160 </span>            : </a>
+<span class="lineNum">    1161 </span>            : /* handle #pragma comment(lib,) */
+<span class="lineNum">    1162 </span><span class="lineCov">         18 : ST_FUNC void tcc_add_pragma_libs(TCCState *s1)</span>
+<span class="lineNum">    1163 </span>            : {
+<span class="lineNum">    1164 </span>            :     int i;
+<span class="lineNum">    1165 </span><span class="lineCov">         18 :     for (i = 0; i &lt; s1-&gt;nb_pragma_libs; i++)</span>
+<span class="lineNum">    1166 </span><span class="lineNoCov">          0 :         tcc_add_library_err(s1, s1-&gt;pragma_libs[i]);</span>
+<a name="1167"><span class="lineNum">    1167 </span><span class="lineCov">         18 : }</span></a>
+<span class="lineNum">    1168 </span>            : 
+<span class="lineNum">    1169 </span><span class="lineNoCov">          0 : LIBTCCAPI int tcc_add_symbol(TCCState *s, const char *name, const void *val)</span>
+<span class="lineNum">    1170 </span>            : {
+<span class="lineNum">    1171 </span>            : #ifdef TCC_TARGET_PE
+<span class="lineNum">    1172 </span>            :     /* On x86_64 'val' might not be reachable with a 32bit offset.
+<span class="lineNum">    1173 </span>            :        So it is handled here as if it were in a DLL. */
+<span class="lineNum">    1174 </span>            :     pe_putimport(s, 0, name, (uintptr_t)val);
+<span class="lineNum">    1175 </span>            : #else
+<span class="lineNum">    1176 </span><span class="lineNoCov">          0 :     set_elf_sym(symtab_section, (uintptr_t)val, 0,</span>
+<span class="lineNum">    1177 </span>            :         ELFW(ST_INFO)(STB_GLOBAL, STT_NOTYPE), 0,
+<span class="lineNum">    1178 </span>            :         SHN_ABS, name);
+<span class="lineNum">    1179 </span>            : #endif
+<span class="lineNum">    1180 </span><span class="lineNoCov">          0 :     return 0;</span>
+<a name="1181"><span class="lineNum">    1181 </span>            : }</a>
+<span class="lineNum">    1182 </span>            : 
+<span class="lineNum">    1183 </span><span class="lineNoCov">          0 : LIBTCCAPI void tcc_set_lib_path(TCCState *s, const char *path)</span>
+<span class="lineNum">    1184 </span>            : {
+<span class="lineNum">    1185 </span><span class="lineCov">        152 :     tcc_free(s-&gt;tcc_lib_path);</span>
+<span class="lineNum">    1186 </span><span class="lineCov">         76 :     s-&gt;tcc_lib_path = tcc_strdup(path);</span>
+<span class="lineNum">    1187 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1188 </span>            : 
+<span class="lineNum">    1189 </span>            : #define WD_ALL    0x0001 /* warning is activated when using -Wall */
+<span class="lineNum">    1190 </span>            : #define FD_INVERT 0x0002 /* invert value before storing */
+<span class="lineNum">    1191 </span>            : 
+<span class="lineNum">    1192 </span>            : typedef struct FlagDef {
+<span class="lineNum">    1193 </span>            :     uint16_t offset;
+<span class="lineNum">    1194 </span>            :     uint16_t flags;
+<span class="lineNum">    1195 </span>            :     const char *name;
+<span class="lineNum">    1196 </span>            : } FlagDef;
+<span class="lineNum">    1197 </span>            : 
+<span class="lineNum">    1198 </span>            : static int no_flag(const char **pp)
+<span class="lineNum">    1199 </span>            : {
+<span class="lineNum">    1200 </span><span class="lineCov">        836 :     const char *p = *pp;</span>
+<span class="lineNum">    1201 </span><span class="lineCov">        836 :     if (*p != 'n' || *++p != 'o' || *++p != '-')</span>
+<span class="lineNum">    1202 </span>            :         return 0;
+<span class="lineNum">    1203 </span><span class="lineCov">         76 :     *pp = p + 1;</span>
+<span class="lineNum">    1204 </span>            :     return 1;
+<a name="1205"><span class="lineNum">    1205 </span>            : }</a>
+<span class="lineNum">    1206 </span>            : 
+<span class="lineNum">    1207 </span><span class="lineCov">        836 : ST_FUNC int set_flag(TCCState *s, const FlagDef *flags, const char *name)</span>
+<span class="lineNum">    1208 </span>            : {
+<span class="lineNum">    1209 </span>            :     int value, ret;
+<span class="lineNum">    1210 </span>            :     const FlagDef *p;
+<span class="lineNum">    1211 </span>            :     const char *r;
+<span class="lineNum">    1212 </span>            : 
+<span class="lineNum">    1213 </span><span class="lineCov">        836 :     value = 1;</span>
+<span class="lineNum">    1214 </span><span class="lineCov">        836 :     r = name;</span>
+<span class="lineNum">    1215 </span><span class="lineCov">         76 :     if (no_flag(&amp;r))</span>
+<span class="lineNum">    1216 </span>            :         value = 0;
+<span class="lineNum">    1217 </span>            : 
+<span class="lineNum">    1218 </span><span class="lineCov">       3268 :     for (ret = -1, p = flags; p-&gt;name; ++p) {</span>
+<span class="lineNum">    1219 </span><span class="lineCov">       3192 :         if (ret) {</span>
+<span class="lineNum">    1220 </span><span class="lineCov">       2812 :             if (strcmp(r, p-&gt;name))</span>
+<span class="lineNum">    1221 </span><span class="lineCov">       1976 :                 continue;</span>
+<span class="lineNum">    1222 </span>            :         } else {
+<span class="lineNum">    1223 </span><span class="lineCov">        380 :             if (0 == (p-&gt;flags &amp; WD_ALL))</span>
+<span class="lineNum">    1224 </span><span class="lineCov">        304 :                 continue;</span>
+<span class="lineNum">    1225 </span>            :         }
+<span class="lineNum">    1226 </span><span class="lineCov">        912 :         if (p-&gt;offset) {</span>
+<span class="lineNum">    1227 </span><span class="lineCov">        836 :             *(int*)((char *)s + p-&gt;offset) =</span>
+<span class="lineNum">    1228 </span><span class="lineCov">        836 :                 p-&gt;flags &amp; FD_INVERT ? !value : value;</span>
+<span class="lineNum">    1229 </span><span class="lineCov">        836 :             if (ret)</span>
+<span class="lineNum">    1230 </span>            :                 return 0;
+<span class="lineNum">    1231 </span>            :         } else {
+<span class="lineNum">    1232 </span>            :             ret = 0;
+<span class="lineNum">    1233 </span>            :         }
+<span class="lineNum">    1234 </span>            :     }
+<span class="lineNum">    1235 </span>            :     return ret;
+<span class="lineNum">    1236 </span>            : }
+<span class="lineNum">    1237 </span>            : 
+<span class="lineNum">    1238 </span>            : static int strstart(const char *val, const char **str)
+<span class="lineNum">    1239 </span>            : {
+<span class="lineNum">    1240 </span>            :     const char *p, *q;
+<span class="lineNum">    1241 </span><span class="lineNoCov">          0 :     p = *str;</span>
+<span class="lineNum">    1242 </span><span class="lineNoCov">          0 :     q = val;</span>
+<span class="lineNum">    1243 </span><span class="lineCov">      40888 :     while (*q) {</span>
+<span class="lineNum">    1244 </span><span class="lineCov">      39596 :         if (*p != *q)</span>
+<span class="lineNum">    1245 </span>            :             return 0;
+<span class="lineNum">    1246 </span><span class="lineCov">       2888 :         p++;</span>
+<span class="lineNum">    1247 </span><span class="lineCov">       2888 :         q++;</span>
+<span class="lineNum">    1248 </span>            :     }
+<span class="lineNum">    1249 </span><span class="lineNoCov">          0 :     *str = p;</span>
+<span class="lineNum">    1250 </span>            :     return 1;
+<span class="lineNum">    1251 </span>            : }
+<span class="lineNum">    1252 </span>            : 
+<span class="lineNum">    1253 </span>            : /* Like strstart, but automatically takes into account that ld options can
+<span class="lineNum">    1254 </span>            :  *
+<span class="lineNum">    1255 </span>            :  * - start with double or single dash (e.g. '--soname' or '-soname')
+<span class="lineNum">    1256 </span>            :  * - arguments can be given as separate or after '=' (e.g. '-Wl,-soname,x.so'
+<span class="lineNum">    1257 </span>            :  *   or '-Wl,-soname=x.so')
+<span class="lineNum">    1258 </span>            :  *
+<a name="1259"><span class="lineNum">    1259 </span>            :  * you provide `val` always in 'option[=]' form (no leading -)</a>
+<span class="lineNum">    1260 </span>            :  */
+<span class="lineNum">    1261 </span><span class="lineNoCov">          0 : static int link_option(const char *str, const char *val, const char **ptr)</span>
+<span class="lineNum">    1262 </span>            : {
+<span class="lineNum">    1263 </span>            :     const char *p, *q;
+<span class="lineNum">    1264 </span>            :     int ret;
+<span class="lineNum">    1265 </span>            : 
+<span class="lineNum">    1266 </span>            :     /* there should be 1 or 2 dashes */
+<span class="lineNum">    1267 </span><span class="lineNoCov">          0 :     if (*str++ != '-')</span>
+<span class="lineNum">    1268 </span>            :         return 0;
+<span class="lineNum">    1269 </span><span class="lineNoCov">          0 :     if (*str == '-')</span>
+<span class="lineNum">    1270 </span><span class="lineNoCov">          0 :         str++;</span>
+<span class="lineNum">    1271 </span>            : 
+<span class="lineNum">    1272 </span>            :     /* then str &amp; val should match (potentially up to '=') */
+<span class="lineNum">    1273 </span><span class="lineNoCov">          0 :     p = str;</span>
+<span class="lineNum">    1274 </span><span class="lineNoCov">          0 :     q = val;</span>
+<span class="lineNum">    1275 </span>            : 
+<span class="lineNum">    1276 </span><span class="lineNoCov">          0 :     ret = 1;</span>
+<span class="lineNum">    1277 </span><span class="lineNoCov">          0 :     if (q[0] == '?') {</span>
+<span class="lineNum">    1278 </span><span class="lineNoCov">          0 :         ++q;</span>
+<span class="lineNum">    1279 </span><span class="lineNoCov">          0 :         if (no_flag(&amp;p))</span>
+<span class="lineNum">    1280 </span>            :             ret = -1;
+<span class="lineNum">    1281 </span>            :     }
+<span class="lineNum">    1282 </span>            : 
+<span class="lineNum">    1283 </span><span class="lineNoCov">          0 :     while (*q != '\0' &amp;&amp; *q != '=') {</span>
+<span class="lineNum">    1284 </span><span class="lineNoCov">          0 :         if (*p != *q)</span>
+<span class="lineNum">    1285 </span>            :             return 0;
+<span class="lineNum">    1286 </span><span class="lineNoCov">          0 :         p++;</span>
+<span class="lineNum">    1287 </span><span class="lineNoCov">          0 :         q++;</span>
+<span class="lineNum">    1288 </span>            :     }
+<span class="lineNum">    1289 </span>            : 
+<span class="lineNum">    1290 </span>            :     /* '=' near eos means ',' or '=' is ok */
+<span class="lineNum">    1291 </span><span class="lineNoCov">          0 :     if (*q == '=') {</span>
+<span class="lineNum">    1292 </span><span class="lineNoCov">          0 :         if (*p == 0)</span>
+<span class="lineNum">    1293 </span><span class="lineNoCov">          0 :             *ptr = p;</span>
+<span class="lineNum">    1294 </span><span class="lineNoCov">          0 :         if (*p != ',' &amp;&amp; *p != '=')</span>
+<span class="lineNum">    1295 </span>            :             return 0;
+<span class="lineNum">    1296 </span><span class="lineNoCov">          0 :         p++;</span>
+<span class="lineNum">    1297 </span><span class="lineNoCov">          0 :     } else if (*p) {</span>
+<span class="lineNum">    1298 </span>            :         return 0;
+<span class="lineNum">    1299 </span>            :     }
+<span class="lineNum">    1300 </span><span class="lineNoCov">          0 :     *ptr = p;</span>
+<span class="lineNum">    1301 </span><span class="lineNoCov">          0 :     return ret;</span>
+<a name="1302"><span class="lineNum">    1302 </span>            : }</a>
+<span class="lineNum">    1303 </span>            : 
+<span class="lineNum">    1304 </span><span class="lineNoCov">          0 : static const char *skip_linker_arg(const char **str)</span>
+<span class="lineNum">    1305 </span>            : {
+<span class="lineNum">    1306 </span><span class="lineNoCov">          0 :     const char *s1 = *str;</span>
+<span class="lineNum">    1307 </span><span class="lineNoCov">          0 :     const char *s2 = strchr(s1, ',');</span>
+<span class="lineNum">    1308 </span><span class="lineNoCov">          0 :     *str = s2 ? s2++ : (s2 = s1 + strlen(s1));</span>
+<span class="lineNum">    1309 </span><span class="lineNoCov">          0 :     return s2;</span>
+<a name="1310"><span class="lineNum">    1310 </span>            : }</a>
+<span class="lineNum">    1311 </span>            : 
+<span class="lineNum">    1312 </span><span class="lineNoCov">          0 : static void copy_linker_arg(char **pp, const char *s, int sep)</span>
+<span class="lineNum">    1313 </span>            : {
+<span class="lineNum">    1314 </span><span class="lineNoCov">          0 :     const char *q = s;</span>
+<span class="lineNum">    1315 </span><span class="lineNoCov">          0 :     char *p = *pp;</span>
+<span class="lineNum">    1316 </span><span class="lineNoCov">          0 :     int l = 0;</span>
+<span class="lineNum">    1317 </span><span class="lineNoCov">          0 :     if (p &amp;&amp; sep)</span>
+<span class="lineNum">    1318 </span><span class="lineNoCov">          0 :         p[l = strlen(p)] = sep, ++l;</span>
+<span class="lineNum">    1319 </span><span class="lineNoCov">          0 :     skip_linker_arg(&amp;q);</span>
+<span class="lineNum">    1320 </span><span class="lineNoCov">          0 :     pstrncpy(l + (*pp = tcc_realloc(p, q - s + l + 1)), s, q - s);</span>
+<span class="lineNum">    1321 </span><span class="lineNoCov">          0 : }</span>
+<a name="1322"><span class="lineNum">    1322 </span>            : </a>
+<span class="lineNum">    1323 </span>            : /* set linker options */
+<span class="lineNum">    1324 </span><span class="lineNoCov">          0 : static int tcc_set_linker(TCCState *s, const char *option)</span>
+<span class="lineNum">    1325 </span>            : {
+<span class="lineNum">    1326 </span><span class="lineNoCov">          0 :     while (*option) {</span>
+<span class="lineNum">    1327 </span>            : 
+<span class="lineNum">    1328 </span><span class="lineNoCov">          0 :         const char *p = NULL;</span>
+<span class="lineNum">    1329 </span><span class="lineNoCov">          0 :         char *end = NULL;</span>
+<span class="lineNum">    1330 </span><span class="lineNoCov">          0 :         int ignoring = 0;</span>
+<span class="lineNum">    1331 </span>            :         int ret;
+<span class="lineNum">    1332 </span>            : 
+<span class="lineNum">    1333 </span><span class="lineNoCov">          0 :         if (link_option(option, &quot;Bsymbolic&quot;, &amp;p)) {</span>
+<span class="lineNum">    1334 </span><span class="lineNoCov">          0 :             s-&gt;symbolic = 1;</span>
+<span class="lineNum">    1335 </span><span class="lineNoCov">          0 :         } else if (link_option(option, &quot;nostdlib&quot;, &amp;p)) {</span>
+<span class="lineNum">    1336 </span><span class="lineNoCov">          0 :             s-&gt;nostdlib = 1;</span>
+<span class="lineNum">    1337 </span><span class="lineNoCov">          0 :         } else if (link_option(option, &quot;fini=&quot;, &amp;p)) {</span>
+<span class="lineNum">    1338 </span><span class="lineNoCov">          0 :             copy_linker_arg(&amp;s-&gt;fini_symbol, p, 0);</span>
+<span class="lineNum">    1339 </span><span class="lineNoCov">          0 :             ignoring = 1;</span>
+<span class="lineNum">    1340 </span><span class="lineNoCov">          0 :         } else if (link_option(option, &quot;image-base=&quot;, &amp;p)</span>
+<span class="lineNum">    1341 </span><span class="lineNoCov">          0 :                 || link_option(option, &quot;Ttext=&quot;, &amp;p)) {</span>
+<span class="lineNum">    1342 </span><span class="lineNoCov">          0 :             s-&gt;text_addr = strtoull(p, &amp;end, 16);</span>
+<span class="lineNum">    1343 </span><span class="lineNoCov">          0 :             s-&gt;has_text_addr = 1;</span>
+<span class="lineNum">    1344 </span><span class="lineNoCov">          0 :         } else if (link_option(option, &quot;init=&quot;, &amp;p)) {</span>
+<span class="lineNum">    1345 </span><span class="lineNoCov">          0 :             copy_linker_arg(&amp;s-&gt;init_symbol, p, 0);</span>
+<span class="lineNum">    1346 </span><span class="lineNoCov">          0 :             ignoring = 1;</span>
+<span class="lineNum">    1347 </span><span class="lineNoCov">          0 :         } else if (link_option(option, &quot;oformat=&quot;, &amp;p)) {</span>
+<span class="lineNum">    1348 </span>            : #if defined(TCC_TARGET_PE)
+<span class="lineNum">    1349 </span>            :             if (strstart(&quot;pe-&quot;, &amp;p)) {
+<span class="lineNum">    1350 </span>            : #elif PTR_SIZE == 8
+<span class="lineNum">    1351 </span><span class="lineNoCov">          0 :             if (strstart(&quot;elf64-&quot;, &amp;p)) {</span>
+<span class="lineNum">    1352 </span>            : #else
+<span class="lineNum">    1353 </span>            :             if (strstart(&quot;elf32-&quot;, &amp;p)) {
+<span class="lineNum">    1354 </span>            : #endif
+<span class="lineNum">    1355 </span><span class="lineNoCov">          0 :                 s-&gt;output_format = TCC_OUTPUT_FORMAT_ELF;</span>
+<span class="lineNum">    1356 </span><span class="lineNoCov">          0 :             } else if (!strcmp(p, &quot;binary&quot;)) {</span>
+<span class="lineNum">    1357 </span><span class="lineNoCov">          0 :                 s-&gt;output_format = TCC_OUTPUT_FORMAT_BINARY;</span>
+<span class="lineNum">    1358 </span>            : #ifdef TCC_TARGET_COFF
+<span class="lineNum">    1359 </span>            :             } else if (!strcmp(p, &quot;coff&quot;)) {
+<span class="lineNum">    1360 </span>            :                 s-&gt;output_format = TCC_OUTPUT_FORMAT_COFF;
+<span class="lineNum">    1361 </span>            : #endif
+<span class="lineNum">    1362 </span>            :             } else
+<span class="lineNum">    1363 </span>            :                 goto err;
+<span class="lineNum">    1364 </span>            : 
+<span class="lineNum">    1365 </span><span class="lineNoCov">          0 :         } else if (link_option(option, &quot;as-needed&quot;, &amp;p)) {</span>
+<span class="lineNum">    1366 </span>            :             ignoring = 1;
+<span class="lineNum">    1367 </span><span class="lineNoCov">          0 :         } else if (link_option(option, &quot;O&quot;, &amp;p)) {</span>
+<span class="lineNum">    1368 </span>            :             ignoring = 1;
+<span class="lineNum">    1369 </span><span class="lineNoCov">          0 :         } else if (link_option(option, &quot;export-all-symbols&quot;, &amp;p)) {</span>
+<span class="lineNum">    1370 </span><span class="lineNoCov">          0 :             s-&gt;rdynamic = 1;</span>
+<span class="lineNum">    1371 </span><span class="lineNoCov">          0 :         } else if (link_option(option, &quot;rpath=&quot;, &amp;p)) {</span>
+<span class="lineNum">    1372 </span><span class="lineNoCov">          0 :             copy_linker_arg(&amp;s-&gt;rpath, p, ':');</span>
+<span class="lineNum">    1373 </span><span class="lineNoCov">          0 :         } else if (link_option(option, &quot;enable-new-dtags&quot;, &amp;p)) {</span>
+<span class="lineNum">    1374 </span><span class="lineNoCov">          0 :             s-&gt;enable_new_dtags = 1;</span>
+<span class="lineNum">    1375 </span><span class="lineNoCov">          0 :         } else if (link_option(option, &quot;section-alignment=&quot;, &amp;p)) {</span>
+<span class="lineNum">    1376 </span><span class="lineNoCov">          0 :             s-&gt;section_align = strtoul(p, &amp;end, 16);</span>
+<span class="lineNum">    1377 </span><span class="lineNoCov">          0 :         } else if (link_option(option, &quot;soname=&quot;, &amp;p)) {</span>
+<span class="lineNum">    1378 </span><span class="lineNoCov">          0 :             copy_linker_arg(&amp;s-&gt;soname, p, 0);</span>
+<span class="lineNum">    1379 </span>            : #ifdef TCC_TARGET_PE
+<span class="lineNum">    1380 </span>            :         } else if (link_option(option, &quot;large-address-aware&quot;, &amp;p)) {
+<span class="lineNum">    1381 </span>            :             s-&gt;pe_characteristics |= 0x20;
+<span class="lineNum">    1382 </span>            :         } else if (link_option(option, &quot;file-alignment=&quot;, &amp;p)) {
+<span class="lineNum">    1383 </span>            :             s-&gt;pe_file_align = strtoul(p, &amp;end, 16);
+<span class="lineNum">    1384 </span>            :         } else if (link_option(option, &quot;stack=&quot;, &amp;p)) {
+<span class="lineNum">    1385 </span>            :             s-&gt;pe_stack_size = strtoul(p, &amp;end, 10);
+<span class="lineNum">    1386 </span>            :         } else if (link_option(option, &quot;subsystem=&quot;, &amp;p)) {
+<span class="lineNum">    1387 </span>            : #if defined(TCC_TARGET_I386) || defined(TCC_TARGET_X86_64)
+<span class="lineNum">    1388 </span>            :             if (!strcmp(p, &quot;native&quot;)) {
+<span class="lineNum">    1389 </span>            :                 s-&gt;pe_subsystem = 1;
+<span class="lineNum">    1390 </span>            :             } else if (!strcmp(p, &quot;console&quot;)) {
+<span class="lineNum">    1391 </span>            :                 s-&gt;pe_subsystem = 3;
+<span class="lineNum">    1392 </span>            :             } else if (!strcmp(p, &quot;gui&quot;) || !strcmp(p, &quot;windows&quot;)) {
+<span class="lineNum">    1393 </span>            :                 s-&gt;pe_subsystem = 2;
+<span class="lineNum">    1394 </span>            :             } else if (!strcmp(p, &quot;posix&quot;)) {
+<span class="lineNum">    1395 </span>            :                 s-&gt;pe_subsystem = 7;
+<span class="lineNum">    1396 </span>            :             } else if (!strcmp(p, &quot;efiapp&quot;)) {
+<span class="lineNum">    1397 </span>            :                 s-&gt;pe_subsystem = 10;
+<span class="lineNum">    1398 </span>            :             } else if (!strcmp(p, &quot;efiboot&quot;)) {
+<span class="lineNum">    1399 </span>            :                 s-&gt;pe_subsystem = 11;
+<span class="lineNum">    1400 </span>            :             } else if (!strcmp(p, &quot;efiruntime&quot;)) {
+<span class="lineNum">    1401 </span>            :                 s-&gt;pe_subsystem = 12;
+<span class="lineNum">    1402 </span>            :             } else if (!strcmp(p, &quot;efirom&quot;)) {
+<span class="lineNum">    1403 </span>            :                 s-&gt;pe_subsystem = 13;
+<span class="lineNum">    1404 </span>            : #elif defined(TCC_TARGET_ARM)
+<span class="lineNum">    1405 </span>            :             if (!strcmp(p, &quot;wince&quot;)) {
+<span class="lineNum">    1406 </span>            :                 s-&gt;pe_subsystem = 9;
+<span class="lineNum">    1407 </span>            : #endif
+<span class="lineNum">    1408 </span>            :             } else
+<span class="lineNum">    1409 </span>            :                 goto err;
+<span class="lineNum">    1410 </span>            : #endif
+<span class="lineNum">    1411 </span><span class="lineNoCov">          0 :         } else if (ret = link_option(option, &quot;?whole-archive&quot;, &amp;p), ret) {</span>
+<span class="lineNum">    1412 </span><span class="lineNoCov">          0 :             s-&gt;alacarte_link = ret &lt; 0;</span>
+<span class="lineNum">    1413 </span><span class="lineNoCov">          0 :         } else if (p) {</span>
+<span class="lineNum">    1414 </span><span class="lineNoCov">          0 :             return 0;</span>
+<span class="lineNum">    1415 </span>            :         } else {
+<span class="lineNum">    1416 </span><span class="lineNoCov">          0 :     err:</span>
+<span class="lineNum">    1417 </span><span class="lineNoCov">          0 :             tcc_error(&quot;unsupported linker option '%s'&quot;, option);</span>
+<span class="lineNum">    1418 </span>            :         }
+<span class="lineNum">    1419 </span>            : 
+<span class="lineNum">    1420 </span><span class="lineNoCov">          0 :         if (ignoring &amp;&amp; s-&gt;warn_unsupported)</span>
+<span class="lineNum">    1421 </span><span class="lineNoCov">          0 :             tcc_warning(&quot;unsupported linker option '%s'&quot;, option);</span>
+<span class="lineNum">    1422 </span>            : 
+<span class="lineNum">    1423 </span><span class="lineNoCov">          0 :         option = skip_linker_arg(&amp;p);</span>
+<span class="lineNum">    1424 </span>            :     }
+<span class="lineNum">    1425 </span>            :     return 1;
+<span class="lineNum">    1426 </span>            : }
+<span class="lineNum">    1427 </span>            : 
+<span class="lineNum">    1428 </span>            : typedef struct TCCOption {
+<span class="lineNum">    1429 </span>            :     const char *name;
+<span class="lineNum">    1430 </span>            :     uint16_t index;
+<span class="lineNum">    1431 </span>            :     uint16_t flags;
+<span class="lineNum">    1432 </span>            : } TCCOption;
+<span class="lineNum">    1433 </span>            : 
+<span class="lineNum">    1434 </span>            : enum {
+<span class="lineNum">    1435 </span>            :     TCC_OPTION_HELP,
+<span class="lineNum">    1436 </span>            :     TCC_OPTION_HELP2,
+<span class="lineNum">    1437 </span>            :     TCC_OPTION_v,
+<span class="lineNum">    1438 </span>            :     TCC_OPTION_I,
+<span class="lineNum">    1439 </span>            :     TCC_OPTION_D,
+<span class="lineNum">    1440 </span>            :     TCC_OPTION_U,
+<span class="lineNum">    1441 </span>            :     TCC_OPTION_P,
+<span class="lineNum">    1442 </span>            :     TCC_OPTION_L,
+<span class="lineNum">    1443 </span>            :     TCC_OPTION_B,
+<span class="lineNum">    1444 </span>            :     TCC_OPTION_l,
+<span class="lineNum">    1445 </span>            :     TCC_OPTION_bench,
+<span class="lineNum">    1446 </span>            :     TCC_OPTION_bt,
+<span class="lineNum">    1447 </span>            :     TCC_OPTION_b,
+<span class="lineNum">    1448 </span>            :     TCC_OPTION_g,
+<span class="lineNum">    1449 </span>            :     TCC_OPTION_c,
+<span class="lineNum">    1450 </span>            :     TCC_OPTION_dumpversion,
+<span class="lineNum">    1451 </span>            :     TCC_OPTION_d,
+<span class="lineNum">    1452 </span>            :     TCC_OPTION_static,
+<span class="lineNum">    1453 </span>            :     TCC_OPTION_std,
+<span class="lineNum">    1454 </span>            :     TCC_OPTION_shared,
+<span class="lineNum">    1455 </span>            :     TCC_OPTION_soname,
+<span class="lineNum">    1456 </span>            :     TCC_OPTION_o,
+<span class="lineNum">    1457 </span>            :     TCC_OPTION_r,
+<span class="lineNum">    1458 </span>            :     TCC_OPTION_s,
+<span class="lineNum">    1459 </span>            :     TCC_OPTION_traditional,
+<span class="lineNum">    1460 </span>            :     TCC_OPTION_Wl,
+<span class="lineNum">    1461 </span>            :     TCC_OPTION_Wp,
+<span class="lineNum">    1462 </span>            :     TCC_OPTION_W,
+<span class="lineNum">    1463 </span>            :     TCC_OPTION_O,
+<span class="lineNum">    1464 </span>            :     TCC_OPTION_mfloat_abi,
+<span class="lineNum">    1465 </span>            :     TCC_OPTION_m,
+<span class="lineNum">    1466 </span>            :     TCC_OPTION_f,
+<span class="lineNum">    1467 </span>            :     TCC_OPTION_isystem,
+<span class="lineNum">    1468 </span>            :     TCC_OPTION_iwithprefix,
+<span class="lineNum">    1469 </span>            :     TCC_OPTION_include,
+<span class="lineNum">    1470 </span>            :     TCC_OPTION_nostdinc,
+<span class="lineNum">    1471 </span>            :     TCC_OPTION_nostdlib,
+<span class="lineNum">    1472 </span>            :     TCC_OPTION_print_search_dirs,
+<span class="lineNum">    1473 </span>            :     TCC_OPTION_rdynamic,
+<span class="lineNum">    1474 </span>            :     TCC_OPTION_param,
+<span class="lineNum">    1475 </span>            :     TCC_OPTION_pedantic,
+<span class="lineNum">    1476 </span>            :     TCC_OPTION_pthread,
+<span class="lineNum">    1477 </span>            :     TCC_OPTION_run,
+<span class="lineNum">    1478 </span>            :     TCC_OPTION_w,
+<span class="lineNum">    1479 </span>            :     TCC_OPTION_pipe,
+<span class="lineNum">    1480 </span>            :     TCC_OPTION_E,
+<span class="lineNum">    1481 </span>            :     TCC_OPTION_MD,
+<span class="lineNum">    1482 </span>            :     TCC_OPTION_MF,
+<span class="lineNum">    1483 </span>            :     TCC_OPTION_x,
+<span class="lineNum">    1484 </span>            :     TCC_OPTION_ar,
+<span class="lineNum">    1485 </span>            :     TCC_OPTION_impdef
+<span class="lineNum">    1486 </span>            : };
+<span class="lineNum">    1487 </span>            : 
+<span class="lineNum">    1488 </span>            : #define TCC_OPTION_HAS_ARG 0x0001
+<span class="lineNum">    1489 </span>            : #define TCC_OPTION_NOSEP   0x0002 /* cannot have space before option and arg */
+<span class="lineNum">    1490 </span>            : 
+<span class="lineNum">    1491 </span>            : static const TCCOption tcc_options[] = {
+<span class="lineNum">    1492 </span>            :     { &quot;h&quot;, TCC_OPTION_HELP, 0 },
+<span class="lineNum">    1493 </span>            :     { &quot;-help&quot;, TCC_OPTION_HELP, 0 },
+<span class="lineNum">    1494 </span>            :     { &quot;?&quot;, TCC_OPTION_HELP, 0 },
+<span class="lineNum">    1495 </span>            :     { &quot;hh&quot;, TCC_OPTION_HELP2, 0 },
+<span class="lineNum">    1496 </span>            :     { &quot;v&quot;, TCC_OPTION_v, TCC_OPTION_HAS_ARG | TCC_OPTION_NOSEP },
+<span class="lineNum">    1497 </span>            :     { &quot;I&quot;, TCC_OPTION_I, TCC_OPTION_HAS_ARG },
+<span class="lineNum">    1498 </span>            :     { &quot;D&quot;, TCC_OPTION_D, TCC_OPTION_HAS_ARG },
+<span class="lineNum">    1499 </span>            :     { &quot;U&quot;, TCC_OPTION_U, TCC_OPTION_HAS_ARG },
+<span class="lineNum">    1500 </span>            :     { &quot;P&quot;, TCC_OPTION_P, TCC_OPTION_HAS_ARG | TCC_OPTION_NOSEP },
+<span class="lineNum">    1501 </span>            :     { &quot;L&quot;, TCC_OPTION_L, TCC_OPTION_HAS_ARG },
+<span class="lineNum">    1502 </span>            :     { &quot;B&quot;, TCC_OPTION_B, TCC_OPTION_HAS_ARG },
+<span class="lineNum">    1503 </span>            :     { &quot;l&quot;, TCC_OPTION_l, TCC_OPTION_HAS_ARG | TCC_OPTION_NOSEP },
+<span class="lineNum">    1504 </span>            :     { &quot;bench&quot;, TCC_OPTION_bench, 0 },
+<span class="lineNum">    1505 </span>            : #ifdef CONFIG_TCC_BACKTRACE
+<span class="lineNum">    1506 </span>            :     { &quot;bt&quot;, TCC_OPTION_bt, TCC_OPTION_HAS_ARG },
+<span class="lineNum">    1507 </span>            : #endif
+<span class="lineNum">    1508 </span>            : #ifdef CONFIG_TCC_BCHECK
+<span class="lineNum">    1509 </span>            :     { &quot;b&quot;, TCC_OPTION_b, 0 },
+<span class="lineNum">    1510 </span>            : #endif
+<span class="lineNum">    1511 </span>            :     { &quot;g&quot;, TCC_OPTION_g, TCC_OPTION_HAS_ARG | TCC_OPTION_NOSEP },
+<span class="lineNum">    1512 </span>            :     { &quot;c&quot;, TCC_OPTION_c, 0 },
+<span class="lineNum">    1513 </span>            :     { &quot;dumpversion&quot;, TCC_OPTION_dumpversion, 0},
+<span class="lineNum">    1514 </span>            :     { &quot;d&quot;, TCC_OPTION_d, TCC_OPTION_HAS_ARG | TCC_OPTION_NOSEP },
+<span class="lineNum">    1515 </span>            :     { &quot;static&quot;, TCC_OPTION_static, 0 },
+<span class="lineNum">    1516 </span>            :     { &quot;std&quot;, TCC_OPTION_std, TCC_OPTION_HAS_ARG | TCC_OPTION_NOSEP },
+<span class="lineNum">    1517 </span>            :     { &quot;shared&quot;, TCC_OPTION_shared, 0 },
+<span class="lineNum">    1518 </span>            :     { &quot;soname&quot;, TCC_OPTION_soname, TCC_OPTION_HAS_ARG },
+<span class="lineNum">    1519 </span>            :     { &quot;o&quot;, TCC_OPTION_o, TCC_OPTION_HAS_ARG },
+<span class="lineNum">    1520 </span>            :     { &quot;-param&quot;, TCC_OPTION_param, TCC_OPTION_HAS_ARG },
+<span class="lineNum">    1521 </span>            :     { &quot;pedantic&quot;, TCC_OPTION_pedantic, 0},
+<span class="lineNum">    1522 </span>            :     { &quot;pthread&quot;, TCC_OPTION_pthread, 0},
+<span class="lineNum">    1523 </span>            :     { &quot;run&quot;, TCC_OPTION_run, TCC_OPTION_HAS_ARG | TCC_OPTION_NOSEP },
+<span class="lineNum">    1524 </span>            :     { &quot;rdynamic&quot;, TCC_OPTION_rdynamic, 0 },
+<span class="lineNum">    1525 </span>            :     { &quot;r&quot;, TCC_OPTION_r, 0 },
+<span class="lineNum">    1526 </span>            :     { &quot;s&quot;, TCC_OPTION_s, 0 },
+<span class="lineNum">    1527 </span>            :     { &quot;traditional&quot;, TCC_OPTION_traditional, 0 },
+<span class="lineNum">    1528 </span>            :     { &quot;Wl,&quot;, TCC_OPTION_Wl, TCC_OPTION_HAS_ARG | TCC_OPTION_NOSEP },
+<span class="lineNum">    1529 </span>            :     { &quot;Wp,&quot;, TCC_OPTION_Wp, TCC_OPTION_HAS_ARG | TCC_OPTION_NOSEP },
+<span class="lineNum">    1530 </span>            :     { &quot;W&quot;, TCC_OPTION_W, TCC_OPTION_HAS_ARG | TCC_OPTION_NOSEP },
+<span class="lineNum">    1531 </span>            :     { &quot;O&quot;, TCC_OPTION_O, TCC_OPTION_HAS_ARG | TCC_OPTION_NOSEP },
+<span class="lineNum">    1532 </span>            : #ifdef TCC_TARGET_ARM
+<span class="lineNum">    1533 </span>            :     { &quot;mfloat-abi&quot;, TCC_OPTION_mfloat_abi, TCC_OPTION_HAS_ARG },
+<span class="lineNum">    1534 </span>            : #endif
+<span class="lineNum">    1535 </span>            :     { &quot;m&quot;, TCC_OPTION_m, TCC_OPTION_HAS_ARG | TCC_OPTION_NOSEP },
+<span class="lineNum">    1536 </span>            :     { &quot;f&quot;, TCC_OPTION_f, TCC_OPTION_HAS_ARG | TCC_OPTION_NOSEP },
+<span class="lineNum">    1537 </span>            :     { &quot;isystem&quot;, TCC_OPTION_isystem, TCC_OPTION_HAS_ARG },
+<span class="lineNum">    1538 </span>            :     { &quot;include&quot;, TCC_OPTION_include, TCC_OPTION_HAS_ARG },
+<span class="lineNum">    1539 </span>            :     { &quot;nostdinc&quot;, TCC_OPTION_nostdinc, 0 },
+<span class="lineNum">    1540 </span>            :     { &quot;nostdlib&quot;, TCC_OPTION_nostdlib, 0 },
+<span class="lineNum">    1541 </span>            :     { &quot;print-search-dirs&quot;, TCC_OPTION_print_search_dirs, 0 },
+<span class="lineNum">    1542 </span>            :     { &quot;w&quot;, TCC_OPTION_w, 0 },
+<span class="lineNum">    1543 </span>            :     { &quot;pipe&quot;, TCC_OPTION_pipe, 0},
+<span class="lineNum">    1544 </span>            :     { &quot;E&quot;, TCC_OPTION_E, 0},
+<span class="lineNum">    1545 </span>            :     { &quot;MD&quot;, TCC_OPTION_MD, 0},
+<span class="lineNum">    1546 </span>            :     { &quot;MF&quot;, TCC_OPTION_MF, TCC_OPTION_HAS_ARG },
+<span class="lineNum">    1547 </span>            :     { &quot;x&quot;, TCC_OPTION_x, TCC_OPTION_HAS_ARG },
+<span class="lineNum">    1548 </span>            :     { &quot;ar&quot;, TCC_OPTION_ar, 0},
+<span class="lineNum">    1549 </span>            : #ifdef TCC_TARGET_PE
+<span class="lineNum">    1550 </span>            :     { &quot;impdef&quot;, TCC_OPTION_impdef, 0},
+<span class="lineNum">    1551 </span>            : #endif
+<span class="lineNum">    1552 </span>            :     { NULL, 0, 0 },
+<span class="lineNum">    1553 </span>            : };
+<span class="lineNum">    1554 </span>            : 
+<span class="lineNum">    1555 </span>            : static const FlagDef options_W[] = {
+<span class="lineNum">    1556 </span>            :     { 0, 0, &quot;all&quot; },
+<span class="lineNum">    1557 </span>            :     { offsetof(TCCState, warn_unsupported), 0, &quot;unsupported&quot; },
+<span class="lineNum">    1558 </span>            :     { offsetof(TCCState, warn_write_strings), 0, &quot;write-strings&quot; },
+<span class="lineNum">    1559 </span>            :     { offsetof(TCCState, warn_error), 0, &quot;error&quot; },
+<span class="lineNum">    1560 </span>            :     { offsetof(TCCState, warn_gcc_compat), 0, &quot;gcc-compat&quot; },
+<span class="lineNum">    1561 </span>            :     { offsetof(TCCState, warn_implicit_function_declaration), WD_ALL,
+<span class="lineNum">    1562 </span>            :       &quot;implicit-function-declaration&quot; },
+<span class="lineNum">    1563 </span>            :     { 0, 0, NULL }
+<span class="lineNum">    1564 </span>            : };
+<span class="lineNum">    1565 </span>            : 
+<span class="lineNum">    1566 </span>            : static const FlagDef options_f[] = {
+<span class="lineNum">    1567 </span>            :     { offsetof(TCCState, char_is_unsigned), 0, &quot;unsigned-char&quot; },
+<span class="lineNum">    1568 </span>            :     { offsetof(TCCState, char_is_unsigned), FD_INVERT, &quot;signed-char&quot; },
+<span class="lineNum">    1569 </span>            :     { offsetof(TCCState, nocommon), FD_INVERT, &quot;common&quot; },
+<span class="lineNum">    1570 </span>            :     { offsetof(TCCState, leading_underscore), 0, &quot;leading-underscore&quot; },
+<span class="lineNum">    1571 </span>            :     { offsetof(TCCState, ms_extensions), 0, &quot;ms-extensions&quot; },
+<span class="lineNum">    1572 </span>            :     { offsetof(TCCState, dollars_in_identifiers), 0, &quot;dollars-in-identifiers&quot; },
+<span class="lineNum">    1573 </span>            :     { 0, 0, NULL }
+<span class="lineNum">    1574 </span>            : };
+<span class="lineNum">    1575 </span>            : 
+<span class="lineNum">    1576 </span>            : static const FlagDef options_m[] = {
+<span class="lineNum">    1577 </span>            :     { offsetof(TCCState, ms_bitfields), 0, &quot;ms-bitfields&quot; },
+<span class="lineNum">    1578 </span>            : #ifdef TCC_TARGET_X86_64
+<span class="lineNum">    1579 </span>            :     { offsetof(TCCState, nosse), FD_INVERT, &quot;sse&quot; },
+<span class="lineNum">    1580 </span>            : #endif
+<span class="lineNum">    1581 </span>            :     { 0, 0, NULL }
+<a name="1582"><span class="lineNum">    1582 </span>            : };</a>
+<span class="lineNum">    1583 </span>            : 
+<span class="lineNum">    1584 </span><span class="lineNoCov">          0 : static void parse_option_D(TCCState *s1, const char *optarg)</span>
+<span class="lineNum">    1585 </span>            : {
+<span class="lineNum">    1586 </span><span class="lineNoCov">          0 :     char *sym = tcc_strdup(optarg);</span>
+<span class="lineNum">    1587 </span><span class="lineNoCov">          0 :     char *value = strchr(sym, '=');</span>
+<span class="lineNum">    1588 </span><span class="lineNoCov">          0 :     if (value)</span>
+<span class="lineNum">    1589 </span><span class="lineNoCov">          0 :         *value++ = '\0';</span>
+<span class="lineNum">    1590 </span><span class="lineNoCov">          0 :     tcc_define_symbol(s1, sym, value);</span>
+<span class="lineNum">    1591 </span><span class="lineNoCov">          0 :     tcc_free(sym);</span>
+<a name="1592"><span class="lineNum">    1592 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1593 </span>            : 
+<span class="lineNum">    1594 </span><span class="lineCov">         76 : static void args_parser_add_file(TCCState *s, const char* filename, int filetype)</span>
+<span class="lineNum">    1595 </span>            : {
+<span class="lineNum">    1596 </span><span class="lineCov">         76 :     struct filespec *f = tcc_malloc(sizeof *f + strlen(filename));</span>
+<span class="lineNum">    1597 </span><span class="lineCov">         76 :     f-&gt;type = filetype;</span>
+<span class="lineNum">    1598 </span><span class="lineCov">         76 :     f-&gt;alacarte = s-&gt;alacarte_link;</span>
+<span class="lineNum">    1599 </span><span class="lineCov">        152 :     strcpy(f-&gt;name, filename);</span>
+<span class="lineNum">    1600 </span><span class="lineCov">         76 :     dynarray_add(&amp;s-&gt;files, &amp;s-&gt;nb_files, f);</span>
+<a name="1601"><span class="lineNum">    1601 </span><span class="lineCov">         76 : }</span></a>
+<span class="lineNum">    1602 </span>            : 
+<span class="lineNum">    1603 </span><span class="lineNoCov">          0 : static int args_parser_make_argv(const char *r, int *argc, char ***argv)</span>
+<span class="lineNum">    1604 </span>            : {
+<span class="lineNum">    1605 </span><span class="lineNoCov">          0 :     int ret = 0, q, c;</span>
+<span class="lineNum">    1606 </span>            :     CString str;
+<span class="lineNum">    1607 </span>            :     for(;;) {
+<span class="lineNum">    1608 </span><span class="lineNoCov">          0 :         while (c = (unsigned char)*r, c &amp;&amp; c &lt;= ' ')</span>
+<span class="lineNum">    1609 </span><span class="lineNoCov">          0 :             ++r;</span>
+<span class="lineNum">    1610 </span><span class="lineNoCov">          0 :         if (c == 0)</span>
+<span class="lineNum">    1611 </span>            :             break;
+<span class="lineNum">    1612 </span><span class="lineNoCov">          0 :         q = 0;</span>
+<span class="lineNum">    1613 </span><span class="lineNoCov">          0 :         cstr_new(&amp;str);</span>
+<span class="lineNum">    1614 </span><span class="lineNoCov">          0 :         while (c = (unsigned char)*r, c) {</span>
+<span class="lineNum">    1615 </span><span class="lineNoCov">          0 :             ++r;</span>
+<span class="lineNum">    1616 </span><span class="lineNoCov">          0 :             if (c == '\\' &amp;&amp; (*r == '&quot;' || *r == '\\')) {</span>
+<span class="lineNum">    1617 </span><span class="lineNoCov">          0 :                 c = *r++;</span>
+<span class="lineNum">    1618 </span><span class="lineNoCov">          0 :             } else if (c == '&quot;') {</span>
+<span class="lineNum">    1619 </span><span class="lineNoCov">          0 :                 q = !q;</span>
+<span class="lineNum">    1620 </span><span class="lineNoCov">          0 :                 continue;</span>
+<span class="lineNum">    1621 </span><span class="lineNoCov">          0 :             } else if (q == 0 &amp;&amp; c &lt;= ' ') {</span>
+<span class="lineNum">    1622 </span>            :                 break;
+<span class="lineNum">    1623 </span>            :             }
+<span class="lineNum">    1624 </span><span class="lineNoCov">          0 :             cstr_ccat(&amp;str, c);</span>
+<span class="lineNum">    1625 </span>            :         }
+<span class="lineNum">    1626 </span><span class="lineNoCov">          0 :         cstr_ccat(&amp;str, 0);</span>
+<span class="lineNum">    1627 </span>            :         //printf(&quot;&lt;%s&gt;\n&quot;, str.data), fflush(stdout);
+<span class="lineNum">    1628 </span><span class="lineNoCov">          0 :         dynarray_add(argv, argc, tcc_strdup(str.data));</span>
+<span class="lineNum">    1629 </span><span class="lineNoCov">          0 :         cstr_free(&amp;str);</span>
+<span class="lineNum">    1630 </span><span class="lineNoCov">          0 :         ++ret;</span>
+<span class="lineNum">    1631 </span>            :     }
+<span class="lineNum">    1632 </span><span class="lineNoCov">          0 :     return ret;</span>
+<span class="lineNum">    1633 </span>            : }
+<a name="1634"><span class="lineNum">    1634 </span>            : </a>
+<span class="lineNum">    1635 </span>            : /* read list file */
+<span class="lineNum">    1636 </span><span class="lineNoCov">          0 : static void args_parser_listfile(TCCState *s,</span>
+<span class="lineNum">    1637 </span>            :     const char *filename, int optind, int *pargc, char ***pargv)
+<span class="lineNum">    1638 </span>            : {
+<span class="lineNum">    1639 </span>            :     int fd, i;
+<span class="lineNum">    1640 </span>            :     size_t len;
+<span class="lineNum">    1641 </span>            :     char *p;
+<span class="lineNum">    1642 </span><span class="lineNoCov">          0 :     int argc = 0;</span>
+<span class="lineNum">    1643 </span><span class="lineNoCov">          0 :     char **argv = NULL;</span>
+<span class="lineNum">    1644 </span>            : 
+<span class="lineNum">    1645 </span><span class="lineNoCov">          0 :     fd = open(filename, O_RDONLY | O_BINARY);</span>
+<span class="lineNum">    1646 </span><span class="lineNoCov">          0 :     if (fd &lt; 0)</span>
+<span class="lineNum">    1647 </span><span class="lineNoCov">          0 :         tcc_error(&quot;listfile '%s' not found&quot;, filename);</span>
+<span class="lineNum">    1648 </span>            : 
+<span class="lineNum">    1649 </span><span class="lineNoCov">          0 :     len = lseek(fd, 0, SEEK_END);</span>
+<span class="lineNum">    1650 </span><span class="lineNoCov">          0 :     p = tcc_malloc(len + 1), p[len] = 0;</span>
+<span class="lineNum">    1651 </span><span class="lineNoCov">          0 :     lseek(fd, 0, SEEK_SET), read(fd, p, len), close(fd);</span>
+<span class="lineNum">    1652 </span>            : 
+<span class="lineNum">    1653 </span><span class="lineNoCov">          0 :     for (i = 0; i &lt; *pargc; ++i)</span>
+<span class="lineNum">    1654 </span><span class="lineNoCov">          0 :         if (i == optind)</span>
+<span class="lineNum">    1655 </span><span class="lineNoCov">          0 :             args_parser_make_argv(p, &amp;argc, &amp;argv);</span>
+<span class="lineNum">    1656 </span>            :         else
+<span class="lineNum">    1657 </span><span class="lineNoCov">          0 :             dynarray_add(&amp;argv, &amp;argc, tcc_strdup((*pargv)[i]));</span>
+<span class="lineNum">    1658 </span>            : 
+<span class="lineNum">    1659 </span><span class="lineNoCov">          0 :     tcc_free(p);</span>
+<span class="lineNum">    1660 </span><span class="lineNoCov">          0 :     dynarray_reset(&amp;s-&gt;argv, &amp;s-&gt;argc);</span>
+<span class="lineNum">    1661 </span><span class="lineNoCov">          0 :     *pargc = s-&gt;argc = argc, *pargv = s-&gt;argv = argv;</span>
+<a name="1662"><span class="lineNum">    1662 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1663 </span>            : 
+<span class="lineNum">    1664 </span><span class="lineCov">         76 : PUB_FUNC int tcc_parse_args(TCCState *s, int *pargc, char ***pargv, int optind)</span>
+<span class="lineNum">    1665 </span>            : {
+<span class="lineNum">    1666 </span>            :     const TCCOption *popt;
+<span class="lineNum">    1667 </span>            :     const char *optarg, *r;
+<span class="lineNum">    1668 </span><span class="lineCov">         76 :     const char *run = NULL;</span>
+<span class="lineNum">    1669 </span><span class="lineCov">         76 :     int last_o = -1;</span>
+<span class="lineNum">    1670 </span>            :     int x;
+<span class="lineNum">    1671 </span>            :     CString linker_arg; /* collect -Wl options */
+<span class="lineNum">    1672 </span><span class="lineCov">         76 :     int tool = 0, arg_start = 0, noaction = optind;</span>
+<span class="lineNum">    1673 </span><span class="lineCov">         76 :     char **argv = *pargv;</span>
+<span class="lineNum">    1674 </span><span class="lineCov">         76 :     int argc = *pargc;</span>
+<span class="lineNum">    1675 </span>            : 
+<span class="lineNum">    1676 </span><span class="lineCov">         76 :     cstr_new(&amp;linker_arg);</span>
+<span class="lineNum">    1677 </span>            : 
+<span class="lineNum">    1678 </span><span class="lineCov">       1520 :     while (optind &lt; argc) {</span>
+<span class="lineNum">    1679 </span><span class="lineCov">       1368 :         r = argv[optind];</span>
+<span class="lineNum">    1680 </span><span class="lineCov">       1368 :         if (r[0] == '@' &amp;&amp; r[1] != '\0') {</span>
+<span class="lineNum">    1681 </span><span class="lineNoCov">          0 :             args_parser_listfile(s, r + 1, optind, &amp;argc, &amp;argv);</span>
+<span class="lineNum">    1682 </span><span class="lineNoCov">          0 :             continue;</span>
+<span class="lineNum">    1683 </span>            :         }
+<span class="lineNum">    1684 </span><span class="lineCov">       1368 :         optind++;</span>
+<span class="lineNum">    1685 </span><span class="lineCov">       1368 :         if (tool) {</span>
+<span class="lineNum">    1686 </span><span class="lineNoCov">          0 :             if (r[0] == '-' &amp;&amp; r[1] == 'v' &amp;&amp; r[2] == 0)</span>
+<span class="lineNum">    1687 </span><span class="lineNoCov">          0 :                 ++s-&gt;verbose;</span>
+<span class="lineNum">    1688 </span><span class="lineNoCov">          0 :             continue;</span>
+<span class="lineNum">    1689 </span>            :         }
+<span class="lineNum">    1690 </span><span class="lineCov">       1368 : reparse:</span>
+<span class="lineNum">    1691 </span><span class="lineCov">       1368 :         if (r[0] != '-' || r[1] == '\0') {</span>
+<span class="lineNum">    1692 </span><span class="lineCov">         76 :             if (r[0] != '@') /* allow &quot;tcc file(s) -run @ args ...&quot; */</span>
+<span class="lineNum">    1693 </span><span class="lineCov">         76 :                 args_parser_add_file(s, r, s-&gt;filetype);</span>
+<span class="lineNum">    1694 </span><span class="lineCov">         76 :             if (run) {</span>
+<span class="lineNum">    1695 </span><span class="lineNoCov">          0 :                 tcc_set_options(s, run);</span>
+<span class="lineNum">    1696 </span><span class="lineNoCov">          0 :                 arg_start = optind - 1;</span>
+<span class="lineNum">    1697 </span><span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">    1698 </span>            :             }
+<span class="lineNum">    1699 </span><span class="lineCov">         76 :             continue;</span>
+<span class="lineNum">    1700 </span>            :         }
+<span class="lineNum">    1701 </span>            : 
+<span class="lineNum">    1702 </span>            :         /* find option in table */
+<span class="lineNum">    1703 </span><span class="lineCov">      36708 :         for(popt = tcc_options; ; ++popt) {</span>
+<span class="lineNum">    1704 </span><span class="lineCov">      38000 :             const char *p1 = popt-&gt;name;</span>
+<span class="lineNum">    1705 </span><span class="lineCov">      38000 :             const char *r1 = r + 1;</span>
+<span class="lineNum">    1706 </span><span class="lineCov">      38000 :             if (p1 == NULL)</span>
+<span class="lineNum">    1707 </span><span class="lineNoCov">          0 :                 tcc_error(&quot;invalid option -- '%s'&quot;, r);</span>
+<span class="lineNum">    1708 </span><span class="lineCov">      38000 :             if (!strstart(p1, &amp;r1))</span>
+<span class="lineNum">    1709 </span><span class="lineCov">      73416 :                 continue;</span>
+<span class="lineNum">    1710 </span><span class="lineCov">       1292 :             optarg = r1;</span>
+<span class="lineNum">    1711 </span><span class="lineCov">       1292 :             if (popt-&gt;flags &amp; TCC_OPTION_HAS_ARG) {</span>
+<span class="lineNum">    1712 </span><span class="lineCov">       1140 :                 if (*r1 == '\0' &amp;&amp; !(popt-&gt;flags &amp; TCC_OPTION_NOSEP)) {</span>
+<span class="lineNum">    1713 </span><span class="lineCov">        228 :                     if (optind &gt;= argc)</span>
+<span class="lineNum">    1714 </span><span class="lineNoCov">          0 :                 arg_err:</span>
+<span class="lineNum">    1715 </span><span class="lineNoCov">          0 :                         tcc_error(&quot;argument to '%s' is missing&quot;, r);</span>
+<span class="lineNum">    1716 </span><span class="lineCov">        228 :                     optarg = argv[optind++];</span>
+<span class="lineNum">    1717 </span>            :                 }
+<span class="lineNum">    1718 </span><span class="lineCov">        152 :             } else if (*r1 != '\0')</span>
+<span class="lineNum">    1719 </span><span class="lineNoCov">          0 :                 continue;</span>
+<span class="lineNum">    1720 </span><span class="lineCov">       1292 :             break;</span>
+<span class="lineNum">    1721 </span>            :         }
+<span class="lineNum">    1722 </span>            : 
+<span class="lineNum">    1723 </span><span class="lineCov">       1292 :         switch(popt-&gt;index) {</span>
+<span class="lineNum">    1724 </span>            :         case TCC_OPTION_HELP:
+<span class="lineNum">    1725 </span>            :             return OPT_HELP;
+<span class="lineNum">    1726 </span><span class="lineNoCov">          0 :         case TCC_OPTION_HELP2:</span>
+<span class="lineNum">    1727 </span><span class="lineNoCov">          0 :             return OPT_HELP2;</span>
+<span class="lineNum">    1728 </span><span class="lineCov">         76 :         case TCC_OPTION_I:</span>
+<span class="lineNum">    1729 </span>            :             tcc_add_include_path(s, optarg);
+<span class="lineNum">    1730 </span>            :             break;
+<span class="lineNum">    1731 </span><span class="lineNoCov">          0 :         case TCC_OPTION_D:</span>
+<span class="lineNum">    1732 </span><span class="lineNoCov">          0 :             parse_option_D(s, optarg);</span>
+<span class="lineNum">    1733 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1734 </span><span class="lineNoCov">          0 :         case TCC_OPTION_U:</span>
+<span class="lineNum">    1735 </span><span class="lineNoCov">          0 :             tcc_undefine_symbol(s, optarg);</span>
+<span class="lineNum">    1736 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1737 </span><span class="lineNoCov">          0 :         case TCC_OPTION_L:</span>
+<span class="lineNum">    1738 </span>            :             tcc_add_library_path(s, optarg);
+<span class="lineNum">    1739 </span>            :             break;
+<span class="lineNum">    1740 </span><span class="lineNoCov">          0 :         case TCC_OPTION_B:</span>
+<span class="lineNum">    1741 </span>            :             /* set tcc utilities path (mainly for tcc development) */
+<span class="lineNum">    1742 </span>            :             tcc_set_lib_path(s, optarg);
+<span class="lineNum">    1743 </span>            :             break;
+<span class="lineNum">    1744 </span><span class="lineNoCov">          0 :         case TCC_OPTION_l:</span>
+<span class="lineNum">    1745 </span><span class="lineNoCov">          0 :             args_parser_add_file(s, optarg, AFF_TYPE_LIB);</span>
+<span class="lineNum">    1746 </span><span class="lineNoCov">          0 :             s-&gt;nb_libraries++;</span>
+<span class="lineNum">    1747 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1748 </span><span class="lineNoCov">          0 :         case TCC_OPTION_pthread:</span>
+<span class="lineNum">    1749 </span><span class="lineNoCov">          0 :             parse_option_D(s, &quot;_REENTRANT&quot;);</span>
+<span class="lineNum">    1750 </span><span class="lineNoCov">          0 :             s-&gt;option_pthread = 1;</span>
+<span class="lineNum">    1751 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1752 </span><span class="lineNoCov">          0 :         case TCC_OPTION_bench:</span>
+<span class="lineNum">    1753 </span><span class="lineNoCov">          0 :             s-&gt;do_bench = 1;</span>
+<span class="lineNum">    1754 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1755 </span>            : #ifdef CONFIG_TCC_BACKTRACE
+<span class="lineNum">    1756 </span><span class="lineCov">         76 :         case TCC_OPTION_bt:</span>
+<span class="lineNum">    1757 </span><span class="lineCov">         76 :             tcc_set_num_callers(atoi(optarg));</span>
+<span class="lineNum">    1758 </span><span class="lineCov">         76 :             break;</span>
+<span class="lineNum">    1759 </span>            : #endif
+<span class="lineNum">    1760 </span>            : #ifdef CONFIG_TCC_BCHECK
+<span class="lineNum">    1761 </span><span class="lineCov">         76 :         case TCC_OPTION_b:</span>
+<span class="lineNum">    1762 </span><span class="lineCov">         76 :             s-&gt;do_bounds_check = 1;</span>
+<span class="lineNum">    1763 </span><span class="lineCov">         76 :             s-&gt;do_debug = 1;</span>
+<span class="lineNum">    1764 </span><span class="lineCov">         76 :             break;</span>
+<span class="lineNum">    1765 </span>            : #endif
+<span class="lineNum">    1766 </span><span class="lineCov">         76 :         case TCC_OPTION_g:</span>
+<span class="lineNum">    1767 </span><span class="lineCov">         76 :             s-&gt;do_debug = 1;</span>
+<span class="lineNum">    1768 </span><span class="lineCov">         76 :             break;</span>
+<span class="lineNum">    1769 </span>            :         case TCC_OPTION_c:
+<span class="lineNum">    1770 </span>            :             x = TCC_OUTPUT_OBJ;
+<span class="lineNum">    1771 </span><span class="lineCov">         76 :         set_output_type:</span>
+<span class="lineNum">    1772 </span><span class="lineCov">         76 :             if (s-&gt;output_type)</span>
+<span class="lineNum">    1773 </span><span class="lineNoCov">          0 :                 tcc_warning(&quot;-%s: overriding compiler action already specified&quot;, popt-&gt;name);</span>
+<span class="lineNum">    1774 </span><span class="lineCov">         76 :             s-&gt;output_type = x;</span>
+<span class="lineNum">    1775 </span><span class="lineCov">         76 :             break;</span>
+<span class="lineNum">    1776 </span><span class="lineNoCov">          0 :         case TCC_OPTION_d:</span>
+<span class="lineNum">    1777 </span><span class="lineNoCov">          0 :             if (*optarg == 'D')</span>
+<span class="lineNum">    1778 </span><span class="lineNoCov">          0 :                 s-&gt;dflag = 3;</span>
+<span class="lineNum">    1779 </span><span class="lineNoCov">          0 :             else if (*optarg == 'M')</span>
+<span class="lineNum">    1780 </span><span class="lineNoCov">          0 :                 s-&gt;dflag = 7;</span>
+<span class="lineNum">    1781 </span><span class="lineNoCov">          0 :             else if (*optarg == 't')</span>
+<span class="lineNum">    1782 </span><span class="lineNoCov">          0 :                 s-&gt;dflag = 16;</span>
+<span class="lineNum">    1783 </span><span class="lineNoCov">          0 :             else if (isnum(*optarg))</span>
+<span class="lineNum">    1784 </span><span class="lineNoCov">          0 :                 g_debug = atoi(optarg);</span>
+<span class="lineNum">    1785 </span>            :             else
+<span class="lineNum">    1786 </span>            :                 goto unsupported_option;
+<span class="lineNum">    1787 </span>            :             break;
+<span class="lineNum">    1788 </span><span class="lineNoCov">          0 :         case TCC_OPTION_static:</span>
+<span class="lineNum">    1789 </span><span class="lineNoCov">          0 :             s-&gt;static_link = 1;</span>
+<span class="lineNum">    1790 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1791 </span>            :         case TCC_OPTION_std:
+<span class="lineNum">    1792 </span>            :             /* silently ignore, a current purpose:
+<span class="lineNum">    1793 </span>            :                allow to use a tcc as a reference compiler for &quot;make test&quot; */
+<span class="lineNum">    1794 </span>            :             break;
+<span class="lineNum">    1795 </span>            :         case TCC_OPTION_shared:
+<span class="lineNum">    1796 </span>            :             x = TCC_OUTPUT_DLL;
+<span class="lineNum">    1797 </span>            :             goto set_output_type;
+<span class="lineNum">    1798 </span><span class="lineNoCov">          0 :         case TCC_OPTION_soname:</span>
+<span class="lineNum">    1799 </span><span class="lineNoCov">          0 :             s-&gt;soname = tcc_strdup(optarg);</span>
+<span class="lineNum">    1800 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1801 </span><span class="lineCov">         76 :         case TCC_OPTION_o:</span>
+<span class="lineNum">    1802 </span><span class="lineCov">         76 :             if (s-&gt;outfile) {</span>
+<span class="lineNum">    1803 </span><span class="lineNoCov">          0 :                 tcc_warning(&quot;multiple -o option&quot;);</span>
+<span class="lineNum">    1804 </span><span class="lineNoCov">          0 :                 tcc_free(s-&gt;outfile);</span>
+<span class="lineNum">    1805 </span>            :             }
+<span class="lineNum">    1806 </span><span class="lineCov">         76 :             s-&gt;outfile = tcc_strdup(optarg);</span>
+<span class="lineNum">    1807 </span><span class="lineCov">         76 :             break;</span>
+<span class="lineNum">    1808 </span><span class="lineNoCov">          0 :         case TCC_OPTION_r:</span>
+<span class="lineNum">    1809 </span>            :             /* generate a .o merging several output files */
+<span class="lineNum">    1810 </span><span class="lineNoCov">          0 :             s-&gt;option_r = 1;</span>
+<span class="lineNum">    1811 </span><span class="lineNoCov">          0 :             x = TCC_OUTPUT_OBJ;</span>
+<span class="lineNum">    1812 </span><span class="lineNoCov">          0 :             goto set_output_type;</span>
+<span class="lineNum">    1813 </span><span class="lineNoCov">          0 :         case TCC_OPTION_isystem:</span>
+<span class="lineNum">    1814 </span>            :             tcc_add_sysinclude_path(s, optarg);
+<span class="lineNum">    1815 </span>            :             break;
+<span class="lineNum">    1816 </span><span class="lineNoCov">          0 :         case TCC_OPTION_include:</span>
+<span class="lineNum">    1817 </span><span class="lineNoCov">          0 :             dynarray_add(&amp;s-&gt;cmd_include_files,</span>
+<span class="lineNum">    1818 </span><span class="lineNoCov">          0 :                          &amp;s-&gt;nb_cmd_include_files, tcc_strdup(optarg));</span>
+<span class="lineNum">    1819 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1820 </span><span class="lineNoCov">          0 :         case TCC_OPTION_nostdinc:</span>
+<span class="lineNum">    1821 </span><span class="lineNoCov">          0 :             s-&gt;nostdinc = 1;</span>
+<span class="lineNum">    1822 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1823 </span><span class="lineNoCov">          0 :         case TCC_OPTION_nostdlib:</span>
+<span class="lineNum">    1824 </span><span class="lineNoCov">          0 :             s-&gt;nostdlib = 1;</span>
+<span class="lineNum">    1825 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1826 </span>            :         case TCC_OPTION_run:
+<span class="lineNum">    1827 </span>            : #ifndef TCC_IS_NATIVE
+<span class="lineNum">    1828 </span>            :             tcc_error(&quot;-run is not available in a cross compiler&quot;);
+<span class="lineNum">    1829 </span>            : #endif
+<span class="lineNum">    1830 </span>            :             run = optarg;
+<span class="lineNum">    1831 </span>            :             x = TCC_OUTPUT_MEMORY;
+<span class="lineNum">    1832 </span>            :             goto set_output_type;
+<span class="lineNum">    1833 </span><span class="lineNoCov">          0 :         case TCC_OPTION_v:</span>
+<span class="lineNum">    1834 </span><span class="lineNoCov">          0 :             do ++s-&gt;verbose; while (*optarg++ == 'v');</span>
+<span class="lineNum">    1835 </span><span class="lineNoCov">          0 :             ++noaction;</span>
+<span class="lineNum">    1836 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1837 </span><span class="lineCov">        456 :         case TCC_OPTION_f:</span>
+<span class="lineNum">    1838 </span><span class="lineCov">        456 :             if (set_flag(s, options_f, optarg) &lt; 0)</span>
+<span class="lineNum">    1839 </span>            :                 goto unsupported_option;
+<span class="lineNum">    1840 </span>            :             break;
+<span class="lineNum">    1841 </span>            : #ifdef TCC_TARGET_ARM
+<span class="lineNum">    1842 </span>            :         case TCC_OPTION_mfloat_abi:
+<span class="lineNum">    1843 </span>            :             /* tcc doesn't support soft float yet */
+<span class="lineNum">    1844 </span>            :             if (!strcmp(optarg, &quot;softfp&quot;)) {
+<span class="lineNum">    1845 </span>            :                 s-&gt;float_abi = ARM_SOFTFP_FLOAT;
+<span class="lineNum">    1846 </span>            :                 tcc_undefine_symbol(s, &quot;__ARM_PCS_VFP&quot;);
+<span class="lineNum">    1847 </span>            :             } else if (!strcmp(optarg, &quot;hard&quot;))
+<span class="lineNum">    1848 </span>            :                 s-&gt;float_abi = ARM_HARD_FLOAT;
+<span class="lineNum">    1849 </span>            :             else
+<span class="lineNum">    1850 </span>            :                 tcc_error(&quot;unsupported float abi '%s'&quot;, optarg);
+<span class="lineNum">    1851 </span>            :             break;
+<span class="lineNum">    1852 </span>            : #endif
+<span class="lineNum">    1853 </span><span class="lineNoCov">          0 :         case TCC_OPTION_m:</span>
+<span class="lineNum">    1854 </span><span class="lineNoCov">          0 :             if (set_flag(s, options_m, optarg) &lt; 0) {</span>
+<span class="lineNum">    1855 </span><span class="lineNoCov">          0 :                 if (x = atoi(optarg), x != 32 &amp;&amp; x != 64)</span>
+<span class="lineNum">    1856 </span>            :                     goto unsupported_option;
+<span class="lineNum">    1857 </span><span class="lineNoCov">          0 :                 if (PTR_SIZE != x/8)</span>
+<span class="lineNum">    1858 </span>            :                     return x;
+<span class="lineNum">    1859 </span><span class="lineNoCov">          0 :                 ++noaction;</span>
+<span class="lineNum">    1860 </span>            :             }
+<span class="lineNum">    1861 </span>            :             break;
+<span class="lineNum">    1862 </span><span class="lineCov">        380 :         case TCC_OPTION_W:</span>
+<span class="lineNum">    1863 </span><span class="lineCov">        380 :             if (set_flag(s, options_W, optarg) &lt; 0)</span>
+<span class="lineNum">    1864 </span>            :                 goto unsupported_option;
+<span class="lineNum">    1865 </span>            :             break;
+<span class="lineNum">    1866 </span><span class="lineNoCov">          0 :         case TCC_OPTION_w:</span>
+<span class="lineNum">    1867 </span><span class="lineNoCov">          0 :             s-&gt;warn_none = 1;</span>
+<span class="lineNum">    1868 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1869 </span><span class="lineNoCov">          0 :         case TCC_OPTION_rdynamic:</span>
+<span class="lineNum">    1870 </span><span class="lineNoCov">          0 :             s-&gt;rdynamic = 1;</span>
+<span class="lineNum">    1871 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1872 </span><span class="lineNoCov">          0 :         case TCC_OPTION_Wl:</span>
+<span class="lineNum">    1873 </span><span class="lineNoCov">          0 :             if (linker_arg.size)</span>
+<span class="lineNum">    1874 </span><span class="lineNoCov">          0 :                 --linker_arg.size, cstr_ccat(&amp;linker_arg, ',');</span>
+<span class="lineNum">    1875 </span><span class="lineNoCov">          0 :             cstr_cat(&amp;linker_arg, optarg, 0);</span>
+<span class="lineNum">    1876 </span><span class="lineNoCov">          0 :             if (tcc_set_linker(s, linker_arg.data))</span>
+<span class="lineNum">    1877 </span><span class="lineNoCov">          0 :                 cstr_free(&amp;linker_arg);</span>
+<span class="lineNum">    1878 </span>            :             break;
+<span class="lineNum">    1879 </span>            :         case TCC_OPTION_Wp:
+<span class="lineNum">    1880 </span>            :             r = optarg;
+<span class="lineNum">    1881 </span>            :             goto reparse;
+<span class="lineNum">    1882 </span>            :         case TCC_OPTION_E:
+<span class="lineNum">    1883 </span>            :             x = TCC_OUTPUT_PREPROCESS;
+<span class="lineNum">    1884 </span>            :             goto set_output_type;
+<span class="lineNum">    1885 </span><span class="lineNoCov">          0 :         case TCC_OPTION_P:</span>
+<span class="lineNum">    1886 </span><span class="lineNoCov">          0 :             s-&gt;Pflag = atoi(optarg) + 1;</span>
+<span class="lineNum">    1887 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1888 </span><span class="lineNoCov">          0 :         case TCC_OPTION_MD:</span>
+<span class="lineNum">    1889 </span><span class="lineNoCov">          0 :             s-&gt;gen_deps = 1;</span>
+<span class="lineNum">    1890 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1891 </span><span class="lineNoCov">          0 :         case TCC_OPTION_MF:</span>
+<span class="lineNum">    1892 </span><span class="lineNoCov">          0 :             s-&gt;deps_outfile = tcc_strdup(optarg);</span>
+<span class="lineNum">    1893 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1894 </span><span class="lineNoCov">          0 :         case TCC_OPTION_dumpversion:</span>
+<span class="lineNum">    1895 </span><span class="lineNoCov">          0 :             printf (&quot;%s\n&quot;, TCC_VERSION);</span>
+<span class="lineNum">    1896 </span><span class="lineNoCov">          0 :             exit(0);</span>
+<span class="lineNum">    1897 </span>            :             break;
+<span class="lineNum">    1898 </span><span class="lineNoCov">          0 :         case TCC_OPTION_x:</span>
+<span class="lineNum">    1899 </span><span class="lineNoCov">          0 :             if (*optarg == 'c')</span>
+<span class="lineNum">    1900 </span><span class="lineNoCov">          0 :                 s-&gt;filetype = AFF_TYPE_C;</span>
+<span class="lineNum">    1901 </span><span class="lineNoCov">          0 :             else if (*optarg == 'a')</span>
+<span class="lineNum">    1902 </span><span class="lineNoCov">          0 :                 s-&gt;filetype = AFF_TYPE_ASMPP;</span>
+<span class="lineNum">    1903 </span><span class="lineNoCov">          0 :             else if (*optarg == 'n')</span>
+<span class="lineNum">    1904 </span><span class="lineNoCov">          0 :                 s-&gt;filetype = AFF_TYPE_NONE;</span>
+<span class="lineNum">    1905 </span>            :             else
+<span class="lineNum">    1906 </span><span class="lineNoCov">          0 :                 tcc_warning(&quot;unsupported language '%s'&quot;, optarg);</span>
+<span class="lineNum">    1907 </span>            :             break;
+<span class="lineNum">    1908 </span><span class="lineNoCov">          0 :         case TCC_OPTION_O:</span>
+<span class="lineNum">    1909 </span><span class="lineNoCov">          0 :             last_o = atoi(optarg);</span>
+<span class="lineNum">    1910 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1911 </span>            :         case TCC_OPTION_print_search_dirs:
+<span class="lineNum">    1912 </span>            :             x = OPT_PRINT_DIRS;
+<span class="lineNum">    1913 </span>            :             goto extra_action;
+<span class="lineNum">    1914 </span>            :         case TCC_OPTION_impdef:
+<span class="lineNum">    1915 </span>            :             x = OPT_IMPDEF;
+<span class="lineNum">    1916 </span>            :             goto extra_action;
+<span class="lineNum">    1917 </span>            :         case TCC_OPTION_ar:
+<span class="lineNum">    1918 </span>            :             x = OPT_AR;
+<span class="lineNum">    1919 </span><span class="lineNoCov">          0 :         extra_action:</span>
+<span class="lineNum">    1920 </span><span class="lineNoCov">          0 :             arg_start = optind - 1;</span>
+<span class="lineNum">    1921 </span><span class="lineNoCov">          0 :             if (arg_start != noaction)</span>
+<span class="lineNum">    1922 </span><span class="lineNoCov">          0 :                 tcc_error(&quot;cannot parse %s here&quot;, r);</span>
+<span class="lineNum">    1923 </span>            :             tool = x;
+<span class="lineNum">    1924 </span>            :             break;
+<span class="lineNum">    1925 </span>            :         case TCC_OPTION_traditional:
+<span class="lineNum">    1926 </span>            :         case TCC_OPTION_pedantic:
+<span class="lineNum">    1927 </span>            :         case TCC_OPTION_pipe:
+<span class="lineNum">    1928 </span>            :         case TCC_OPTION_s:
+<span class="lineNum">    1929 </span>            :             /* ignored */
+<span class="lineNum">    1930 </span>            :             break;
+<span class="lineNum">    1931 </span>            :         default:
+<span class="lineNum">    1932 </span><span class="lineNoCov">          0 : unsupported_option:</span>
+<span class="lineNum">    1933 </span><span class="lineNoCov">          0 :             if (s-&gt;warn_unsupported)</span>
+<span class="lineNum">    1934 </span><span class="lineNoCov">          0 :                 tcc_warning(&quot;unsupported option '%s'&quot;, r);</span>
+<span class="lineNum">    1935 </span>            :             break;
+<span class="lineNum">    1936 </span>            :         }
+<span class="lineNum">    1937 </span>            :     }
+<span class="lineNum">    1938 </span><span class="lineCov">         76 :     if (last_o &gt; 0)</span>
+<span class="lineNum">    1939 </span><span class="lineNoCov">          0 :         tcc_define_symbol(s, &quot;__OPTIMIZE__&quot;, NULL);</span>
+<span class="lineNum">    1940 </span><span class="lineCov">         76 :     if (linker_arg.size) {</span>
+<span class="lineNum">    1941 </span><span class="lineNoCov">          0 :         r = linker_arg.data;</span>
+<span class="lineNum">    1942 </span><span class="lineNoCov">          0 :         goto arg_err;</span>
+<span class="lineNum">    1943 </span>            :     }
+<span class="lineNum">    1944 </span><span class="lineCov">         76 :     *pargc = argc - arg_start;</span>
+<span class="lineNum">    1945 </span><span class="lineCov">         76 :     *pargv = argv + arg_start;</span>
+<span class="lineNum">    1946 </span><span class="lineCov">         76 :     if (tool)</span>
+<span class="lineNum">    1947 </span>            :         return tool;
+<span class="lineNum">    1948 </span><span class="lineCov">         76 :     if (optind != noaction)</span>
+<span class="lineNum">    1949 </span>            :         return 0;
+<span class="lineNum">    1950 </span><span class="lineNoCov">          0 :     if (s-&gt;verbose == 2)</span>
+<span class="lineNum">    1951 </span>            :         return OPT_PRINT_DIRS;
+<span class="lineNum">    1952 </span><span class="lineNoCov">          0 :     if (s-&gt;verbose)</span>
+<span class="lineNum">    1953 </span>            :         return OPT_V;
+<span class="lineNum">    1954 </span><span class="lineNoCov">          0 :     return OPT_HELP;</span>
+<a name="1955"><span class="lineNum">    1955 </span>            : }</a>
+<span class="lineNum">    1956 </span>            : 
+<span class="lineNum">    1957 </span><span class="lineNoCov">          0 : LIBTCCAPI void tcc_set_options(TCCState *s, const char *r)</span>
+<span class="lineNum">    1958 </span>            : {
+<span class="lineNum">    1959 </span><span class="lineNoCov">          0 :     char **argv = NULL;</span>
+<span class="lineNum">    1960 </span><span class="lineNoCov">          0 :     int argc = 0;</span>
+<span class="lineNum">    1961 </span><span class="lineNoCov">          0 :     args_parser_make_argv(r, &amp;argc, &amp;argv);</span>
+<span class="lineNum">    1962 </span><span class="lineNoCov">          0 :     tcc_parse_args(s, &amp;argc, &amp;argv, 0);</span>
+<span class="lineNum">    1963 </span><span class="lineNoCov">          0 :     dynarray_reset(&amp;argv, &amp;argc);</span>
+<a name="1964"><span class="lineNum">    1964 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1965 </span>            : 
+<span class="lineNum">    1966 </span><span class="lineNoCov">          0 : PUB_FUNC void tcc_print_stats(TCCState *s, unsigned total_time)</span>
+<span class="lineNum">    1967 </span>            : {
+<span class="lineNum">    1968 </span><span class="lineNoCov">          0 :     if (total_time &lt; 1)</span>
+<span class="lineNum">    1969 </span><span class="lineNoCov">          0 :         total_time = 1;</span>
+<span class="lineNum">    1970 </span><span class="lineNoCov">          0 :     if (total_bytes &lt; 1)</span>
+<span class="lineNum">    1971 </span><span class="lineNoCov">          0 :         total_bytes = 1;</span>
+<span class="lineNum">    1972 </span><span class="lineNoCov">          0 :     fprintf(stderr, &quot;* %d idents, %d lines, %d bytes\n&quot;</span>
+<span class="lineNum">    1973 </span>            :                     &quot;* %0.3f s, %u lines/s, %0.1f MB/s\n&quot;,
+<span class="lineNum">    1974 </span>            :            tok_ident - TOK_IDENT, total_lines, total_bytes,
+<span class="lineNum">    1975 </span>            :            (double)total_time/1000,
+<span class="lineNum">    1976 </span><span class="lineNoCov">          0 :            (unsigned)total_lines*1000/total_time,</span>
+<span class="lineNum">    1977 </span><span class="lineNoCov">          0 :            (double)total_bytes/1000/total_time);</span>
+<span class="lineNum">    1978 </span>            : #ifdef MEM_DEBUG
+<span class="lineNum">    1979 </span>            :     fprintf(stderr, &quot;* %d bytes memory used\n&quot;, mem_max_size);
+<span class="lineNum">    1980 </span>            : #endif
+<span class="lineNum">    1981 </span><span class="lineNoCov">          0 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

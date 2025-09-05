@@ -1,0 +1,11 @@
+tccelf.c:2720: error: UNINITIALIZED_VALUE
+  The value read from ehdr.e_shnum was never initialized.
+Showing all 1 steps of the trace
+
+
+tccelf.c:2720:27: 
+2718.       dynsym = NULL; /* avoid warning */
+2719.       dynstr = NULL; /* avoid warning */
+2720. >     for(i = 0, sh = shdr; i < ehdr.e_shnum; i++, sh++) {
+2721.           switch(sh->sh_type) {
+2722.           case SHT_DYNAMIC:

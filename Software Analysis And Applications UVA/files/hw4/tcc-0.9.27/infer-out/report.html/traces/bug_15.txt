@@ -1,0 +1,11 @@
+i386-asm.c:989: error: UNINITIALIZED_VALUE
+  The value read from op_type[_] was never initialized.
+Showing all 1 steps of the trace
+
+
+i386-asm.c:989:17: 
+987.           /* first look for an ea operand */
+988.           for(i = 0;i < nb_ops; i++) {
+989. >             if (op_type[i] & OP_EA)
+990.                   goto modrm_found;
+991.           }

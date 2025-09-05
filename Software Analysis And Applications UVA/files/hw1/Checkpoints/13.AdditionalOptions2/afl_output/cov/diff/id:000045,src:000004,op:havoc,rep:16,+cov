@@ -1,0 +1,13 @@
+diff id:000044,src:000004,op:ext_UI,pos:0 -> id:000045,src:000004,op:havoc,rep:16,+cov
+Src file: /root/tinycc/tccpp.c
+  New 'line' coverage: 1995
+  New 'line' coverage: 1997
+  New 'line' coverage: 1999
+  New 'line' coverage: 2002
+  New 'line' coverage: 2003
+  New 'line' coverage: 2004
+  New 'line' coverage: 2005
+  New 'line' coverage: 725
+  New 'line' coverage: 726
+  New 'line' coverage: 727
+  New 'line' coverage: 728

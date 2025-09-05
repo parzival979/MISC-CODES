@@ -1,0 +1,11 @@
+libtcc.c:1830: error: UNINITIALIZED_VALUE
+  The value read from optarg was never initialized.
+Showing all 1 steps of the trace
+
+
+libtcc.c:1830:13: 
+1828.               tcc_error("-run is not available in a cross compiler");
+1829.   #endif
+1830. >             run = optarg;
+1831.               x = TCC_OUTPUT_MEMORY;
+1832.               goto set_output_type;

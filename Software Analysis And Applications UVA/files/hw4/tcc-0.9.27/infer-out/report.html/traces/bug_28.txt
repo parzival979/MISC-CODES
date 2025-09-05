@@ -1,0 +1,11 @@
+libtcc.c:1608: error: UNINITIALIZED_VALUE
+  The value read from c was never initialized.
+Showing all 1 steps of the trace
+
+
+libtcc.c:1608:44: 
+1606.       CString str;
+1607.       for(;;) {
+1608. >         while (c = (unsigned char)*r, c && c <= ' ')
+1609.   	    ++r;
+1610.           if (c == 0)

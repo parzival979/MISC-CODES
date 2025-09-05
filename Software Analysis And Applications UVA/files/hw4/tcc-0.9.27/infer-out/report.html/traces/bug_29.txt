@@ -1,0 +1,349 @@
+libtcc.c:1655: error: MEMORY_LEAK
+  memory dynamically allocated to `argv` by call to `dynarray_add()` at line 1657, column 13 is not reachable after line 1655, column 13.
+Showing all 47 steps of the trace
+
+
+libtcc.c:1636:1: start of procedure args_parser_listfile()
+1634.   
+1635.   /* read list file */
+1636. > static void args_parser_listfile(TCCState *s,
+1637.       const char *filename, int optind, int *pargc, char ***pargv)
+1638.   {
+
+libtcc.c:1642:5: 
+1640.       size_t len;
+1641.       char *p;
+1642. >     int argc = 0;
+1643.       char **argv = NULL;
+1644.   
+
+libtcc.c:1643:5: 
+1641.       char *p;
+1642.       int argc = 0;
+1643. >     char **argv = NULL;
+1644.   
+1645.       fd = open(filename, O_RDONLY | O_BINARY);
+
+libtcc.c:1645:5: 
+1643.       char **argv = NULL;
+1644.   
+1645. >     fd = open(filename, O_RDONLY | O_BINARY);
+1646.       if (fd < 0)
+1647.           tcc_error("listfile '%s' not found", filename);
+
+libtcc.c:1646:9: Taking false branch
+1644.   
+1645.       fd = open(filename, O_RDONLY | O_BINARY);
+1646.       if (fd < 0)
+                ^
+1647.           tcc_error("listfile '%s' not found", filename);
+1648.   
+
+libtcc.c:1649:5: 
+1647.           tcc_error("listfile '%s' not found", filename);
+1648.   
+1649. >     len = lseek(fd, 0, SEEK_END);
+1650.       p = tcc_malloc(len + 1), p[len] = 0;
+1651.       lseek(fd, 0, SEEK_SET), read(fd, p, len), close(fd);
+
+libtcc.c:1650:5: 
+1648.   
+1649.       len = lseek(fd, 0, SEEK_END);
+1650. >     p = tcc_malloc(len + 1), p[len] = 0;
+1651.       lseek(fd, 0, SEEK_SET), read(fd, p, len), close(fd);
+1652.   
+
+libtcc.c:204:10: start of procedure tcc_malloc()
+  202.   }
+  203.   
+  204.   PUB_FUNC void *tcc_malloc(unsigned long size)
+                  ^
+  205.   {
+  206.       void *ptr;
+
+libtcc.c:207:5: 
+  205.   {
+  206.       void *ptr;
+  207. >     ptr = malloc(size);
+  208.       if (!ptr && size)
+  209.           tcc_error("memory full (malloc)");
+
+libtcc.c:208:10: Taking false branch
+  206.       void *ptr;
+  207.       ptr = malloc(size);
+  208.       if (!ptr && size)
+                  ^
+  209.           tcc_error("memory full (malloc)");
+  210.       return ptr;
+
+libtcc.c:210:5: 
+  208.       if (!ptr && size)
+  209.           tcc_error("memory full (malloc)");
+  210. >     return ptr;
+  211.   }
+  212.   
+
+libtcc.c:211:1: return from a call to tcc_malloc
+  209.           tcc_error("memory full (malloc)");
+  210.       return ptr;
+  211. > }
+  212.   
+  213.   PUB_FUNC void *tcc_mallocz(unsigned long size)
+
+libtcc.c:1651:5: 
+1649.       len = lseek(fd, 0, SEEK_END);
+1650.       p = tcc_malloc(len + 1), p[len] = 0;
+1651. >     lseek(fd, 0, SEEK_SET), read(fd, p, len), close(fd);
+1652.   
+1653.       for (i = 0; i < *pargc; ++i)
+
+libtcc.c:1653:10: 
+1651.       lseek(fd, 0, SEEK_SET), read(fd, p, len), close(fd);
+1652.   
+1653. >     for (i = 0; i < *pargc; ++i)
+1654.           if (i == optind)
+1655.               args_parser_make_argv(p, &argc, &argv);
+
+libtcc.c:1653:17: Loop condition is true. Entering loop body
+1651.       lseek(fd, 0, SEEK_SET), read(fd, p, len), close(fd);
+1652.   
+1653.       for (i = 0; i < *pargc; ++i)
+                        ^
+1654.           if (i == optind)
+1655.               args_parser_make_argv(p, &argc, &argv);
+
+libtcc.c:1654:13: Taking false branch
+1652.   
+1653.       for (i = 0; i < *pargc; ++i)
+1654.           if (i == optind)
+                    ^
+1655.               args_parser_make_argv(p, &argc, &argv);
+1656.           else
+
+libtcc.c:1657:13: 
+1655.               args_parser_make_argv(p, &argc, &argv);
+1656.           else
+1657. >             dynarray_add(&argv, &argc, tcc_strdup((*pargv)[i]));
+1658.   
+1659.       tcc_free(p);
+
+libtcc.c:230:10: start of procedure tcc_strdup()
+  228.   }
+  229.   
+  230.   PUB_FUNC char *tcc_strdup(const char *str)
+                  ^
+  231.   {
+  232.       char *ptr;
+
+libtcc.c:233:5: 
+  231.   {
+  232.       char *ptr;
+  233. >     ptr = tcc_malloc(strlen(str) + 1);
+  234.       strcpy(ptr, str);
+  235.       return ptr;
+
+libtcc.c:204:10: start of procedure tcc_malloc()
+    202.   }
+    203.   
+    204.   PUB_FUNC void *tcc_malloc(unsigned long size)
+                    ^
+    205.   {
+    206.       void *ptr;
+
+libtcc.c:207:5: 
+    205.   {
+    206.       void *ptr;
+    207. >     ptr = malloc(size);
+    208.       if (!ptr && size)
+    209.           tcc_error("memory full (malloc)");
+
+libtcc.c:208:10: Taking false branch
+    206.       void *ptr;
+    207.       ptr = malloc(size);
+    208.       if (!ptr && size)
+                    ^
+    209.           tcc_error("memory full (malloc)");
+    210.       return ptr;
+
+libtcc.c:210:5: 
+    208.       if (!ptr && size)
+    209.           tcc_error("memory full (malloc)");
+    210. >     return ptr;
+    211.   }
+    212.   
+
+libtcc.c:211:1: return from a call to tcc_malloc
+    209.           tcc_error("memory full (malloc)");
+    210.       return ptr;
+    211. > }
+    212.   
+    213.   PUB_FUNC void *tcc_mallocz(unsigned long size)
+
+libtcc.c:234:5: 
+  232.       char *ptr;
+  233.       ptr = tcc_malloc(strlen(str) + 1);
+  234. >     strcpy(ptr, str);
+  235.       return ptr;
+  236.   }
+
+libtcc.c:235:5: 
+  233.       ptr = tcc_malloc(strlen(str) + 1);
+  234.       strcpy(ptr, str);
+  235. >     return ptr;
+  236.   }
+  237.   
+
+libtcc.c:236:1: return from a call to tcc_strdup
+  234.       strcpy(ptr, str);
+  235.       return ptr;
+  236. > }
+  237.   
+  238.   PUB_FUNC void tcc_memcheck(void)
+
+libtcc.c:403:9: start of procedure dynarray_add()
+  401.   /* dynarrays */
+  402.   
+  403.   ST_FUNC void dynarray_add(void *ptab, int *nb_ptr, void *data)
+                 ^
+  404.   {
+  405.       int nb, nb_alloc;
+
+libtcc.c:408:5: 
+  406.       void **pp;
+  407.   
+  408. >     nb = *nb_ptr;
+  409.       pp = *(void ***)ptab;
+  410.       /* every power of two we double array size */
+
+libtcc.c:409:5: 
+  407.   
+  408.       nb = *nb_ptr;
+  409. >     pp = *(void ***)ptab;
+  410.       /* every power of two we double array size */
+  411.       if ((nb & (nb - 1)) == 0) {
+
+libtcc.c:411:9: Taking true branch
+  409.       pp = *(void ***)ptab;
+  410.       /* every power of two we double array size */
+  411.       if ((nb & (nb - 1)) == 0) {
+                 ^
+  412.           if (!nb)
+  413.               nb_alloc = 1;
+
+libtcc.c:412:14: Taking true branch
+  410.       /* every power of two we double array size */
+  411.       if ((nb & (nb - 1)) == 0) {
+  412.           if (!nb)
+                      ^
+  413.               nb_alloc = 1;
+  414.           else
+
+libtcc.c:413:13: 
+  411.       if ((nb & (nb - 1)) == 0) {
+  412.           if (!nb)
+  413. >             nb_alloc = 1;
+  414.           else
+  415.               nb_alloc = nb * 2;
+
+libtcc.c:416:9: 
+  414.           else
+  415.               nb_alloc = nb * 2;
+  416. >         pp = tcc_realloc(pp, nb_alloc * sizeof(void *));
+  417.           *(void***)ptab = pp;
+  418.       }
+
+libtcc.c:221:10: start of procedure tcc_realloc()
+    219.   }
+    220.   
+    221.   PUB_FUNC void *tcc_realloc(void *ptr, unsigned long size)
+                    ^
+    222.   {
+    223.       void *ptr1;
+
+libtcc.c:224:5: 
+    222.   {
+    223.       void *ptr1;
+    224. >     ptr1 = realloc(ptr, size);
+    225.       if (!ptr1 && size)
+    226.           tcc_error("memory full (realloc)");
+
+libtcc.c:225:10: Taking false branch
+    223.       void *ptr1;
+    224.       ptr1 = realloc(ptr, size);
+    225.       if (!ptr1 && size)
+                    ^
+    226.           tcc_error("memory full (realloc)");
+    227.       return ptr1;
+
+libtcc.c:227:5: 
+    225.       if (!ptr1 && size)
+    226.           tcc_error("memory full (realloc)");
+    227. >     return ptr1;
+    228.   }
+    229.   
+
+libtcc.c:228:1: return from a call to tcc_realloc
+    226.           tcc_error("memory full (realloc)");
+    227.       return ptr1;
+    228. > }
+    229.   
+    230.   PUB_FUNC char *tcc_strdup(const char *str)
+
+libtcc.c:417:9: 
+  415.               nb_alloc = nb * 2;
+  416.           pp = tcc_realloc(pp, nb_alloc * sizeof(void *));
+  417. >         *(void***)ptab = pp;
+  418.       }
+  419.       pp[nb++] = data;
+
+libtcc.c:419:5: 
+  417.           *(void***)ptab = pp;
+  418.       }
+  419. >     pp[nb++] = data;
+  420.       *nb_ptr = nb;
+  421.   }
+
+libtcc.c:420:5: 
+  418.       }
+  419.       pp[nb++] = data;
+  420. >     *nb_ptr = nb;
+  421.   }
+  422.   
+
+libtcc.c:421:1: return from a call to dynarray_add
+  419.       pp[nb++] = data;
+  420.       *nb_ptr = nb;
+  421. > }
+  422.   
+  423.   ST_FUNC void dynarray_reset(void *pp, int *n)
+
+libtcc.c:1653:29: 
+1651.       lseek(fd, 0, SEEK_SET), read(fd, p, len), close(fd);
+1652.   
+1653. >     for (i = 0; i < *pargc; ++i)
+1654.           if (i == optind)
+1655.               args_parser_make_argv(p, &argc, &argv);
+
+libtcc.c:1653:17: Loop condition is true. Entering loop body
+1651.       lseek(fd, 0, SEEK_SET), read(fd, p, len), close(fd);
+1652.   
+1653.       for (i = 0; i < *pargc; ++i)
+                        ^
+1654.           if (i == optind)
+1655.               args_parser_make_argv(p, &argc, &argv);
+
+libtcc.c:1654:13: Taking true branch
+1652.   
+1653.       for (i = 0; i < *pargc; ++i)
+1654.           if (i == optind)
+                    ^
+1655.               args_parser_make_argv(p, &argc, &argv);
+1656.           else
+
+libtcc.c:1655:13: Skipping args_parser_make_argv(): empty list of specs
+1653.       for (i = 0; i < *pargc; ++i)
+1654.           if (i == optind)
+1655.               args_parser_make_argv(p, &argc, &argv);
+                    ^
+1656.           else
+1657.               dynarray_add(&argv, &argc, tcc_strdup((*pargv)[i]));

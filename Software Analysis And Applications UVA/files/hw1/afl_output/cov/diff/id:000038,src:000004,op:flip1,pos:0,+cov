@@ -1,0 +1,3 @@
+diff id:000037,src:000004,op:flip1,pos:0 -> id:000038,src:000004,op:flip1,pos:0,+cov
+Src file: /root/tinycc/tccgen.c
+  New 'line' coverage: 7173

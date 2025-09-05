@@ -1,0 +1,1 @@
+/root/tcc/bin/tcc -I /root/tcc/include -Wall -Wimplicit-function-declaration -Wunsupported -Wwrite-strings -Werror -funsigned-char -fsigned-char -fno-common -fleading-underscore -fms-extensions -fdollars-in-identifiers -g -b -bt 10 -shared -o hello -run @@

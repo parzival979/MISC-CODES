@@ -1,0 +1,6 @@
+diff id:000009,orig:fpusse.s -> id:000010,orig:hello
+Src file: /root/tinycc/tccpp.c
+  New 'line' coverage: 2954
+  New 'line' coverage: 2955
+  New 'line' coverage: 2957
+  New 'line' coverage: 2959

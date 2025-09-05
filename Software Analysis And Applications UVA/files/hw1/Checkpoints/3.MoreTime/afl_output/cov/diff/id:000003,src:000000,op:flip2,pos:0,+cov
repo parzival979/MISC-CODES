@@ -1,0 +1,11 @@
+diff id:000002,src:000000,op:flip1,pos:0,+cov -> id:000003,src:000000,op:flip2,pos:0,+cov
+Src file: /root/tinycc/tccgen.c
+  New 'line' coverage: 7172
+  New 'line' coverage: 7173
+Src file: /root/tinycc/tccpp.c
+  New 'line' coverage: 2918
+  New 'line' coverage: 2919
+  New 'line' coverage: 2920
+  New 'line' coverage: 2925
+  New 'line' coverage: 2929
+  New 'line' coverage: 2933

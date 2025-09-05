@@ -1,0 +1,4 @@
+diff id:000040,src:000004,op:arith8,pos:1,val:-23,+cov -> id:000041,src:000004,op:int16,pos:0,val:+32,+cov
+Src file: /root/tinycc/tccpp.c
+  New 'line' coverage: 2957
+  New 'line' coverage: 2959

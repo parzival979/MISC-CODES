@@ -1,0 +1,11 @@
+tccgen.c:3744: error: UNINITIALIZED_VALUE
+  The value read from t.t was never initialized.
+Showing all 1 steps of the trace
+
+
+tccgen.c:3744:17: 
+3742.   		        | (bit_pos << VT_STRUCT_SHIFT);
+3743.               if (s != size)
+3744. >                 f->auxtype = t.t;
+3745.   #ifdef BF_DEBUG
+3746.               printf("FIX field %s offset %-2d size %-2d align %-2d "

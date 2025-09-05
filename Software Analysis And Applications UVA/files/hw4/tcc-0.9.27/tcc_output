@@ -1,0 +1,78 @@
+[1marm64-link.c:184:34: [31merror:[39m Shifting 32-bit value by 32 bits is undefined behaviour [shiftTooManyBits][0m
+                            (val >> 32 & 0xffff) << 5));
+                                 ^
+[1marm64-link.c:188:34: [31merror:[39m Shifting 32-bit value by 48 bits is undefined behaviour [shiftTooManyBits][0m
+                            (val >> 48 & 0xffff) << 5));
+                                 ^
+[1mc67-gen.c:1602:26: [31merror:[39m Array 'ParamLocOnStack[10]' accessed at index 10, which is out of bounds. [arrayIndexOutOfBounds][0m
+     fc = ParamLocOnStack[t] - 8;
+                         ^
+[1mc67-gen.c:1593:6: [2mnote:[0m After for loop, t has value 10
+     for (t = 0; t < NoCallArgsPassedOnStack; t++) {
+     ^
+[1mc67-gen.c:1602:26: [2mnote:[0m Array index out of bounds
+     fc = ParamLocOnStack[t] - 8;
+                         ^
+[1mc67-gen.c:1773:23: [31merror:[39m Array 'ParamLocOnStack[10]' accessed at index 10, which is out of bounds. [arrayIndexOutOfBounds][0m
+  fc = ParamLocOnStack[t] - 8;
+                      ^
+[1mc67-gen.c:1765:3: [2mnote:[0m After for loop, t has value 10
+  for (t = 0; t < NoCallArgsPassedOnStack; t++) {
+  ^
+[1mc67-gen.c:1773:23: [2mnote:[0m Array index out of bounds
+  fc = ParamLocOnStack[t] - 8;
+                      ^
+[1mc67-gen.c:2113:7: [31merror:[39m Uninitialized variable: p [uninitvar][0m
+     *p |= (t & 0xffff) << 7;
+      ^
+[1mc67-gen.c:2106:15: [2mnote:[0m Assuming condition is false
+     while (n != 0) {
+              ^
+[1mc67-gen.c:2113:7: [2mnote:[0m Uninitialized variable: p
+     *p |= (t & 0xffff) << 7;
+      ^
+[1mtccpe.c:1004:20: [31mwarning:[39m Possible null pointer dereference: rel [nullPointer][0m
+            addr = rel->r_offset + s->sh_addr;
+                   ^
+[1mtccpe.c:999:0: [2mnote:[0m Assignment 'rel=NULL', assigned value is 0
+    rel = rel_end = NULL;
+^
+[1mtccpe.c:1004:20: [2mnote:[0m Null pointer dereference
+            addr = rel->r_offset + s->sh_addr;
+                   ^
+[1mtccpe.c:1004:36: [31mwarning:[39m Possible null pointer dereference: s [nullPointer][0m
+            addr = rel->r_offset + s->sh_addr;
+                                   ^
+[1mtccpe.c:996:18: [2mnote:[0m Assignment 's=NULL', assigned value is 0
+    Section *s = NULL, *sr;
+                 ^
+[1mtccpe.c:1004:36: [2mnote:[0m Null pointer dereference
+            addr = rel->r_offset + s->sh_addr;
+                                   ^
+[1mtccpe.c:1005:13: [31merror:[39m Pointer addition with NULL pointer. [nullPointerArithmetic][0m
+            ++ rel;
+            ^
+[1mtccpe.c:999:0: [2mnote:[0m Assignment 'rel=NULL', assigned value is 0
+    rel = rel_end = NULL;
+^
+[1mtccpe.c:1005:13: [2mnote:[0m Null pointer addition
+            ++ rel;
+            ^
+[1mx86_64-gen.c:336:39: [31mwarning:[39m Possible null pointer dereference: sym [nullPointer][0m
+    is_got = (op_reg & TREG_MEM) && !(sym->type.t & VT_STATIC);
+                                      ^
+[1mx86_64-gen.c:1431:46: [2mnote:[0m Calling function 'gen_modrm64', 4th argument 'NULL' value is 0
+    gen_modrm64(0x89, arg_regs[i], VT_LOCAL, NULL, loc);
+                                             ^
+[1mx86_64-gen.c:336:39: [2mnote:[0m Null pointer dereference
+    is_got = (op_reg & TREG_MEM) && !(sym->type.t & VT_STATIC);
+                                      ^
+[1mx86_64-gen.c:336:39: [31mwarning:[39m Possible null pointer dereference: sym [nullPointer][0m
+    is_got = (op_reg & TREG_MEM) && !(sym->type.t & VT_STATIC);
+                                      ^
+[1mx86_64-gen.c:977:64: [2mnote:[0m Calling function 'gen_modrm64', 4th argument 'NULL' value is 0
+        gen_modrm64(0x89, arg_regs[reg_param_index], VT_LOCAL, NULL, addr);
+                                                               ^
+[1mx86_64-gen.c:336:39: [2mnote:[0m Null pointer dereference
+    is_got = (op_reg & TREG_MEM) && !(sym->type.t & VT_STATIC);
+                                      ^

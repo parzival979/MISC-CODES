@@ -1,0 +1,33 @@
+diff id:000027,src:000000,op:havoc,rep:8 -> id:000028,src:000000,op:havoc,rep:64
+Src file: /root/tinycc/tcc.h
+  New 'line' coverage: 1267
+Src file: /root/tinycc/tccpp.c
+  New 'function' coverage: parse_number()
+  New 'line' coverage: 2260
+  New 'line' coverage: 2268
+  New 'line' coverage: 2269
+  New 'line' coverage: 2270
+  New 'line' coverage: 2271
+  New 'line' coverage: 2272
+  New 'line' coverage: 2273
+  New 'line' coverage: 2274
+  New 'line' coverage: 2407
+  New 'line' coverage: 2408
+  New 'line' coverage: 2409
+  New 'line' coverage: 2411
+  New 'line' coverage: 2412
+  New 'line' coverage: 2415
+  New 'line' coverage: 2435
+  New 'line' coverage: 2436
+  New 'line' coverage: 2437
+  New 'line' coverage: 2438
+  New 'line' coverage: 2442
+  New 'line' coverage: 2452
+  New 'line' coverage: 2453
+  New 'line' coverage: 2544
+  New 'line' coverage: 2546
+  New 'line' coverage: 2782
+  New 'line' coverage: 2784
+  New 'line' coverage: 2785
+  New 'line' coverage: 3561
+  New 'line' coverage: 3562

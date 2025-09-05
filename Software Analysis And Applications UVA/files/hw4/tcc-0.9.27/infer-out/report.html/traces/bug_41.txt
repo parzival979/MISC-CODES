@@ -1,0 +1,11 @@
+tccpp.c:1814: error: UNINITIALIZED_VALUE
+  The value read from buf[_] was never initialized.
+Showing all 1 steps of the trace
+
+
+tccpp.c:1814:22: 
+1812.               if (i == 0) {
+1813.                   /* check absolute include path */
+1814. >                 if (!IS_ABSPATH(buf))
+1815.                       continue;
+1816.                   buf1[0] = 0;

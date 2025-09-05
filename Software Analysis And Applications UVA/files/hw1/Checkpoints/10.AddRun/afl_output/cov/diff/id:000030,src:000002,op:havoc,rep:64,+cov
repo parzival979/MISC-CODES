@@ -1,0 +1,7 @@
+diff id:000029,src:000002,op:ext_UI,pos:0 -> id:000030,src:000002,op:havoc,rep:64,+cov
+Src file: /root/tinycc/tccgen.c
+  New 'line' coverage: 5071
+  New 'line' coverage: 6281
+  New 'line' coverage: 6283
+  New 'line' coverage: 6284
+  New 'line' coverage: 6285

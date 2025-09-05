@@ -1,0 +1,4 @@
+KLEE: Using STP solver backend
+KLEE: SAT solver: MiniSat
+KLEE: ERROR: program_suite/2-out-of-bounds-sym.c:10: memory error: out of bound pointer
+KLEE: NOTE: now ignoring this error at this location

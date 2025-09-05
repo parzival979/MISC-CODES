@@ -1,0 +1,18 @@
+diff id:000038,src:000002,op:havoc,rep:128 -> id:000039,src:000002,op:havoc,rep:32
+Src file: /root/tinycc/libtcc.c
+  New 'function' coverage: tcc_warning()
+  New 'line' coverage: 500
+  New 'line' coverage: 555
+  New 'line' coverage: 557
+  New 'line' coverage: 560
+  New 'line' coverage: 563
+  New 'line' coverage: 564
+  New 'line' coverage: 565
+Src file: /root/tinycc/tccpp.c
+  New 'line' coverage: 1995
+  New 'line' coverage: 1997
+  New 'line' coverage: 1999
+  New 'line' coverage: 2002
+  New 'line' coverage: 2003
+  New 'line' coverage: 2004
+  New 'line' coverage: 2005

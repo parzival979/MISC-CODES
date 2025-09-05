@@ -1,0 +1,1 @@
+/root/tcc/bin/tcc -I /root/tcc/include -o hello @@

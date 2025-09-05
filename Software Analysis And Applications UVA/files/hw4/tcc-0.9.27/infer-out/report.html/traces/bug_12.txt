@@ -1,0 +1,11 @@
+i386-asm.c:908: error: UNINITIALIZED_VALUE
+  The value read from op_type[_] was never initialized.
+Showing all 1 steps of the trace
+
+
+i386-asm.c:908:17: 
+906.   	   already SSE insn and needs 0x66/f2/f3 handling.  */
+907.           for (i = 0; i < nb_ops; i++)
+908. >             if ((op_type[i] & (OP_MMX | OP_SSE)) == (OP_MMX | OP_SSE)
+909.   	        && ops[i].type & OP_SSE)
+910.   	        p66 = 1;

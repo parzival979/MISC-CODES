@@ -1,0 +1,12 @@
+tccpp.c:737: error: DEAD_STORE
+  The value written to &c (type int) is never used.
+Showing all 1 steps of the trace
+
+
+tccpp.c:737:25: Write of unused value
+735.                       if (c == '\n') {
+736.                           file->line_num++;
+737.                           PEEKC_EOB(c, p);
+                               ^
+738.                       }
+739.                   }

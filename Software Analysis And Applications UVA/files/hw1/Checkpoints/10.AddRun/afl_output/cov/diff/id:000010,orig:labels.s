@@ -1,0 +1,53 @@
+diff id:000009,orig:invalid.s -> id:000010,orig:labels.s
+Src file: /root/tinycc/x86_64-gen.c
+  New 'function' coverage: gen_addr32()
+  New 'line' coverage: 242
+  New 'line' coverage: 244
+  New 'line' coverage: 246
+  New 'line' coverage: 247
+Src file: /root/tinycc/tccasm.c
+  New 'line' coverage: 388
+  New 'line' coverage: 389
+Src file: /root/tinycc/i386-asm.c
+  New 'function' coverage: gen_expr32()
+  New 'line' coverage: 1019
+  New 'line' coverage: 1020
+  New 'line' coverage: 1021
+  New 'line' coverage: 1022
+  New 'line' coverage: 1023
+  New 'line' coverage: 1024
+  New 'line' coverage: 1035
+  New 'line' coverage: 1036
+  New 'line' coverage: 1038
+  New 'line' coverage: 1039
+  New 'line' coverage: 1041
+  New 'line' coverage: 1042
+  New 'line' coverage: 1043
+  New 'line' coverage: 1104
+  New 'line' coverage: 1105
+  New 'line' coverage: 1107
+  New 'line' coverage: 1109
+  New 'line' coverage: 1115
+  New 'line' coverage: 1118
+  New 'line' coverage: 1119
+  New 'line' coverage: 1120
+  New 'line' coverage: 1123
+  New 'line' coverage: 1126
+  New 'line' coverage: 1129
+  New 'line' coverage: 482
+  New 'line' coverage: 484
+  New 'line' coverage: 489
+  New 'line' coverage: 490
+  New 'line' coverage: 592
+  New 'line' coverage: 593
+  New 'line' coverage: 594
+  New 'line' coverage: 597
+  New 'line' coverage: 599
+  New 'line' coverage: 792
+  New 'line' coverage: 818
+  New 'line' coverage: 820
+  New 'line' coverage: 821
+  New 'line' coverage: 822
+  New 'line' coverage: 823
+  New 'line' coverage: 824
+  New 'line' coverage: 835

@@ -1,0 +1,11 @@
+i386-asm.c:994: error: UNINITIALIZED_VALUE
+  The value read from op_type[_] was never initialized.
+Showing all 1 steps of the trace
+
+
+i386-asm.c:994:17: 
+992.           /* then if not found, a register or indirection (shift instructions) */
+993.           for(i = 0;i < nb_ops; i++) {
+994. >             if (op_type[i] & (OP_REG | OP_MMX | OP_SSE | OP_INDIR))
+995.                   goto modrm_found;
+996.           }

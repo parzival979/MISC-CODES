@@ -1,0 +1,11 @@
+tccrun.c:460: error: UNINITIALIZED_VALUE
+  The value read from incl_files[_] was never initialized.
+Showing all 1 steps of the trace
+
+
+tccrun.c:460:9: 
+458.       i = incl_index;
+459.       if (i > 0)
+460. >         fprintf(stderr, "%s:%d: ", incl_files[--i], last_line_num);
+461.       fprintf(stderr, "%s %p", msg, (void*)wanted_pc);
+462.       if (last_func_name[0] != '\0')

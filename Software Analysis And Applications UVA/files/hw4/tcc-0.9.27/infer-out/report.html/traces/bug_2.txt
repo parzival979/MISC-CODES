@@ -1,0 +1,63 @@
+libtcc.c:186: error: NULL_DEREFERENCE
+  pointer `b` last assigned on line 185 could be null and is dereferenced by call to `strrchr()` at line 186, column 15.
+Showing all 8 steps of the trace
+
+
+libtcc.c:183:10: start of procedure tcc_fileextension()
+181.    * (if no extension, return pointer to end-of-string)
+182.    */
+183.   PUB_FUNC char *tcc_fileextension (const char *name)
+                ^
+184.   {
+185.       char *b = tcc_basename(name);
+
+libtcc.c:185:5: 
+183.   PUB_FUNC char *tcc_fileextension (const char *name)
+184.   {
+185. >     char *b = tcc_basename(name);
+186.       char *e = strrchr(b, '.');
+187.       return e ? e : strchr(b, 0);
+
+libtcc.c:171:10: start of procedure tcc_basename()
+  169.   
+  170.   /* extract the basename of a file */
+  171.   PUB_FUNC char *tcc_basename(const char *name)
+                  ^
+  172.   {
+  173.       char *p = strchr(name, 0);
+
+libtcc.c:173:5: 
+  171.   PUB_FUNC char *tcc_basename(const char *name)
+  172.   {
+  173. >     char *p = strchr(name, 0);
+  174.       while (p > name && !IS_DIRSEP(p[-1]))
+  175.           --p;
+
+libtcc.c:174:12: Loop condition is false. Leaving loop
+  172.   {
+  173.       char *p = strchr(name, 0);
+  174.       while (p > name && !IS_DIRSEP(p[-1]))
+                    ^
+  175.           --p;
+  176.       return p;
+
+libtcc.c:176:5: 
+  174.       while (p > name && !IS_DIRSEP(p[-1]))
+  175.           --p;
+  176. >     return p;
+  177.   }
+  178.   
+
+libtcc.c:177:1: return from a call to tcc_basename
+  175.           --p;
+  176.       return p;
+  177. > }
+  178.   
+  179.   /* extract extension part of a file
+
+libtcc.c:186:5: 
+184.   {
+185.       char *b = tcc_basename(name);
+186. >     char *e = strrchr(b, '.');
+187.       return e ? e : strchr(b, 0);
+188.   }

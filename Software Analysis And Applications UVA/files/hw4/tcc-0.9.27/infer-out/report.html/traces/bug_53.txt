@@ -1,0 +1,11 @@
+tccelf.c:2706: error: UNINITIALIZED_VALUE
+  The value read from ehdr.e_machine was never initialized.
+Showing all 1 steps of the trace
+
+
+tccelf.c:2706:9: 
+2704.       /* test CPU specific stuff */
+2705.       if (ehdr.e_ident[5] != ELFDATA2LSB ||
+2706. >         ehdr.e_machine != EM_TCC_TARGET) {
+2707.           tcc_error_noabort("bad architecture");
+2708.           return -1;

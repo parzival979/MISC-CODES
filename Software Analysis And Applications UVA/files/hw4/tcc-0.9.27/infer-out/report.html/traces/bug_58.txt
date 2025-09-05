@@ -1,0 +1,11 @@
+tccgen.c:3739: error: UNINITIALIZED_VALUE
+  The value read from cx was never initialized.
+Showing all 1 steps of the trace
+
+
+tccgen.c:3739:13: 
+3737.           if (px + bit_size <= s * 8 && cx + s <= c) {
+3738.               /* update offset and bit position */
+3739. >             f->c = cx;
+3740.               bit_pos = px;
+3741.   	    f->type.t = (f->type.t & ~(0x3f << VT_STRUCT_SHIFT))

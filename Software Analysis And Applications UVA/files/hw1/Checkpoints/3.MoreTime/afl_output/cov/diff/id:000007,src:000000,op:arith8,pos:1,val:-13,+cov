@@ -1,0 +1,18 @@
+diff id:000006,src:000000,op:flip4,pos:0,+cov -> id:000007,src:000000,op:arith8,pos:1,val:-13,+cov
+Src file: /root/tinycc/tccpp.c
+  New 'function' coverage: handle_stray_noerror()
+  New 'function' coverage: inp()
+  New 'line' coverage: 620
+  New 'line' coverage: 622
+  New 'line' coverage: 624
+  New 'line' coverage: 626
+  New 'line' coverage: 629
+  New 'line' coverage: 631
+  New 'line' coverage: 632
+  New 'line' coverage: 633
+  New 'line' coverage: 636
+  New 'line' coverage: 643
+  New 'line' coverage: 669
+  New 'line' coverage: 670
+  New 'line' coverage: 671
+  New 'line' coverage: 672
