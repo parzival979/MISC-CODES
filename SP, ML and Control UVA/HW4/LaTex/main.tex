@@ -1,0 +1,399 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm} % For math symbols and environments
+\usepackage{graphicx} % For including images
+\usepackage{grffile} % Enable file names with spaces or parentheses
+\usepackage{hyperref} % For hyperlinks
+\usepackage{fancyhdr} % For header and footer
+\usepackage{geometry} % For adjusting page dimensions
+\usepackage{cite} % For handling references
+\geometry{margin=1in}
+
+% Header and footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Sravanth Chowdary Potluri}
+\fancyhead[C]{SP,ML and Control HW4}
+\fancyhead[R]{\thepage}
+\fancyfoot[L]{CS6762}
+\fancyfoot[R]{\today}
+
+% Title Page
+\title{Signal Processing, Machine Learning and Control HW4}
+\author{Sravanth Chowdary Potluri \\ und5uv \\ CS6762}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{}
+
+In the context of Feedback Control for Cyber-Physical Systems (CPS), \textbf{SASO} is an acronym representing the four fundamental performance specifications used to evaluate and design control loops: \textbf{S}tability, \textbf{A}ccuracy, \textbf{S}ettling time, and \textbf{O}vershoot. These metrics allow engineers to analyze the characteristics of a system (e.g., via Z-transforms and transfer functions) to ensure it meets the desired behavioral requirements.
+
+\begin{itemize}
+    \item \textbf{Stability:} This is the primary requirement for any control system. Stability determines whether the system's output converges to a value or remains bounded given a bounded input (BIBO stability), as opposed to diverging to infinity or oscillating uncontrollably. In discrete-time analysis, a system is stable if and only if all poles of its transfer function lie strictly inside the unit circle.
+
+    \item \textbf{Accuracy:} Accuracy refers to the system's ability to minimize the steady-state error ($e_{ss}$), which is the difference between the desired reference input ($r_{ss}$) and the actual measured output ($y_{ss}$) once the system has reached steady state. A highly accurate system has an output that converges very closely to the reference value (i.e., $y_{ss} \approx r_{ss}$).
+
+    \item \textbf{Settling Time ($k_s$):} This metric characterizes the speed of the system's response. It is defined as the time required for the system to pass through the transient state and enter the steady state, staying within a specific error margin (e.g., $\pm 2\%$) of the final value. It is influenced by the magnitude of the system's poles; smaller poles generally result in faster convergence and shorter settling times.
+
+    \item \textbf{Overshoot ($M_p$):} Overshoot quantifies the maximum value by which the system's output exceeds the steady-state value during the transient phase. It is often caused by complex poles in the system's transfer function, which introduce oscillation. Minimizing overshoot is critical in CPS applications where exceeding a threshold could be dangerous or damaging.
+\end{itemize}
+
+\section{}
+
+System Identification is an empirical, data-driven methodology used to construct mathematical models of dynamical systems when first-principle physical laws are unavailable or too complex. The process consists of five distinct steps:
+
+\subsection{The 5 Steps of System Identification}
+\begin{enumerate}
+    \item \textbf{Choose Inputs and Outputs:} 
+     The first step involves defining the system boundaries by identifying the control input signals, $u(k)$, that will be manipulated and the output signals, $y(k)$, that will be measured. For a computing system, an input might be the maximum number of users allowed, while the output might be the response time or CPU utilization.
+
+    \item \textbf{Decide the Model Structure:} 
+     The engineer must hypothesize the mathematical form of the system. This typically involves selecting the order of the difference equation (e.g., First Order vs. Second Order). A simple first-order Single-Input Single-Output (SISO) structure often takes the form:
+    $$ y(k+1) = a y(k) + b u(k) $$
+    where $a$ and $b$ are the parameters to be determined.
+
+    \item \textbf{Design and Run Experiments:} 
+     Experiments are conducted to collect time-domain data for the chosen inputs and outputs. It is crucial to design experiments that cover a wide range of expected workloads and dynamics to prevent overfitting. The choice of sampling time is also critical during this data collection phase.
+
+    \item \textbf{Estimate Parameter Values:} 
+     Using the collected data, the unknown parameters (such as $a$ and $b$ in the first-order model) are calculated. This is mathematically achieved using regression techniques, most commonly the \textbf{Least Squares} method. Tools like the Matlab System Identification Toolbox are frequently used to automate this estimation.
+
+    \item \textbf{Evaluate Quality of Model Fit:} 
+     The final step is validation. The derived model is tested against the experimental data (or a separate validation set) to see how accurately it predicts the system's behavior. If the fit is poor, the process is iterative: the engineer must return to Step 2 (choose a higher-order structure) or Step 3 (collect better data).
+\end{enumerate}
+
+\subsection{Metrics for Assessing Model Fit}
+To quantitatively evaluate how well the identified model approximates the actual system data, the following two metrics are commonly used:
+
+\begin{itemize}
+    \item \textbf{RMSE (Root Mean Square Error):} 
+    This metric measures the standard deviation of the prediction errors (residuals). It quantifies how concentrated the data is around the line of best fit. A lower RMSE indicates a better fit, meaning the model's predicted output values are closer to the actual measured values.
+    
+    \item \textbf{$R^2$ (Coefficient of Determination):} 
+    Often referred to as "Fit Percentage" or "Accuracy" in System ID contexts, $R^2$ represents the proportion of the variance for the dependent variable that's explained by the independent variable(s) in the model. An $R^2$ value closer to 1 (or 100\%) indicates that the model explains the system dynamics very well.
+\end{itemize}
+
+
+\section{}
+
+A Multiple-Input Multiple-Output (MIMO) system with 3 inputs and 2 outputs, characterized as a 2nd order system, implies that the output at the next time step, $y(k+1)$, depends on the history of \textit{all} system outputs and \textit{all} system inputs from the previous two time steps (lags $k$ and $k-1$).
+
+Let the inputs be denoted as $u_1(k), u_2(k), u_3(k)$ and the outputs as $y_1(k), y_2(k)$. The general difference equations are derived by combining the MIMO cross-coupling structure with 2nd order lag dynamics:
+
+\begin{align*}
+    % Equation for Output 1
+    y_1(k+1) = & \quad \underbrace{a_{11}^{(1)}y_1(k) + a_{12}^{(1)}y_2(k)}_{\text{Outputs at lag 1}} 
+               + \underbrace{a_{11}^{(2)}y_1(k-1) + a_{12}^{(2)}y_2(k-1)}_{\text{Outputs at lag 2}} \\
+               & + \underbrace{b_{11}^{(1)}u_1(k) + b_{12}^{(1)}u_2(k) + b_{13}^{(1)}u_3(k)}_{\text{Inputs at lag 1}} \\
+               & + \underbrace{b_{11}^{(2)}u_1(k-1) + b_{12}^{(2)}u_2(k-1) + b_{13}^{(2)}u_3(k-1)}_{\text{Inputs at lag 2}} \\[1em]
+    % Equation for Output 2
+    y_2(k+1) = & \quad \underbrace{a_{21}^{(1)}y_1(k) + a_{22}^{(1)}y_2(k)}_{\text{Outputs at lag 1}} 
+               + \underbrace{a_{21}^{(2)}y_1(k-1) + a_{22}^{(2)}y_2(k-1)}_{\text{Outputs at lag 2}} \\
+               & + \underbrace{b_{21}^{(1)}u_1(k) + b_{22}^{(1)}u_2(k) + b_{23}^{(1)}u_3(k)}_{\text{Inputs at lag 1}} \\
+               & + \underbrace{b_{21}^{(2)}u_1(k-1) + b_{22}^{(2)}u_2(k-1) + b_{23}^{(2)}u_3(k-1)}_{\text{Inputs at lag 2}}
+\end{align*}
+
+\textbf{Notation Key:}
+\begin{itemize}
+    \item $a_{ij}^{(L)}$ represents the coefficient for the effect of output $j$ on output $i$ with a lag of $L$.
+    \item $b_{ij}^{(L)}$ represents the coefficient for the effect of input $j$ on output $i$ with a lag of $L$.
+\end{itemize}
+
+\section{}
+
+\subsection{Part a: Arbitrary Signal}
+\textbf{Signal:} $U(k) = (1, 5, 10, 0, 20, 0, \dots)$
+
+To find the Z-transform of an arbitrary sequence, we apply the definition of the Z-transform directly:
+$$ U(z) = \sum_{k=0}^{\infty} u(k) z^{-k} $$
+
+Substituting the specific values from the sequence where $u(0)=1, u(1)=5, u(2)=10, u(3)=0, u(4)=20$, and assuming all subsequent values are 0:
+
+\begin{align*}
+    U(z) &= 1 \cdot z^0 + 5 \cdot z^{-1} + 10 \cdot z^{-2} + 0 \cdot z^{-3} + 20 \cdot z^{-4} \\
+         &= 1 + 5z^{-1} + 10z^{-2} + 20z^{-4}
+\end{align*}
+
+\subsection{Part b: Unit Step Signal}
+\textbf{Signal:} $U(k) = (1, 1, 1, 1, 1, \dots)$
+
+This signal represents the Unit Step function, often denoted as $u_{step}(k)$. Its Z-transform is calculated as the sum of an infinite geometric series:
+
+\begin{align*}
+    U(z) &= \sum_{k=0}^{\infty} 1 \cdot z^{-k} \\
+         &= 1 + z^{-1} + z^{-2} + z^{-3} + \dots \\
+         &= \frac{1}{1 - z^{-1}} \quad \text{(using geometric series sum for } |z^{-1}| < 1 \text{)} \\
+         &= \frac{z}{z - 1}
+\end{align*}
+
+
+\section{}
+
+\textbf{Problem:} Find the inverse Z-transform for $U(z) = \frac{z}{z-1} + \frac{z}{z-0.3}$.
+
+To find the time-domain signal $u(k)$, we can use the linearity property of the Z-transform and look up the standard transform pairs from the provided tables.
+
+\subsection{Step-by-Step Derivation}
+
+1.  \textbf{Analyze the First Term:} $\frac{z}{z-1}$
+    According to the standard Z-transform pairs, this corresponds to the \textbf{Unit Step Signal}.
+    $$ \mathcal{Z}^{-1}\left\{ \frac{z}{z-1} \right\} = 1 \quad \text{for } k \ge 0 $$
+
+2.  \textbf{Analyze the Second Term:} $\frac{z}{z-0.3}$
+    This term matches the form of the \textbf{Exponential Signal} $\frac{z}{z-\alpha}$, where $\alpha = 0.3$.
+    $$ \mathcal{Z}^{-1}\left\{ \frac{z}{z-\alpha} \right\} = \alpha^k \implies \mathcal{Z}^{-1}\left\{ \frac{z}{z-0.3} \right\} = (0.3)^k \quad \text{for } k \ge 0 $$
+
+3.  \textbf{Apply Linearity:}
+    Combine the time-domain results of the individual terms:
+    $$ u(k) = \mathcal{Z}^{-1}\left\{ \frac{z}{z-1} \right\} + \mathcal{Z}^{-1}\left\{ \frac{z}{z-0.3} \right\} $$
+
+\subsection{Final Solution}
+$$ u(k) = 1 + (0.3)^k \quad \text{for } k \ge 0 $$
+
+\section{}
+
+\textbf{Problem:} Determine the output steady state, $y_{ss}$, given the Z-transform:
+$$ Y(z) = \frac{-0.5z}{(z-1)(z-0.4)} $$
+
+To find the steady-state value of a discrete-time signal $y(k)$ as $k \to \infty$, we apply the \textbf{Final Value Theorem}.
+
+\subsection{Final Value Theorem}
+The theorem states that the final value $y_{ss}$ can be calculated directly from $Y(z)$ using the limit:
+$$ y_{ss} = \lim_{k \to \infty} y(k) = \lim_{z \to 1} (z-1)Y(z) $$
+\textit{Condition:} This theorem is valid if and only if all poles of $(z-1)Y(z)$ lie strictly inside the unit circle (i.e., $|p| < 1$).
+
+\subsection{Derivation}
+
+1.  \textbf{Formulate $(z-1)Y(z)$:}
+    Multiply the given $Y(z)$ by $(z-1)$:
+    $$ (z-1)Y(z) = (z-1) \left[ \frac{-0.5z}{(z-1)(z-0.4)} \right] $$
+    Canceling the $(z-1)$ terms:
+    $$ (z-1)Y(z) = \frac{-0.5z}{z-0.4} $$
+
+2.  \textbf{Check Stability Condition:}
+    The pole of the reduced expression $\frac{-0.5z}{z-0.4}$ is at $z = 0.4$.
+    Since $|0.4| < 1$, the pole lies inside the unit circle. The condition is satisfied, and the system will converge to a steady state.
+
+3.  \textbf{Calculate the Limit:}
+    Apply the limit as $z \to 1$:
+    $$ y_{ss} = \lim_{z \to 1} \frac{-0.5z}{z-0.4} $$
+    Substitute $z = 1$:
+    $$ y_{ss} = \frac{-0.5(1)}{1 - 0.4} = \frac{-0.5}{0.6} $$
+
+4.  \textbf{Final Result:}
+    $$ y_{ss} = -\frac{5}{6} \approx -0.8333 $$
+
+\subsection{Answer}
+The output steady state is \textbf{-0.8333}.
+
+
+\section{}
+
+\textbf{Problem:} Given the transfer function $G(z) = 6 - 5z^{-1} + 10z^{-2} + 6z^{-3}$, determine the time domain output $y(k)$ when the input is a unit impulse.
+
+\subsection{Derivation}
+
+1.  \textbf{Identify the Input Z-Transform:}
+    The input is a unit impulse signal, $u(k) = \delta(k)$.
+    The Z-transform of a unit impulse is unity:
+    $$ U(z) = 1 $$
+
+2.  \textbf{Calculate Output Z-Transform:}
+    The relationship between input, output, and transfer function is given by $Y(z) = G(z)U(z)$.
+    Substituting $U(z) = 1$:
+    $$ Y(z) = G(z) \cdot 1 = 6 - 5z^{-1} + 10z^{-2} + 6z^{-3} $$
+
+3.  \textbf{Inverse Z-Transform (Coefficient Matching):}
+    The definition of the Z-transform for a signal $y(k)$ is:
+    $$ Y(z) = \sum_{k=0}^{\infty} y(k)z^{-k} = y(0)z^0 + y(1)z^{-1} + y(2)z^{-2} + y(3)z^{-3} + \dots $$
+    
+    By comparing the coefficients of $Y(z)$ obtained in Step 2 with the definition, we can directly read the time domain values:
+    \begin{itemize}
+        \item Coefficient of $z^0$: $y(0) = 6$
+        \item Coefficient of $z^{-1}$: $y(1) = -5$
+        \item Coefficient of $z^{-2}$: $y(2) = 10$
+        \item Coefficient of $z^{-3}$: $y(3) = 6$
+        \item Higher order terms ($z^{-4}$, etc.) are 0.
+    \end{itemize}
+
+\subsection{Final Solution}
+The time domain output sequence is:
+$$ y(k) = \{6, -5, 10, 6, 0, 0, \dots\} $$
+\textit{Or written as:}
+$$ y(0)=6, \quad y(1)=-5, \quad y(2)=10, \quad y(3)=6, \quad y(k)=0 \text{ for } k \ge 4 $$
+
+
+\section{}
+
+To determine if a system is \textbf{Linear}, it must strictly satisfy two fundamental properties: \textbf{Scaling} (Homogeneity) and \textbf{Superposition}.
+
+\subsection{Analysis of the Given Scenario}
+The problem states:
+\begin{itemize}
+    \item Input $u(k)$ results in output $y(k)$.
+    \item Input $3u(k)$ results in output $3y(k)$.
+\end{itemize}
+
+This observation demonstrates the \textbf{Scaling} property.
+\begin{quote}
+    \textbf{Scaling Definition:} If an input $u(k)$ produces an output $y(k)$, then a scaled input $\lambda u(k)$ must produce a scaled output $\lambda y(k)$ for any scalar $\lambda$. Here, the system satisfies this for $\lambda = 3$.
+\end{quote}
+
+\subsection{Conclusion}
+While the system satisfies the \textbf{Scaling} requirement based on the provided data, this alone is \textbf{insufficient} to definitively classify the system as linear. To be fully linear, the system must also be proven to satisfy \textbf{Superposition}:
+$$ u_1(k) + u_2(k) \rightarrow y_1(k) + y_2(k) $$
+
+\textbf{Answer:} We cannot confirm the system is linear. We can only confirm it satisfies the \textbf{Scaling} property. Without verification of \textbf{Superposition}, the assessment is incomplete.
+
+
+\section{}
+
+To determine if a discrete-time Linear Time-Invariant (LTI) system is Bounded-Input Bounded-Output (BIBO) stable, we analyze the poles of its transfer function $G(z)$.
+
+\subsection{Stability Condition}
+Theorem: A discrete-time system described by the transfer function $G(z)$ is BIBO stable if and only if all of its poles lie strictly inside the unit circle in the complex plane. Mathematically, for every pole $p$:
+$$ |p| < 1 $$
+
+\subsection{Part a}
+\textbf{System:} $G(z) = \frac{0.3}{z - 0.3}$
+
+1.  \textbf{Identify the Pole:} Set the denominator to zero.
+    $$ z - 0.3 = 0 \implies p = 0.3 $$
+2.  \textbf{Check Condition:}
+    Calculate the magnitude of the pole:
+    $$ |p| = |0.3| = 0.3 $$
+    Since $0.3 < 1$, the pole lies inside the unit circle.
+
+\textbf{Conclusion:} The system is \textbf{BIBO Stable}.
+
+\subsection{Part b}
+\textbf{System:} $G(z) = \frac{0.6}{z + 1.1}$
+
+1.  \textbf{Identify the Pole:} Set the denominator to zero.
+    $$ z + 1.1 = 0 \implies p = -1.1 $$
+2.  \textbf{Check Condition:}
+    Calculate the magnitude of the pole:
+    $$ |p| = |-1.1| = 1.1 $$
+    Since $1.1 > 1$, the pole lies outside the unit circle.
+
+\textbf{Conclusion:} The system is \textbf{Not BIBO Stable} (Unstable).
+
+
+\section{}
+
+\textbf{Problem:} Explain the derivation of the formula $K \approx \frac{-4}{\ln|a|}$ used for computing settling time.
+
+\subsection{Concepts and Definitions}
+The settling time, $K$, is defined as the number of time units required for a system's transient response to decay to a negligible value. In discrete-time control analysis, this is typically standardized using the \textbf{2\% Criterion}.
+
+\begin{itemize}
+    \item \textbf{Signal Model:} The transient response of a stable system is dominated by its largest pole, $a$ (the dominant pole). The decay of this response follows the form:
+    $$ y(k) = y(0) \cdot a^k $$
+    \item \textbf{The 2\% Criterion:} The signal is considered "settled" when its magnitude falls within $2\%$ of its initial value. Mathematically:
+    $$ |y(K)| \le 0.02 \cdot |y(0)| $$
+\end{itemize}
+
+\subsection{Step-by-Step Derivation}
+
+1.  \textbf{Set up the Inequality:}
+    Substitute the signal model into the criterion:
+    $$ |y(0) \cdot a^K| \le 0.02 \cdot |y(0)| $$
+
+2.  \textbf{Simplify:}
+    Assuming $y(0) \ne 0$, divide both sides by $|y(0)|$:
+    $$ |a|^K \le 0.02 $$
+
+3.  \textbf{Apply Logarithms:}
+    Take the natural logarithm ($\ln$) of both sides.
+    $$ \ln(|a|^K) \le \ln(0.02) $$
+    $$ K \cdot \ln|a| \le \ln(0.02) $$
+
+4.  \textbf{Solve for K:}
+    Calculate the value of $\ln(0.02)$:
+    $$ \ln(0.02) \approx -3.912 $$
+    Approximating $-3.912$ as $-4$:
+    $$ K \cdot \ln|a| \approx -4 $$
+    
+    Isolate $K$:
+    $$ K \approx \frac{-4}{\ln|a|} $$
+
+
+\section{}
+
+Based on the canonical feedback control loop structure, the components for controlling energy and smart lights in a home are defined as follows:
+
+\begin{itemize}
+    \item \textbf{Target System ($G(z)$):} 
+    The target system is the physical \textbf{Smart Home environment} itself, specifically the electrical infrastructure, lighting fixtures, and appliances that consume energy. This is the "plant" whose behavior (energy consumption and illumination) determines the output.
+
+    \item \textbf{Controller ($K(z)$):} 
+    The controller is the \textbf{Home Automation Logic/Software} (running on a local hub, Raspberry Pi, or cloud service). It runs the control algorithm that compares the measured state to the desired state and calculates the necessary adjustments.
+
+    \item \textbf{Data Definitions:}
+    \begin{itemize}
+        \item \textbf{Reference Input ($R(z)$):} The desired goals or setpoints. 
+        \begin{itemize}
+            \item \textit{Examples:} A target light intensity (e.g., 500 Lumens) or a maximum energy budget (e.g., maintain consumption below 2 kW).
+        \end{itemize}
+        
+        \item \textbf{Control Input ($U(z)$):} The "Manipulated Variable" sent by the controller to the actuators to change the system state.
+        \begin{itemize}
+            \item \textit{Examples:} Dimmer commands (0--100\% duty cycle), ON/OFF signals to smart relays, or shedding commands to appliances.
+        \end{itemize}
+        
+        \item \textbf{Measured Output ($Y(z)$):} The actual system status read by sensors (transducers) and fed back to the controller.
+        \begin{itemize}
+            \item \textit{Examples:} Current brightness level measured by a photosensor (Lux) or real-time power usage measured by a smart meter (Watts).
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
+
+\section{}
+
+\textbf{Problem:} Find the steady state gain for the transfer function:
+$$ F(z) = \frac{-0.014 K_P}{z - 0.6 - K_P \cdot 0.011} $$
+for $K_P = 1$ and $K_P = 100$.
+
+To determine the steady-state gain, we evaluate the transfer function at $z=1$, denoted as $F(1)$. However, this is only valid if the system is \textbf{BIBO stable}. Therefore, we must first calculate the pole for each case to ensure it lies inside the unit circle ($|p| < 1$).
+
+\subsection{Case 1: $K_P = 1$}
+
+1.  \textbf{Substitute $K_P$ into $F(z)$:}
+    $$ F(z) = \frac{-0.014(1)}{z - 0.6 - (1)(0.011)} = \frac{-0.014}{z - 0.611} $$
+
+2.  \textbf{Check Stability (Pole Analysis):}
+    Set the denominator to zero to find the pole:
+    $$ z - 0.611 = 0 \implies p = 0.611 $$
+    Since $|0.611| < 1$, the system is \textbf{Stable}. The steady-state gain exists.
+
+3.  \textbf{Calculate Steady State Gain ($z=1$):}
+    $$ Gain = F(1) = \frac{-0.014}{1 - 0.611} = \frac{-0.014}{0.389} $$
+    $$ Gain \approx -0.036 $$
+
+\subsection{Case 2: $K_P = 100$}
+
+1.  \textbf{Substitute $K_P$ into $F(z)$:}
+    $$ F(z) = \frac{-0.014(100)}{z - 0.6 - (100)(0.011)} = \frac{-1.4}{z - 0.6 - 1.1} = \frac{-1.4}{z - 1.7} $$
+
+2.  \textbf{Check Stability (Pole Analysis):}
+    Set the denominator to zero to find the pole:
+    $$ z - 1.7 = 0 \implies p = 1.7 $$
+    Since $|1.7| > 1$, the pole lies outside the unit circle. The system is \textbf{Unstable}.
+
+3.  \textbf{Conclusion:}
+    Because the system is unstable, the output does not converge to a finite value. Therefore, the system has \textbf{no steady state gain} (or the steady state output is unbounded).
+
+\begin{thebibliography}{9}
+
+    \bibitem{slides} \textit{CS 6762: Signal Processing, Machine Learning and Control Class Materials and Lectures}. University of Virginia.
+    \bibitem{Internet Sources} \textit{Other Internet Sources for basic information, facts and examples}.
+    
+\end{thebibliography}
+
+\section*{Acknowledgment}
+This Homework makes use of  Generative AI models like Gemini and ChatGPT for research to form and refine answers as required for this homework and some of the main sources for the information are cited. The author acknowledges that they have not given or received unauthorized assistance on this homework. The Author also acknowledges that they have understood the course content and lectures for the preparation of these homework solutions.
+
+\end{document}
