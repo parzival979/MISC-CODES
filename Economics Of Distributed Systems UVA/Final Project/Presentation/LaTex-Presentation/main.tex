@@ -1,0 +1,227 @@
+\documentclass[aspectratio=169]{beamer}
+
+% Theme selection - Metropolis is clean and professional for academic presentations
+\usetheme{metropolis}
+\usecolortheme{default} % Uses red/grey tones, distinct and readable
+
+% Packages
+\usepackage{booktabs} % For nicer tables
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{tikz}
+
+% Title Information
+\title[Incentivizing Fairness in BitTorrent]{Incentivizing Fairness in BitTorrent}
+\subtitle{An Exposition of Mechanism Design and Tokenomics}
+\author{Sravanth Potluri}
+\institute{University of Virginia}
+\date{December 8th, 2025}
+
+\begin{document}
+
+%--- SLIDE 1: Title ---
+\begin{frame}
+    \titlepage
+\end{frame}
+
+%--- SLIDE 2: Introduction ---
+\begin{frame}{The Economic Imperative of P2P}
+    \begin{block}{The Problem: Tragedy of the Commons}
+        \begin{itemize}
+            \item Early P2P (e.g., Gnutella) relied on voluntary altruism.
+            \item Rational agents have a dominant strategy to "free-ride": consume without contributing.
+            \item Result: By 2005, the vast majority of Gnutella users shared zero files.
+        \end{itemize}
+    \end{block}
+
+    \vspace{0.5cm}
+    \textbf{The BitTorrent Solution (2003):}
+    \begin{itemize}
+        \item Replaced altruism with \textbf{Direct Reciprocity} (Tit-for-Tat).
+        \item Engineered an endogenous incentive mechanism where contribution is the only rational strategy.
+    \end{itemize}
+\end{frame}
+
+%--- SLIDE 3: The Reference Mechanism ---
+\begin{frame}{The Baseline Mechanism: Cohen's Design}
+    BitTorrent relies on two core algorithms to manage distribution:
+
+    \begin{columns}
+        \column{0.5\textwidth}
+        \textbf{1. Piece Selection (Rarest First)}
+        \begin{itemize}
+            \item Prioritizes pieces least replicated in the swarm.
+            \item \textbf{Availability:} Preserves the file if seeders leave.
+            \item \textbf{Trade Efficiency:} Ensures peers hold data others want.
+        \end{itemize}
+
+        \column{0.5\textwidth}
+        \textbf{2. Peer Selection (Choking)}
+        \begin{itemize}
+            \item Unchokes top $k$ (usually 4) peers providing the highest download rates.
+            \item \textbf{Optimistic Unchoking:} Randomly unchokes one neighbor every 30s to discover better partners and bootstrap new peers.
+        \end{itemize}
+    \end{columns}
+\end{frame}
+
+%--- SLIDE 4: Strategic Vulnerabilities ---
+\begin{frame}{Strategic Vulnerabilities: BitTyrant}
+    Is the reference implementation a Nash Equilibrium? \textbf{No.}
+    
+    \begin{alertblock}{The "Equal Split" Inefficiency }
+        Standard clients split upload bandwidth equally among unchoked peers ($U_{cap}/k$). This leads to "overpayment" or wasted altruism.
+    \end{alertblock}
+
+    \textbf{The BitTyrant Strategy:}
+    Maximize \textit{Reciprocation Density} by ranking peers via benefit-to-cost ratio:
+    \begin{equation}
+        Rank_{j} = \frac{d_{j}}{u_{j}}
+    \end{equation}
+    Where $d_j$ is expected download rate and $u_j$ is minimum upload required to be unchoked.
+    
+    \begin{itemize}
+        \item \textbf{Result:} Median 70\% performance improvement.
+        \item \textbf{Risk:} If adopted universally, new peers starve.
+    \end{itemize}
+\end{frame}
+
+%--- SLIDE 5: Mechanism Design Theory ---
+\begin{frame}{BitTorrent as an Auction}
+    Levin et al. (2008) reframed the Choking Algorithm as a \textbf{Tournament Auction}.
+    
+    \begin{itemize}
+        \item \textbf{The Flaw:} You only need to beat the $(k+1)^{th}$ bidder to win. Bidding higher yields no extra reward.
+    \end{itemize}
+
+    \vspace{0.5cm}
+    \textbf{The Theoretical Fix: Proportional Share (PropShare)}
+    Allocate bandwidth proportional to contribution:
+    \begin{equation}
+        U_{i\rightarrow j} = U_{cap} \times \frac{D_{j\rightarrow i}}{\sum_{m\in N} D_{m\rightarrow i}}
+    \end{equation}
+    
+    \begin{itemize}
+        \item \textbf{Theorem:} Truth-telling (max upload) becomes a dominant strategy.
+        \item \textbf{Reality:} Hard to implement due to TCP fragmentation.
+    \end{itemize}
+\end{frame}
+
+%--- SLIDE 6: The Seeder's Dilemma ---
+\begin{frame}{The Seeder's Dilemma \& Long-Term Incentives}
+    \textbf{The Problem:} Once a file is complete, a rational peer has no "want" to trade and should disconnect ("hit-and-run").
+    
+    \vspace{0.5cm}
+    \begin{columns}
+        \column{0.48\textwidth}
+        \begin{block}{Sociological: Private Trackers}
+            \begin{itemize}
+                \item Enforce Share Ratio ($R > 1$).
+                \item \textbf{Credit Squeeze:} Bandwidth becomes surplus; leechers become scarce.
+                \item 3-5x faster than public swarms.
+            \end{itemize}
+        \end{block}
+
+        \column{0.48\textwidth}
+        \begin{block}{Cryptographic: Dandelion}
+            \begin{itemize}
+                \item Decentralized credit exchange.
+                \item \textbf{Cross-Swarm Trading:} Seed a Linux ISO to buy a movie.
+                \item Uses "virtual credit" to solve double coincidence of wants.
+            \end{itemize}
+        \end{block}
+    \end{columns}
+\end{frame}
+
+%--- SLIDE 7: The Tokenomic Era ---
+\begin{frame}{The Tokenomic Era: BitTorrent Token (BTT)}
+    Introduced in 2019, moving from Barter to \textbf{Market Exchange}.
+    
+    \textbf{BitTorrent Speed Protocol:}
+    \begin{itemize}
+        \item Uses a First-Price Auction with explicit monetary bids.
+        \item Bid Equation Strategy:
+        \begin{equation}
+            Bid_{price} = \frac{\text{Spending Rate} \times \text{Balance}}{\text{Remaining Bytes}}
+        \end{equation}
+    \end{itemize}
+
+    \textbf{Incentivizing the Long Tail:}
+    \begin{itemize}
+        \item Rare files $\rightarrow$ Higher Bids $\rightarrow$ Signal to Seeders.
+        \item Creates a profit motive to preserve rare content.
+    \end{itemize}
+\end{frame}
+
+%--- SLIDE 8: Comparative Synthesis ---
+\begin{frame}{Comparative Synthesis}
+    \begin{table}[]
+        \resizebox{\textwidth}{!}{%
+        \begin{tabular}{@{}lllll@{}}
+        \toprule
+        \textbf{Feature} & \textbf{Tit-for-Tat (Cohen)} & \textbf{PropShare (Levin)} & \textbf{Dandelion} & \textbf{BTT (Token)} \\ \midrule
+        \textbf{Incentive Basis} & Immediate Barter & Proportional Barter & Virtual Credit & Crypto-Currency \\
+        \textbf{Seeding Incentive} & Zero (Altruism) & Zero (Altruism) & Future Credit & Profit (BTT) \\
+        \textbf{Strategy Proof?} & No (BitTyrant) & Yes (Ideally) & Yes & Market Dependent \\
+        \textbf{Rare Content} & Poor Availability & Poor Availability & Good Availability & High Availability \\
+        \textbf{Sybil Resistance} & Moderate (IP) & High (Dilution) & High (Costly ID) & High (Costly Token) \\ \bottomrule
+        \end{tabular}%
+        }
+        \caption{Comparison of Incentive Mechanisms }
+    \end{table}
+\end{frame}
+
+%--- SLIDE 9: Future Directions ---
+\begin{frame}{Future Perspectives}
+    The strict binary between "Barter" and "Money" is evolving.
+    
+    \begin{itemize}
+        \item \textbf{Reputation DAOs:}
+        \begin{itemize}
+            \item Non-transferable reputation scores secured by DAGs.
+            \item Prevents "pay-to-win" scenarios inherent in fiat-based tokens.
+        \end{itemize}
+        
+        \vspace{0.3cm}
+        \item \textbf{Smart Seeders (AI Agents):}
+        \begin{itemize}
+            \item Autonomous agents that optimize file portfolios.
+            \item Crawl DHT for high yield (low supply/high demand) swarms.
+            \item Turns file storage into a high-frequency trading market.
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+%--- SLIDE 10: Conclusion ---
+\begin{frame}{Conclusion}
+    \begin{itemize}
+        \item \textbf{Evolution:} We have moved from "Communal Sharing" (TFT) to "Market Exchange" (BTT).
+        \item \textbf{Lessons Learned:}
+        \begin{enumerate}
+            \item Immediate barter (TFT) is robust but insufficient for rare content.
+            \item Long-term memory (Private Trackers/Credits) is superior to short-term optimization.
+            \item Financialization (BTT) introduces friction but solves the Seeder's Dilemma.
+        \end{enumerate}
+        \item \textbf{The Future:} The intersection of Mechanism Design and Cryptographic Tokenomics.
+    \end{itemize}
+    
+    \vspace{1cm}
+    \centering
+    \Large \textbf{Thank You. Questions?}
+\end{frame}
+
+%--- SLIDE 11: References ---
+\begin{frame}[allowframebreaks]{References}
+    \bibliographystyle{ieeetr}
+    \tiny
+    \begin{itemize}
+        % The curly braces {} prevent Beamer from misinterpreting the brackets
+        \item {[1]} B. Cohen, "Incentives build robustness in BitTorrent," 2003.
+        \item {[2]} M. Piatek et al., "Do incentives build robustness in BitTorrent?" NSDI, 2007.
+        \item {[3]} D. Levin et al., "BitTorrent is an auction," SIGCOMM, 2008.
+        \item {[4]} M. Sirivianos et al., "Dandelion: Cooperative content distribution," 2007.
+        \item {[5]} M. Meulpolder et al., "Public and private BitTorrent communities," 2010.
+        \item {[6]} BitTorrent Foundation, "BitTorrent (BTT) White Paper," 2019.
+    \end{itemize}
+\end{frame}
+
+\end{document}

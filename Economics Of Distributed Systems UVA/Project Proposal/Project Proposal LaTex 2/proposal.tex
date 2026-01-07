@@ -1,0 +1,67 @@
+\documentclass[12pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{import}
+\usepackage{standalone}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage[backend=biber,style=numeric,autocite=inline]{biblatex}
+
+% Add bibliography resource
+\addbibresource{references.bib}
+
+% Define theorem-like environments
+\theoremstyle{definition}
+\newtheorem{example}{Example}[section]
+\newtheorem{question}{Question}[section]
+\newtheorem{answer}{Answer}[section]
+
+\title{An Exposition on Incentivizing Fairness in BitTorrent}
+\author{Sravanth Potluri - und5uv}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section*{1. Project Description}
+
+This paper is an exposition on the various attempts to solve the incentive problem in the BitTorrent protocol. The protocol's effectiveness is famously undermined by "leechers" who download files without contributing back. This paper will survey the landscape of proposed solutions, focusing on token-based mechanisms designed to make the system incentive-compatible. It will analyze the economic models of projects like the official BitTorrent Token (BTT) and other academic proposals, examining how they aim to reward "seeders" and charge "leechers." A key part of the analysis will be evaluating how these designs address the challenge of fairly rewarding the hosting of rare files versus popular ones.
+
+\section*{2. Relation to Class Content}
+
+This exposition is a direct application of several key class concepts. It is fundamentally a survey of Mechanism Design solutions to a real-world problem. The paper also relates directly to Peer-to-Peer Systems, as it reviews efforts to improve one of the most widely used P2P protocols. Finally, it involves a deep dive into Tokenomics, as it requires analyzing and comparing the strengths and weaknesses of different token-based economies in BTT and other similar protocols if any.
+
+\section*{3. Deliverable and Concerns}
+
+The final product will be an exposition paper surveying proposed incentive mechanisms for BitTorrent. The main challenge will be to critically compare the different proposed token models, identifying their theoretical strengths and potential practical weaknesses, especially concerning the fair pricing of content with varying levels of popularity.
+
+\section*{4. Data Set}
+
+Not applicable. This is a theoretical exposition paper based on existing academic literature and project whitepapers.
+
+\section*{5. References}
+\begin{enumerate}
+    \item Cohen, B. (2003). \textit{Incentives build robustness in BitTorrent}.
+    \item Levin, D., et al. (2008). \textit{BitTorrent is an Auction: Analyzing and Improving BitTorrent’s Incentives}.
+    \item BitTorrent Token (BTT). \textit{BitTorrent Token Whitepaper}.
+\end{enumerate}
+
+\section*{6. Use of LLMs}
+
+I plan to use an LLM for two main things: to help me quickly grasp the main ideas in the research papers and to help refine my own writing to make it clearer and more direct.
+
+\section*{7. Questions for the Teaching Team}
+
+I have two main questions for the teaching team. First, should the survey focus broadly on all types of incentive mechanisms, or would a narrower focus on just token-based solutions be more effective? Second, when evaluating these systems, what are the most critical metrics for success? Should I prioritize economic efficiency, fairness, Sybil resistance, or something else?
+
+\section*{Acknowledgement}
+
+This proposal makes use of LLMs for refining writing. The author acknowledges the generative AI policy for the course and has complied with it.
+
+\end{document}
+

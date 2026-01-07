@@ -1,0 +1,70 @@
+\documentclass[12pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{import}
+\usepackage{standalone}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage[backend=biber,style=numeric,autocite=inline]{biblatex}
+
+% Add bibliography resource
+\addbibresource{references.bib}
+
+% Define theorem-like environments
+\theoremstyle{definition}
+\newtheorem{example}{Example}[section]
+\newtheorem{question}{Question}[section]
+\newtheorem{answer}{Answer}[section]
+
+\title{The Fading Guarantee of Longest-Chain Consensus}
+\author{Sravanth Potluri - und5uv}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section*{1. Project Description}
+
+This paper is an exposition on how academic research has gradually uncovered weaknesses in Bitcoin's security. It tells the story from Satoshi's original idea that an "honest majority" (51\%) of miners keeps the network safe, to modern discoveries of powerful attacks. The paper will focus on key attacks like Selfish Mining, which works with only about 33\% of the network's power, and newer, hidden attacks. The goal is to show how miners acting rationally for their own gain can break the system's security.
+
+\section*{2. Relation to Class Content}
+
+The exposition connects directly to several key topics from class. It examines the core security of Bitcoin's consensus protocol and centers on the classic Selfish Mining paper. The analysis also explores Mining Games by looking at why miners might choose to cheat based on the incentives at play. The paper concludes by covering recent research, including Undetectable Selfish Mining, to bring the story up to the present day.
+
+\section*{3. Deliverable and Concerns}
+
+The final product will be an exposition paper. The main challenge will be explaining the complicated technical details of these attacks in a way that is easy to understand for a non-expert, without sacrificing accuracy.
+
+\section*{4. Data Set}
+
+Not applicable. This is a theoretical exposition paper based on existing academic literature.
+
+\section*{5. References}
+\begin{enumerate}
+    \item Nakamoto, S. (2008). \textit{Bitcoin: A Peer-to-Peer Electronic Cash System}.
+    \item Eyal, I., \& Sirer, E. G. (2014). \textit{Majority is not Enough: Bitcoin Mining is Vulnerable}.
+    \item Bahrani, M., \& Weinberg, S. M. (2023). \textit{Undetectable Selfish Mining}.
+\end{enumerate}
+
+\section*{6. Use of LLMs}
+
+I plan to use an LLM for two main things: to help me quickly grasp the main ideas in the research papers and to help refine my own writing to make it clearer and more direct.
+
+\section*{7. Questions for the Teaching Team}
+
+I have two main questions for the teaching team. First, is the story I've planned (from Nakamoto to Selfish Mining to Undetectable Attacks) focused enough, or should I also look at other types of attacks? Second, how technical should my explanations be? Should I stick to the high-level ideas and game theory, or would it be better to include some of the simplified math from the papers?
+
+\section*{Acknowledgement}
+
+This proposal makes use of LLMs for refining writing. The author acknowledges the generative AI policy for the course and has complied with it.
+
+\end{document}
+
+
+
+

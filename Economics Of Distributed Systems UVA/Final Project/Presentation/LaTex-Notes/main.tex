@@ -1,0 +1,104 @@
+\documentclass[11pt, letterpaper]{article}
+
+% Packages for formatting
+\usepackage[margin=1in]{geometry}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{hyperref}
+
+% Title Formatting
+\titleformat{\section}{\large\bfseries}{Slide \thesection:}{1em}{}
+\setlength{\parskip}{0.5em}
+
+% Meta Data
+\title{\textbf{Speaker Notes: Incentivizing Fairness in BitTorrent}\\
+\large An Exposition of Mechanism Design and Tokenomics}
+\author{Sravanth Potluri}
+\date{October 17, 2025}
+
+\begin{document}
+
+\maketitle
+
+\section{Title Slide}
+\begin{itemize}
+    \item Good morning/afternoon everyone.
+    \item Today I will be presenting my exposition on \textbf{"Incentivizing Fairness in BitTorrent."}
+    \item We are going to examine distributed file sharing not just as a networking problem, but fundamentally as an exercise in \textbf{Game Theory}.
+    \item I will walk you through the evolution of these incentives: from the original BitTorrent protocol designed in 2003 to modern cryptographic token economies like the BitTorrent Token (BTT).
+\end{itemize}
+
+\section{The Economic Imperative of P2P}
+\begin{itemize}
+    \item \textbf{The Context:} To understand why BitTorrent matters, we have to look at what failed before it. Early protocols like Gnutella relied on \textbf{altruism}.
+    \item \textbf{The Problem:} Users are rational agents. They want to maximize utility (download speed) while minimizing cost (upload bandwidth).
+    \item This leads to the \textbf{"Tragedy of the Commons."} By 2005, studies showed that the vast majority of Gnutella users shared absolutely nothing—they were "free-riders".
+    \item \textbf{The Solution:} Bram Cohen changed this by introducing \textbf{"Direct Reciprocity"} (Tit-for-Tat). In BitTorrent, your download speed is strictly linked to your upload speed. Contribution becomes the only rational strategy.
+\end{itemize}
+
+\section{The Reference Mechanism: Cohen's Design}
+\begin{itemize}
+    \item The reference implementation works using two core algorithms:
+    \item \textbf{1. Piece Selection (Rarest First):} This maximizes entropy. If the only seeder leaves, we want to ensure the rarest pieces are replicated so the swarm survives. It also ensures you have data that others actually want to trade for.
+    \item \textbf{2. Peer Selection (Choking):} This is the incentive engine. Every 10 seconds, the client evaluates its neighbors and "unchokes" the top $k$ (usually 4) peers who are providing the most data.
+    \item \textbf{Optimistic Unchoking:} Every 30 seconds, we pick a random peer to upload to. This allows new peers (who have nothing to trade yet) to bootstrap into the economy and proves that we aren't stuck in a local optimum.
+\end{itemize}
+
+\section{Strategic Vulnerabilities: BitTyrant}
+\begin{itemize}
+    \item In 2007, researchers asked: Is this stable? Is it a Nash Equilibrium? The answer was \textbf{No}.
+    \item \textbf{The Flaw:} The "Equal Split" policy. If I unchoke you, I give you a fixed slice of my bandwidth ($U_{cap}/k$). Often, that slice is much bigger than necessary to get you to reciprocate. That difference is "wasted altruism".
+    \item \textbf{BitTyrant:} This is a strategic client designed to exploit this. It calculates exactly how much upload ($u_j$) is needed to keep a peer happy, and not a byte more.
+    \item \textbf{Impact:} It yielded a 70\% speed boost for the user , but it breaks the ecosystem for new peers because it refuses to engage in optimistic unchoking.
+\end{itemize}
+
+\section{Mechanism Design Theory (Auctions)}
+\begin{itemize}
+    \item Levin et al. (2008) formalized this by modeling BitTorrent as a \textbf{Tournament Auction}.
+    \item \textbf{The Issue:} In a tournament, you only need to beat the $(k+1)^{th}$ bidder to win. Bidding any higher is waste. This incentivizes strategic throttling.
+    \item \textbf{The Fix (PropShare):} Levin proposed "Proportional Share." Instead of binary slots, you divide your bandwidth proportionally to what you receive.
+    \item If you give me 10\% of my incoming data, I give you 10\% of my outgoing data. This makes "Truth Telling" (uploading everything you have) a dominant strategy.
+    \item \textbf{Reality Check:} Theoretically perfect, but in practice, splitting TCP streams into tiny fragments caused too much network overhead.
+\end{itemize}
+
+\section{The Seeder's Dilemma \& Long-Term Incentives}
+\begin{itemize}
+    \item All previous models rely on immediate barter. But what happens when I finish the file? I have nothing I want from you.
+    \item A rational agent should "hit-and-run" (disconnect immediately). This kills the swarm.
+    \item \textbf{Solution 1 (Sociological): Private Trackers.} They track your long-term ratio. If it drops below roughly 0.5, you get banned. This creates a "credit squeeze" where people fight to upload.
+    \item \textbf{Solution 2 (Cryptographic): Dandelion.} It uses cryptographic receipts. I can seed File A to earn credit, and spend that credit on File B. This solves the "double coincidence of wants" problem inherent in barter.
+\end{itemize}
+
+\section{The Tokenomic Era: BitTorrent Token (BTT)}
+\begin{itemize}
+    \item This leads us to the modern era: Tokenomics (2019).
+    \item \textbf{The Shift:} BTT replaces implicit barter with explicit financial bidding using a First-Price Auction.
+    \item It uses Layer-2 payment channels to handle micro-transactions for every file piece without clogging the blockchain.
+    \item \textbf{The Long Tail:} The big win here is for rare files. In barter, no one seeds rare files because there's no immediate trade. In BTT, a rare file commands a high price.
+    \item This signals "profit-seeking" seeders to host that file, purely for the financial yield.
+\end{itemize}
+
+\section{Comparative Synthesis}
+\begin{itemize}
+    \item (Refer to the Table on the slide)
+    \item \textbf{Tit-for-Tat:} Great for low overhead, but terrible for rare content and not strategy-proof.
+    \item \textbf{Private Trackers/Dandelion:} Good availability, but high barrier to entry.
+    \item \textbf{BTT:} Solves the rare content problem and is strategy-proof (market-based), but introduces high complexity and "friction" (wallets, exchanges).
+\end{itemize}
+
+\section{Future Perspectives}
+\begin{itemize}
+    \item Looking forward, I see two interesting directions:
+    \item \textbf{1. Reputation DAOs:} BTT allows wealthy users to buy bandwidth without contributing (Plutocracy). A non-transferable reputation score secured by a DAG would preserve meritocracy.
+    \item \textbf{2. Smart Seeders:} Imagine AI agents acting as high-frequency traders for storage. They could automatically crawl the network, find files with high demand and low supply, and seed them for profit. This optimizes network resource allocation automatically.
+\end{itemize}
+
+\section{Conclusion}
+\begin{itemize}
+    \item To conclude: "Incentives Build Robustness" remains the foundational truth.
+    \item But the definition of "incentive" has evolved from simple barter to complex financial markets.
+    \item While financialization introduces friction, it currently offers the only robust solution to the Seeder's Dilemma in an open, permissionless system.
+    \item Thank you. I am happy to take questions.
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,300 @@
+\documentclass[12pt]{article}
+
+% Packages for formatting, math, and graphics
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{cite}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{float}
+\usepackage{titlesec}
+\usepackage{enumitem}
+
+% Theorem environments
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+\newtheorem{proposition}{Proposition}
+
+% Title Configuration
+\title{\textbf{Incentivizing Fairness in BitTorrent: An Exposition of Mechanism Design and Tokenomics}}
+\author{Sravanth Potluri (und5uv)}
+%today's date
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+The architecture of distributed file-sharing systems is fundamentally an exercise in game theory and mechanism design. Since its introduction in 2003, the BitTorrent protocol has served as the preeminent example of how algorithmic incentives can foster cooperation among self-interested agents. By implementing a variant of the Tit-for-Tat (TFT) strategy, BitTorrent successfully mitigated the ``tragedy of the commons'' that plagued earlier peer-to-peer (P2P) networks. However, the protocol's reliance on barter-based reciprocity creates distinct inefficiencies, particularly regarding the equitable distribution of bandwidth and the preservation of rare content (the ``long tail''). This report provides an exhaustive analysis of the incentive mechanisms within BitTorrent, tracing their evolution from Bram Cohen’s original design to contemporary cryptographic token economies. We rigorously examine the vulnerability of the reference implementation to strategic manipulation, as evidenced by the BitTyrant client, and explore the theoretical reframing of the choking algorithm as an auction mechanism. Furthermore, we contrast the sociological enforcement of private tracker communities with cryptographic credit systems like Dandelion. Finally, we critique the integration of the BitTorrent Token (BTT), analyzing its potential to resolve the ``seeder's dilemma'' through a bid-based market economy. This exposition synthesizes theoretical models, empirical measurements, and formal specifications to offer a nuanced perspective on the future of decentralized fairness.
+\end{abstract}
+
+\newpage
+
+\section{Introduction: The Economic Imperative of P2P}
+
+The genesis of peer-to-peer (P2P) file sharing marked a paradigm shift in content distribution, moving the burden of bandwidth costs from centralized servers to the edges of the network. In a client-server model, the provider bears the marginal cost of every additional download. In a P2P model, the aggregate capacity of the system scales linearly with the number of participants. However, this scalability is predicated on a critical assumption: cooperation.
+
+Early protocols like Gnutella relied on voluntary altruism, assuming users would share files simply for the good of the network. This assumption proved fragile. Rational agents, seeking to maximize their utility (download speed) while minimizing their costs (upload bandwidth), have a dominant strategy to ``free-ride'' to consume without contributing. By 2005, studies indicated that a vast majority of Gnutella users shared no files at all \cite{Adar2000}.
+
+BitTorrent, introduced by Bram Cohen in 2001, was the first protocol to engineer an endogenous incentive mechanism. It replaced the reliance on altruism with a mechanism of \textbf{direct reciprocity}. By linking the download rate a peer receives to the upload rate they provide, BitTorrent created a system where contribution is the only rational strategy for self-interested peers \cite{Cohen2003}.
+
+This report dissects the efficacy, fairness, and robustness of this mechanism. We define ``fairness'' not merely as equality of outcome, but as \textbf{contribution-based equity} where a peer's reward is proportional to their contribution. We will explore how deviations from this principle, whether through ``optimistic'' exploration or strategic exploitation, define the performance limits of the network.
+
+\subsection{The Scope of Analysis}
+Our analysis spans three distinct eras of incentive design:
+\begin{enumerate}
+    \item \textbf{The Algorithmic Era (2001-2007):} Defined by the reference BitTorrent implementation and the discovery of its strategic vulnerabilities (BitTyrant) \cite{Piatek2007}.
+    \item \textbf{The Reputation Era (2007-2015):} Characterized by the rise of private communities enforcing long-term ratios \cite{Meulpolder2009} and academic proposals for cryptographic credit like Dandelion \cite{Sirivianos2007}.
+    \item \textbf{The Tokenomic Era (2019-Present):} Marked by the financialization of bandwidth through the BitTorrent Token (BTT) and the introduction of blockchain-based bidding markets \cite{BTTWhitepaper}.
+\end{enumerate}
+
+\section{The Reference Mechanism: Cohen's Tit-for-Tat}
+
+To understand the strategic deviations proposed by later researchers, let us take a look at the baseline mechanism. BitTorrent's core innovation is the decomposition of files into ``pieces'' (typically 256KB to 1MB) and the use of two distinct algorithms to manage their distribution: \textbf{Piece Selection} and \textbf{Peer Selection} \cite{Cohen2003}.
+
+\subsection{Piece Selection: Maximizing Entropy}
+The \textbf{Rarest First} algorithm governs which pieces a peer requests. A client analyzes the ``Have'' bitmaps of its neighbors to identify the pieces that are least replicated in the local swarm. Requesting these pieces first serves two purposes:
+\begin{enumerate}
+    \item \textbf{Availability:} It preserves the file. If the only seed leaves, the rarest pieces are the most likely to be lost. Replicating them ensures the swarm can survive the seed's departure.
+    \item \textbf{Trade Efficiency:} It ensures the peer has data that \textit{others want}. In a barter economy, holding rare goods increases one's trading power. A peer with only common pieces may find that all its neighbors already possess what it has to offer, leaving it unable to ``buy'' bandwidth.
+\end{enumerate}
+
+\subsection{Peer Selection: The Choking Algorithm}
+The incentive mechanism resides in the \textbf{Choking Algorithm}. Every 10 seconds, the client evaluates the download rates provided by its interested neighbors. It then unchokes the $k$ peers (typically 4) that have provided the highest average download rate over the last 20-second rolling window. This creates a ``clustering'' effect: high-bandwidth peers find each other and exchange data rapidly, while low-bandwidth peers are relegated to trading with one another \cite{Legout2007}.
+
+Let $r_{j \to i}(t)$ be the download rate observed by peer $i$ from peer $j$ at time $t$. The choking decision function $C_{i \to j}(t+1)$ can be modeled as:
+\begin{equation}
+C_{i \to j}(t+1) = 
+\begin{cases} 
+\text{Unchoked} & \text{if } j \in \text{arg max}_k \{ r_{k \to i}(t) \}_{1..4} \\
+\text{Choked} & \text{otherwise}
+\end{cases}
+\end{equation}
+
+\subsection{Optimistic Unchoking: The Discovery Mechanism}
+A strict TFT system suffers from a bootstrapping problem: how does a new peer with no pieces join the economy? Cohen solved this with \textbf{Optimistic Unchoking}. Every 30 seconds, the client selects one interested neighbor \textit{at random} and unchokes them, regardless of their current contribution.
+\begin{itemize}
+    \item \textbf{Exploration:} It allows a peer to probe for better partners. If the random peer reciprocates with high bandwidth, they may replace a regular unchoke slot in the next round.
+    \item \textbf{Altruism:} It provides ``free'' bandwidth to new peers, allowing them to download their first pieces and enter the barter economy.
+\end{itemize}
+
+\section{Strategic Vulnerabilities: The BitTyrant Analysis}
+
+In 2007, Piatek et al. challenged the robustness of BitTorrent with \textbf{BitTyrant} \cite{Piatek2007}. They demonstrated that the reference implementation is not a Nash Equilibrium; a deviant strategy can achieve significantly higher utility by exploiting the specific way BitTorrent allocates bandwidth.
+
+\subsection{The "Equal Split" Inefficiency}
+The reference implementation uses an \textbf{Equal Split} bandwidth allocation policy. If a peer has a total upload capacity $U_{cap}$ and unchokes $k$ peers, each receives exactly $U_{cap} / k$.
+
+Piatek observed that this leads to significant ``overpayment.'' Suppose peer $A$ has 100 KB/s capacity ($k=4$, so 25 KB/s per slot). If peer $B$ uploads to $A$ at 5 KB/s, $B$ might still make it into $A$'s top 4. $A$ then sends 25 KB/s to $B$. The excess 20 KB/s is termed \textbf{altruism}. It is wasted bandwidth that could have been used to unchoke a fifth peer.
+
+\subsection{BitTyrant: Maximizing Reciprocation}
+BitTyrant seeks to minimize altruism and maximize \textbf{Reciprocation Density}. For every neighbor $j$, BitTyrant estimates two parameters:
+\begin{enumerate}
+    \item $d_j$: The expected download rate from peer $j$.
+    \item $u_j$: The minimum upload rate required to induce reciprocation from peer $j$.
+\end{enumerate}
+
+The client maximizes total download throughput $D_{total} = \sum_{j \in S} d_j$ subject to the constraint $\sum_{j \in S} u_j \le U_{cap}$. This is a variation of the \textbf{Knapsack Problem}. BitTyrant solves this greedily by ranking peers according to the benefit-to-cost ratio:
+\begin{equation}
+\text{Rank}_j = \frac{d_j}{u_j}
+\end{equation}
+
+BitTyrant unchokes peers in descending order of this ratio until its upload capacity is exhausted. This favors peers that provide high download rates for low ``cost'' (upload). Crucially, BitTyrant dynamically adjusts $u_j$:
+\begin{itemize}
+    \item If peer $j$ reciprocates, decrease $u_j$ by 10\% (try to pay less).
+    \item If peer $j$ chokes, increase $u_j$ by 20\% (pay more to regain service).
+\end{itemize}
+
+\textbf{Empirical Results:} Experimental results on PlanetLab showed that BitTyrant clients achieved a median 70\% performance improvement over standard clients \cite{Piatek2007}. However, if all peers adopt BitTyrant, the ``optimistic unchoke'' surplus disappears, and new peers (who cannot reciprocate) are starved, leading to a collapse in swarm health for new entrants.
+
+\section{Mechanism Design: BitTorrent as an Auction}
+
+Levin et al. (2008) provided a formal theoretical framework analyzing the Choking Algorithm as an \textbf{Auction} \cite{Levin2008}. This reframing exposes why the standard client is exploitable and suggests a mathematically strategy-proof alternative.
+
+\subsection{The Tournament Auction Model}
+Levin argues that the standard BitTorrent mechanism corresponds to a \textbf{Tournament Auction} (or a Multi-Unit First-Price Auction). The top $k$ bidders win a fixed amount of bandwidth ($U_{cap}/k$).
+
+Levin proves this mechanism is not strategy-proof.
+\begin{itemize}
+    \item \textbf{Proof Intuition:} In a tournament, a bidder only needs to beat the $(k+1)^{th}$ bidder to win. If the cutoff to be in the top 4 is 10 KB/s, a bid of 11 KB/s wins the same reward as a bid of 50 KB/s. 
+    \item Therefore, a rational bidder should cap their contribution to $\text{cutoff} + \epsilon$. Any contribution above this is wasted. This incentivizes strategic throttling, which BitTyrant automates.
+\end{itemize}
+
+\subsection{The Proportional Share Solution}
+To rectify this, Levin proposed a \textbf{Proportional Share} (PropShare) mechanism. Instead of a binary choke/unchoke decision with fixed bandwidth slots, a peer divides its upload bandwidth among \textit{all} interested neighbors in proportion to their contribution.
+
+Let $D_{j \to i}$ be the data received from $j$. Peer $i$'s allocation to $j$ is:
+\begin{equation}
+U_{i \to j} = U_{cap} \times \frac{D_{j \to i}}{\sum_{m \in \mathcal{N}} D_{m \to i}}
+\end{equation}
+
+\begin{theorem}
+In a Proportional Share auction where a peer has negligible market power (impact on the denominator is small), Truth-Telling (uploading at maximum capacity) is a dominant strategy.
+\end{theorem}
+
+\begin{proof}
+The utility function for peer $j$ becomes linear with respect to their contribution $U_{j \to i}$. Since the allocation is strictly proportional, the marginal return on uploading never drops to zero. Unlike the Tournament model, there is no ``cutoff'' point where extra contribution yields no extra reward. Thus, to maximize download, one must maximize upload.
+\end{proof}
+
+While theoretically sound, PropShare suffers from TCP fragmentation issues in practice. Splitting bandwidth among too many peers (e.g., 50 peers getting 1KB/s each) creates network congestion and protocol overhead that degrades overall performance compared to the "clustering" of the standard choking algorithm.
+
+\section{Reputation and Long-Term Incentives}
+
+Both Cohen (TFT) and Levin (Auction) operate on \textbf{immediate barter}. This works well during the leeching phase but fails to solve the \textbf{Seeder's Dilemma}. Once a peer completes a file, they have no ``want'' to trade. Rational peers should disconnect immediately (``hit-and-run''), causing the death of the swarm.
+
+\subsection{Private Trackers: Sociological Enforcement}
+The community solution to this was the \textbf{Private Tracker}. These are closed communities that enforce a minimum \textbf{Share Ratio} ($R$):
+\begin{equation}
+R = \frac{\text{Total Uploaded}_{lifetime}}{\text{Total Downloaded}_{lifetime}} \ge \text{Threshold} \quad (\text{e.g., } 0.5)
+\end{equation}
+Meulpolder et al. (2009) conducted extensive measurements of private communities \cite{Meulpolder2009}. They found:
+\begin{itemize}
+    \item \textbf{Seeder-to-Leecher Ratios:} Private trackers try to maintain ratios of 0.8:1 or higher, compared to very low ratios in public swarms.
+    \item \textbf{The Credit Squeeze:} Because users are desperate to maintain their ratio to avoid being banned, they compete to upload. Bandwidth becomes a surplus commodity, and the scarce resource becomes \textit{leechers} to upload to.
+    \item \textbf{Efficiency:} Download speeds in private communities were measured to be 3-5 times faster than public swarms, proving that long-term accounting is superior to immediate barter.
+\end{itemize}
+
+\subsection{Dandelion: Cryptographic Credits}
+Sirivianos et al. proposed \textbf{Dandelion}, a decentralized credit system designed to replicate private tracker incentives without a central authority \cite{Sirivianos2007}.
+
+\subsubsection{The Dandelion Mechanism}
+\begin{enumerate}
+    \item \textbf{Credit Exchange:} When Peer A uploads to Peer B, B signs a cryptographic receipt. Peer A redeems this receipt at a credit server (or distributed ledger) to increment their balance.
+    \item \textbf{Fair Exchange:} Dandelion uses a specialized protocol to ensure fair exchange. B cannot download the data without revealing the receipt, preventing the "stolen bandwidth" problem.
+    \item \textbf{Sybil Resistance:} To prevent users from creating new IDs to wipe negative debt (whitewashing), Dandelion couples identity to a scarce resource (e.g., a monetary cost for account creation or a computational puzzle).
+\end{enumerate}
+
+Dandelion allows for \textbf{Cross-Swarm Trading}. A user can seed a Linux ISO to earn credits, then use those credits to download a movie. This liquidity solves the ``double coincidence of wants'' problem inherent in pure barter systems.
+
+\section{The Tokenomic Era: BitTorrent Token (BTT)}
+
+In 2019, the BitTorrent protocol was integrated with the TRON blockchain, introducing the \textbf{BitTorrent Token (BTT)}, a TRC-10 utility token. This represents the financialization of the bandwidth market.
+
+\subsection{The Architecture of BitTorrent Speed}
+The BTT whitepaper describes an overlay protocol called \textbf{BitTorrent Speed} that enables a First-Price Auction for bandwidth \cite{BTTWhitepaper}.
+
+\subsubsection{Bidding Mechanism}
+Unlike the implicit bids in Levin's model (where data = bid), BTT uses explicit monetary bids.
+\begin{itemize}
+    \item \textbf{Service Discovery:} Peers advertise their support for the BTT extension in the handshake.
+    \item \textbf{Bid Message:} A leecher sends a `bid` message containing the amount of BTT they are willing to pay per piece of data.
+    \item \textbf{Auction:} The seeder aggregates all bids. It prioritizes upload slots for the highest bidders.
+\end{itemize}
+
+The bid equation generally follows a strategy of:
+\begin{equation}
+\text{Bid}_{price} = \frac{\text{Spending Rate} \times \text{Balance}}{\text{Remaining Bytes}}
+\end{equation}
+
+\subsubsection{Payment Channels}
+To handle the high frequency of data chunks (thousands per file), BTT uses \textbf{Layer-2 Payment Channels}.
+1. Peer A locks BTT into a smart contract on the TRON blockchain.
+2. Peer A sends signed ``tickets'' (off-chain) to Peer B for every piece received.
+3. Peer B verifies the signatures locally.
+4. Once the session ends, Peer B submits the final ticket to the blockchain to settle the balance.
+This avoids the latency and gas fees of on-chain transactions for every packet.
+
+\subsection{Incentivizing the Long Tail}
+The primary theoretical advantage of BTT is solving the \textbf{Rare File Problem} through \textbf{Price Discovery}.
+In a barter system, a seeder of a rare file gets no reward if they don't want what the leecher has. In the BTT economy:
+\begin{enumerate}
+    \item \textbf{Scarcity Value:} If a file is rare, demand exceeds supply.
+    \item \textbf{Higher Bids:} Leechers effectively bid up the price of bandwidth for that specific file.
+    \item \textbf{Signal to Seeders:} Rational agents observe the high yield (BTT/MB) for the rare file and are incentivized to keep seeding it, or even re-download it to farm tokens.
+\end{enumerate}
+This theoretically creates a market equilibrium where file availability is maintained by profit motive rather than altruism.
+
+\section{Comparative Synthesis}
+
+\begin{table}[H]
+\centering
+\caption{Comparison of BitTorrent Incentive Mechanisms}
+\label{tab:comparison}
+\begin{tabular}{@{}p{3cm}p{3cm}p{3cm}p{3cm}p{3cm}@{}}
+\toprule
+\textbf{Feature} & \textbf{Tit-for-Tat (Cohen)} & \textbf{PropShare (Levin)} & \textbf{Dandelion} & \textbf{BTT (Token)} \\ \midrule
+\textbf{Incentive Basis} & Immediate Barter & Proportional Barter & Virtual Credit & Crypto-Currency \\
+\textbf{Seeding Incentive} & Zero (Altruism) & Zero (Altruism) & Future Credit & Profit (BTT) \\
+\textbf{Strategy Proof?} & No (BitTyrant) & Yes (Ideally) & Yes & Market Dependent \\
+\textbf{Rare Content} & Poor Availability & Poor Availability & Good Availability & High Availability \\
+\textbf{Sybil Resistance} & Moderate (IP based) & High (Dilution) & High (Costly ID) & High (Costly Token) \\ 
+\textbf{Overhead} & Very Low & Low & Medium & High (Ledger) \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{The Friction of Financialization}
+While BTT solves the economic theory problems, it introduces \textbf{Transaction Costs}.
+\begin{itemize}
+    \item \textbf{Computational Overhead:} Verifying signatures for payment channels is CPU intensive compared to simple bitmap comparison.
+    \item \textbf{On-Boarding Friction:} Users must manage wallets and exchanges. The "invisible" nature of BitTorrent is lost.
+    \item \textbf{Plutocracy vs. Meritocracy:} BTT allows a wealthy user (who buys tokens with fiat) to monopolize bandwidth without ever contributing data. TFT is a meritocracy where only contributors get bandwidth.
+\end{itemize}
+
+\section{Future Perspectives: AI and Hybrid Models}
+
+The strict binary between "Barter" (TFT) and "Money" (BTT) may be a false dichotomy. Future research points toward \textbf{Reputation-Weighted Hybrid Models}. Here are two speculative directions that seem like intersting ideas for future work.
+
+\subsection{Proposal: The Reputation DAO (Decentralized Autonomous Organization)}
+Instead of a transferable currency like BTT (which attracts speculation), a protocol could use a non-transferable \textbf{Reputation Score} secured by a Directed Acyclic Graph (DAG) like IOTA or a lightweight blockchain.
+\begin{equation}
+U_{i \to j} = \alpha \cdot \text{Rate}_{j \to i} + \beta \cdot \text{Reputation}_j
+\end{equation}
+This allows Peer A to earn reputation seeding popular File X and spend it on rare File Y, but prevents the "pay-to-win" scenario since reputation cannot be bought with dollars.
+
+\subsection{Smart Seeders}
+We can also envision the rise of \textbf{Smart Seeders}: autonomous AI agents that optimize a portfolio of files. These agents would:
+1. Crawl the DHT to find swarms with high BTT yields (low supply, high demand).
+2. Automatically download and seed those files.
+3. Dynamically adjust prices based on network congestion.
+This would effectively turn file storage into a high-frequency trading market, ensuring optimal resource allocation.
+
+\section{Conclusion}
+
+Bram Cohen's assertion that ``Incentives Build Robustness'' remains the foundational truth of distributed systems. However, the definition of those incentives must evolve. The original Tit-for-Tat mechanism, while an elegant solution to the free-rider problem, proved insufficient against strategic clients like BitTyrant and failed to sustain rare content.
+
+While academic proposals like Proportional Share offered theoretical purity, they failed to account for the networking realities of TCP. The sociological success of private trackers proved that \textbf{Long-Term Memory} (identity and history) is more powerful than immediate reciprocity.
+
+The integration of BTT represents the commoditization of the protocol. By introducing a floating currency, BitTorrent acknowledges that bandwidth and storage are scarce economic resources. While this shifts the ethos of the network from ``communal sharing'' to ``market exchange,'' it theoretically offers the only robust solution to the Seeder's Dilemma in an open, permissionless system. The future of P2P lies in the intersection of Mechanism Design and Cryptographic Tokenomics, where protocols not only move data but also autonomously manage the value of that data.
+
+\newpage
+\begin{thebibliography}{99}
+
+\bibitem{Cohen2003}
+B.~Cohen, ``Incentives build robustness in BitTorrent,'' in \emph{Workshop on Economics of Peer-to-Peer Systems}, vol.~6, pp. 68--72, 2003.
+
+\bibitem{Piatek2007}
+M.~Piatek, T.~Isdal, T.~Anderson, A.~Krishnamurthy, and A.~Venkataramani, ``Do incentives build robustness in BitTorrent?'' in \emph{Proceedings of the 4th USENIX Symposium on Networked Systems Design \& Implementation (NSDI)}, 2007.
+
+\bibitem{Levin2008}
+D.~Levin, K.~LaCurts, N.~Spring, and B.~Bhattacharjee, ``BitTorrent is an auction: Analyzing and improving BitTorrent's incentives,'' in \emph{ACM SIGCOMM Computer Communication Review}, vol.~38, no.~4, pp. 243--254, 2008.
+
+\bibitem{Sirivianos2007}
+M.~Sirivianos, J.~H. Park, X.~Yang, and S.~Jarecki, ``Dandelion: Cooperative content distribution with robust incentives,'' in \emph{USENIX Annual Technical Conference}, 2007.
+
+\bibitem{Meulpolder2009}
+M.~Meulpolder, L.~D'Acunto, M.~Capota, M.~Wojciechowski, J.~A. Pouwelse, D.~H. Epema, and H.~J. Sips, ``Public and private BitTorrent communities: A measurement study,'' in \emph{IPTPS}, 2010.
+
+\bibitem{BTTWhitepaper}
+BitTorrent Foundation, ``BitTorrent (BTT) White Paper v0.8.7,'' Feb. 2019. [Online]. Available: https://www.bittorrent.com/btt/btt-docs/BitTorrent\_(BTT)\_White\_Paper\_v0.8.7\_Feb\_2019.pdf
+
+\bibitem{Legout2007}
+A.~Legout, G.~Urvois, and P.~Michiardi, ``Rarest first and choke algorithms are enough,'' in \emph{Proceedings of the 6th ACM SIGCOMM conference on Internet measurement}, 2006.
+
+\bibitem{Adar2000}
+E.~Adar and B.~A. Huberman, ``Free riding on Gnutella,'' \emph{First Monday}, vol.~5, no.~10, 2000.
+
+\bibitem{Kaune2010}
+S. Kaune, R. C. Rumin, G. Tyson, A. Mauthe, C. Guerrero, and R. Steinmetz, "Unraveling BitTorrent's File Unavailability: Measurements and Analysis," in \emph{2010 IEEE Tenth International Conference on Peer-to-Peer Computing (P2P)}, 2010.
+
+\end{thebibliography}
+
+\section*{Acknowledgement}
+This paper makes use of LLMs for refining writing and research. The author acknowledges the generative AI policy for the course and has complied with it.
+
+\end{document}

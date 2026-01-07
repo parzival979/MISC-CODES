@@ -1,0 +1,619 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+
+\title{Presenter Notes: Lightning Network Economics}
+\author{Sravanth Potluri und5uv}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Slide 1: The Bitcoin Scalability Problem}
+
+\textbf{Duration: 2-3 minutes}
+
+\textbf{Key talking points:}
+\begin{itemize}
+    \item Start with a question: "How many of you have tried to make a Bitcoin transaction during high congestion?" This engages the audience immediately.
+    \item Emphasize the stark contrast: 7 tps vs 65,000 tps. Let this sink in.
+    \item Mention concrete examples: "During the 2017 bull run, people paid \$50+ in fees for a single transaction."
+    \item Frame the problem: "This isn't just an inconvenience—it fundamentally limits Bitcoin's use as a payment system."
+\end{itemize}
+
+\textbf{Handling questions:}
+\begin{itemize}
+    \item If asked "why not just increase block size?": Explain the blockchain trilemma (security, decentralization, scalability). Increasing block size compromises decentralization.
+    \item If asked about other solutions: Acknowledge SegWit, Taproot, but emphasize these provide only modest improvements.
+\end{itemize}
+
+\textbf{Transition:} "So we need a solution that scales without changing Bitcoin's base layer. That's where Lightning comes in."
+
+\section*{Slide 2: The Lightning Network Solution}
+
+\textbf{Duration: 2-3 minutes}
+
+\textbf{Key talking points:}
+\begin{itemize}
+    \item Use the diagram: "Think of a channel as a private ledger between two parties."
+    \item Walk through the lifecycle: open → transact → close. Emphasize only 2 on-chain transactions total.
+    \item Stress the cryptographic guarantee: "Even though transactions are off-chain, they're cryptographically secured. Neither party can cheat."
+    \item Introduce the central trade-off early: "You're trading capital efficiency for transaction cost savings."
+\end{itemize}
+
+\textbf{Technical details to have ready:}
+\begin{itemize}
+    \item Channel opening: 2-of-2 multisig address funded by both parties
+    \item Balance updates: signed commitment transactions
+    \item Security: penalty mechanism if someone broadcasts an old state
+    \item Be prepared to draw this out if someone asks
+\end{itemize}
+
+\textbf{Transition:} "To understand this trade-off better, let's consider a familiar analogy."
+
+\section*{Slide 3: A Familiar Analogy}
+
+\textbf{Duration: 2 minutes}
+
+\textbf{Key talking points:}
+\begin{itemize}
+    \item This is your chance to make the abstract concrete. Really sell the analogy.
+    \item Walk through the math: "\$3 × 20 days = \$60. But with fees, that's actually \$80 paid over time vs \$62 paid upfront."
+    \item Emphasize: "The coffee pool is cheaper IF you're a regular customer. Same with Lightning."
+    \item Point out the locked capital: "That \$60 could be earning interest or used elsewhere."
+\end{itemize}
+
+\textbf{Interactive element:}
+\begin{itemize}
+    \item Consider asking: "How many coffees would you need to buy before the pool makes sense?" Let audience think for 5 seconds.
+    \item This primes them for the formal analysis: "This is exactly the question this paper answers mathematically."
+\end{itemize}
+
+\textbf{Transition:} "Now let's formalize this intuition."
+
+\section*{Slide 4: The Model Setup}
+
+\textbf{Duration: 3 minutes}
+
+\textbf{Key talking points:}
+\begin{itemize}
+    \item Go through each parameter carefully. Write them on the board if possible.
+    \item For Poisson processes: "This means payments arrive randomly but at a steady average rate. Like customers arriving at a store."
+    \item Emphasize $r$ is the opportunity cost: "If you could earn 5\% elsewhere, that's your $r$."
+    \item Note the unit payment assumption: "The paper assumes each payment is one unit. This simplifies math but isn't too restrictive."
+\end{itemize}
+
+\textbf{Critical point:}
+\begin{itemize}
+    \item Make sure everyone understands what we're minimizing: "Total expected discounted cost over infinite horizon."
+    \item This includes: opportunity cost of locked funds + periodic channel rebalancing costs
+\end{itemize}
+
+\textbf{Technical backup:}
+\begin{itemize}
+    \item If asked why Poisson: "Tractable mathematically, and reasonable for many payment patterns. Non-Poisson arrivals are an interesting extension."
+    \item If asked about unit payments: "For non-unit payments with mean $\nu$, multiply $\lambda$ by $\nu$. The analysis goes through."
+\end{itemize}
+
+\textbf{Transition:} "With this model, we can now analyze different payment strategies."
+
+\section*{Slide 5: Three Ways to Pay}
+
+\textbf{Duration: 2-3 minutes}
+
+\textbf{Key talking points:}
+\begin{itemize}
+    \item Present these as a spectrum: "From simplest (all on-chain) to most complex (bidirectional)."
+    \item For on-chain: derive the formula $C\lambda/r$ quickly. "Expected number of payments in present value is $\lambda/r$, each costs $C$."
+    \item For unidirectional: "This is like the Baumol-Tobin cash management model from 1952."
+    \item For bidirectional: "This is like Miller-Orr firm cash management from 1966, but with a key difference..."
+\end{itemize}
+
+\textbf{Key insight to emphasize:}
+\begin{itemize}
+    \item "The choice depends on the asymmetry of flows. Symmetric flows benefit enormously from bidirectional channels."
+\end{itemize}
+
+\textbf{Interactive element:}
+\begin{itemize}
+    \item Reference the reading question: "How did you answer the question about when each strategy is optimal?"
+    \item Let 1-2 students share briefly
+\end{itemize}
+
+\textbf{Transition:} "Before we see the formulas, let's build intuition for what makes channels costly."
+
+\section*{Slide 6: Understanding Channel Costs}
+
+\textbf{Duration: 2 minutes}
+
+\textbf{Key talking points:}
+\begin{itemize}
+    \item Draw the trade-off visually if possible. "Small collateral means frequent resets. Large collateral means high opportunity cost."
+    \item Connect to the coffee analogy: "Small prepayment = go to ATM often. Large prepayment = money sits idle."
+    \item Emphasize this is a classic inventory problem: "How much inventory (capital) to hold?"
+\end{itemize}
+
+\textbf{Mathematical intuition:}
+\begin{itemize}
+    \item "If channel size is $l$, lifetime is approximately $l/\lambda$."
+    \item "So reset cost per unit time is roughly $B\lambda/l$."
+    \item "Opportunity cost per unit time is $rl$."
+    \item "Total cost: $B\lambda/l + rl$. Optimize: $l^* \sim \sqrt{B\lambda/r}$."
+    \item This gives the $r^{-1/2}$ scaling we'll see shortly.
+\end{itemize}
+
+\textbf{Transition:} "Now let's see the formal results, starting with unidirectional channels."
+
+\section*{Slide 7: Main Result - Unidirectional}
+
+\textbf{Duration: 3-4 minutes}
+
+\textbf{Key talking points:}
+\begin{itemize}
+    \item Present the theorem clearly. Write the formulas on the board.
+    \item Emphasize the $r^{-1/2}$ scaling: "As interest rates go to zero, optimal collateral grows, but only as a square root."
+    \item Work through the numerical example step-by-step: "With these parameters, you'd commit 35 units..."
+    \item Connect back to the heuristic: "This matches our $\sqrt{B\lambda/r}$ intuition from two slides ago."
+\end{itemize}
+
+\textbf{Key insights to highlight:}
+\begin{itemize}
+    \item "The cost grows slower than you might expect as $r$ decreases. That's good news for Lightning."
+    \item "Higher payment rates justify more capital commitment—makes sense."
+\end{itemize}
+
+\textbf{Handling questions:}
+\begin{itemize}
+    \item If asked about the $B/2$ term: "That's a correction term that matters at realistic interest rates. The asymptotic formula is very accurate even for $r = 1\%$."
+    \item If asked about the proof: "It uses difference equations. I'll sketch the proof later, but the key is modeling the balance as a Poisson process."
+\end{itemize}
+
+\textbf{Transition:} "Unidirectional is good, but bidirectional is even better. Let's see why."
+
+\section*{Slide 8: Main Result - Symmetric Bidirectional}
+
+\textbf{Duration: 3-4 minutes}
+
+\textbf{Key talking points:}
+\begin{itemize}
+    \item Emphasize the exponent change: "$r^{-1/3}$ instead of $r^{-1/2}$. This is huge!"
+    \item Work through the same numerical example: "Same parameters, but now cost is only 19 instead of 70."
+    \item Note both parties commit: "Total capital is about 13 units compared to 35 for unidirectional."
+    \item Stress the benefit: "This is the power of netting. Opposing flows cancel out, so the channel lasts longer."
+\end{itemize}
+
+\textbf{Mathematical insight:}
+\begin{itemize}
+    \item "With symmetric flows, the balance is a martingale—no drift. It wanders around zero."
+    \item "In unidirectional, balance drifts downward deterministically. Much faster to hit boundary."
+\end{itemize}
+
+\textbf{Connection to reading question:}
+\begin{itemize}
+    \item "This is why I asked about the $-1/3$ vs $-1/2$ exponent. It's not arbitrary—it comes from the difference between one-sided and two-sided random walks."
+\end{itemize}
+
+\textbf{Transition:} "Let me visualize why this scaling difference arises."
+
+\section*{Slide 9: Comparing Scalings}
+
+\textbf{Duration: 2-3 minutes}
+
+\textbf{Key talking points:}
+\begin{itemize}
+    \item Use the diagram to tell the story: "In unidirectional, balance goes one direction. In bidirectional, it jiggles around."
+    \item Invoke random walk intuition: "How long until a random walk starting at 0 hits $\pm L$?"
+    \item For one-sided: "$O(L)$ steps. For two-sided: $O(L^2)$ steps."
+    \item "That's where the scaling difference comes from. Bidirectional channels last quadratically longer."
+\end{itemize}
+
+\textbf{Technical depth (if asked):}
+\begin{itemize}
+    \item "For symmetric random walk: $E[\tau] \sim L^2$ where $\tau$ is hitting time."
+    \item "For one-sided: $E[\tau] \sim L$."
+    \item "Since cost scales as $1/E[\tau]$, we get different power laws."
+\end{itemize}
+
+\textbf{Transition:} "But what if flows aren't perfectly symmetric?"
+
+\section*{Slide 10: Asymmetric Bidirectional}
+
+\textbf{Duration: 3 minutes}
+
+\textbf{Key talking points:}
+\begin{itemize}
+    \item "This is one of the paper's most surprising results."
+    \item Emphasize the key finding: "The frequent payer commits $O(r^{-1/2})$, but the infrequent payer commits only $O(\log r^{-1})$."
+    \item Work through the implication: "If $r = 0.1\%$, $r^{-1/2} \approx 63$ but $\log(r^{-1}) \approx 2.3$."
+    \item "So the payer puts up 63 units, the payee puts up only 2-3 units. Very asymmetric!"
+\end{itemize}
+
+\textbf{Why does this happen?}
+\begin{itemize}
+    \item "The channel is behaving essentially like a unidirectional channel with net flow $\lambda_2 - \lambda_1$."
+    \item "The payee only needs enough buffer to handle temporary reversals. That's logarithmic."
+    \item "The payer needs to sustain the net flow. That's square root."
+\end{itemize}
+
+\textbf{Discussion prompt:}
+\begin{itemize}
+    \item "Is this realistic? Would a merchant really commit only \$3 while a customer commits \$63?"
+    \item Let audience think about incentive compatibility, alternative uses of capital, etc.
+\end{itemize}
+
+\textbf{Transition:} "Let's visualize all these regions together."
+
+\section*{Slide 11: The Big Picture}
+
+\textbf{Duration: 3 minutes}
+
+\textbf{Key talking points:}
+\begin{itemize}
+    \item Walk through each region of the figure carefully.
+    \item Bottom-left: "Both parties transact rarely. Not worth locking up capital."
+    \item Corners: "One party transacts frequently. Use unidirectional from them."
+    \item Top-right: "Both transact frequently. Bidirectional captures netting benefits."
+    \item Boundaries: "Sharp transitions. Optimal strategy changes discretely."
+\end{itemize}
+
+\textbf{Key insight:}
+\begin{itemize}
+    \item "Notice how much larger the bidirectional region is at higher rates. That's the power of $r^{-1/3}$ vs $r^{-1/2}$."
+\end{itemize}
+
+\textbf{Interactive element:}
+\begin{itemize}
+    \item "Point to a spot on the figure. What strategy would you use there?"
+    \item Have 1-2 students respond quickly.
+\end{itemize}
+
+\textbf{Transition:} "When exactly are channels worth it? The paper provides necessary conditions."
+
+\section*{Slide 12: When Are Channels Worth It?}
+
+\textbf{Duration: 2-3 minutes}
+
+\textbf{Key talking points:}
+\begin{itemize}
+    \item "These are necessary but not sufficient conditions. They tell us when channels definitely won't work."
+    \item Work through the unidirectional condition: "If $\lambda$ is very small, RHS goes to infinity. Can't satisfy."
+    \item Emphasize the factor of 12: "Bidirectional channels are viable at much lower rates. Factor of 12 advantage."
+    \item Connect to the figure: "These conditions determine where the boundaries are."
+\end{itemize}
+
+\textbf{Practical implications:}
+\begin{itemize}
+    \item "If on-chain fees drop (say, from SegWit), channels become less attractive."
+    \item "If interest rates rise (opportunity cost up), channels become less attractive."
+    \item "Network effects: if everyone uses Lightning, on-chain fees drop, which perversely makes Lightning less necessary!"
+\end{itemize}
+
+\textbf{Transition:} "Beyond cost savings, channels also reduce blockchain congestion."
+
+\section*{Slide 13: Congestion Reduction}
+
+\textbf{Duration: 2-3 minutes}
+
+\textbf{Key talking points:}
+\begin{itemize}
+    \item "This quantifies Lightning's scalability benefit."
+    \item Walk through the formulas: "For unidirectional, $l_1$ transactions per on-chain tx. Linear."
+    \item "For bidirectional, $l_1 l_2$ transactions per on-chain tx. Quadratic!"
+    \item Work through the example: "10 vs 100. That's a 10x difference."
+\end{itemize}
+
+\textbf{Why quadratic?}
+\begin{itemize}
+    \item "Each additional unit of collateral extends lifetime in both directions."
+    \item "In unidirectional, only one direction matters. In bidirectional, both do."
+    \item "That's where the product $l_1 l_2$ comes from."
+\end{itemize}
+
+\textbf{Implication:}
+\begin{itemize}
+    \item "If Lightning succeeds, Bitcoin's effective throughput could increase by 2-3 orders of magnitude."
+    \item "That would make it competitive with traditional payment systems."
+\end{itemize}
+
+\textbf{Transition:} "Let's step back and appreciate the technical contribution."
+
+\section*{Slide 14: Technical Innovation}
+
+\textbf{Duration: 2-3 minutes}
+
+\textbf{Key talking points:}
+\begin{itemize}
+    \item "This paper is part of a long tradition in operations research."
+    \item Give credit to Baumol-Tobin and Miller-Orr: "These are classic models from the 1950s-60s."
+    \item Explain the adaptation: "But crypto has a key difference—you can always transact on-chain. Cash and bonds are different assets."
+    \item Stress the mathematical tool: "Difference equations with boundary conditions. Elegant and tractable."
+\end{itemize}
+
+\textbf{If asked for more detail:}
+\begin{itemize}
+    \item Baumol-Tobin: optimal cash holdings given transaction costs to convert bonds to cash
+    \item Miller-Orr: optimal cash buffer for firms with random receipts and disbursements
+    \item Key innovation here: both storage and transaction medium are the same (bitcoin)
+\end{itemize}
+
+\textbf{Transition:} "Let me sketch how the proofs work."
+
+% \section*{Slide 15: Proof Sketch - Unidirectional}
+
+% \textbf{Duration: 3-4 minutes}
+
+% \textbf{Key talking points:}
+% \begin{itemize}
+%     \item "This is the technical heart of the paper. I'll just give you the flavor."
+%     \item Walk through each step deliberately. Write key equations on board.
+%     \item For the difference equation: "This says: expected future cost from state $n$ equals immediate cost plus discounted future cost from next state."
+%     \item For the boundary condition: "When we hit the boundary, we reset and pay cost $B$."
+%     \item For the optimization: "Classic calculus. Set derivative to zero."
+% \end{itemize}
+
+% \textbf{Technical details (if asked):}
+% \begin{itemize}
+%     \item "The exact formula involves an exponential, but in the $r \to 0$ limit, we can Taylor expand."
+%     \item "The $r^{-1/2}$ scaling emerges from balancing $B\lambda/l$ and $rl$ terms."
+%     \item "This is why the square root: it's the only power that balances these two opposing forces."
+% \end{itemize}
+
+% \textbf{Transition:} "Bidirectional is more complex."
+
+% \section*{Slide 16: Proof Sketch - Bidirectional}
+
+% \textbf{Duration: 3-4 minutes}
+
+% \textbf{Key talking points:}
+% \begin{itemize}
+%     \item "Now we have two boundaries and two Poisson processes."
+%     \item For eigenvalues: "These come from solving the characteristic equation of the difference equation."
+%     \item "The asymptotic analysis is delicate. For symmetric case, both eigenvalues approach 1, so you need higher-order terms."
+%     \item "This is where the $r^{-1/3}$ emerges. It's not obvious until you do this calculation."
+% \end{itemize}
+
+% \textbf{If asked for more detail:}
+% \begin{itemize}
+%     \item "The general solution is $J(n) = l_1 + l_2 + k_1 \alpha_+^n + k_2 \alpha_-^n$."
+%     \item "Constants $k_1, k_2$ determined by boundary conditions."
+%     \item "In the symmetric case, $\alpha_+ = 1 + O(r^{1/2})$ and $\alpha_- = 1 - O(r^{1/2})$."
+%     \item "Careful expansion yields the $r^{-1/3}$ scaling."
+% \end{itemize}
+
+% \textbf{Reassurance:}
+% \begin{itemize}
+%     \item "You don't need to memorize this. The key is understanding that two-sided random walks behave fundamentally differently."
+% \end{itemize}
+
+% \textbf{Transition:} "Beyond the math, what new insights does this paper provide?"
+
+\section*{Slide 17: Novel Insights}
+
+\textbf{Duration: 3 minutes}
+
+\textbf{Key talking points:}
+\begin{itemize}
+    \item Go through each insight deliberately.
+    \item For scaling laws: "These are universal. Any similar system will exhibit these scalings."
+    \item For asymmetric analysis: "This is genuinely surprising. I don't think anyone anticipated the logarithmic result."
+    \item For necessary conditions: "These are actionable. Network designers can use these."
+    \item For congestion reduction: "This quantifies the benefit. Lightning isn't just cheaper, it scales better."
+\end{itemize}
+
+\textbf{Broader point:}
+\begin{itemize}
+    \item "This paper shows rigorous analysis can provide insights beyond what intuition suggests."
+    \item "The $-1/3$ exponent, the factor of 12, the quadratic congestion reduction—none of these are obvious."
+\end{itemize}
+
+\textbf{Transition:} "No model is perfect. Let's discuss limitations."
+
+\section*{Slide 18: Limitations and Extensions}
+
+\textbf{Duration: 2-3 minutes}
+
+\textbf{Key talking points:}
+\begin{itemize}
+    \item Be honest about limitations: "This is a stylized model. Reality is more complex."
+    \item For unit transactions: "Easy to extend to random sizes. Multiply $\lambda$ by average size."
+    \item For fixed costs: "In reality, $B$ and $C$ depend on congestion. Endogenizing this is an interesting extension."
+    \item For network effects: "This paper takes a single-channel perspective. The companion paper analyzes topology."
+\end{itemize}
+
+\textbf{Which limitations matter most?}
+\begin{itemize}
+    \item "I think the fixed cost assumption is most problematic. There's a feedback loop: more Lightning → less congestion → lower $C$ → less benefit from Lightning."
+    \item "But this makes the model tractable. Trade-offs in modeling."
+\end{itemize}
+
+\textbf{Mention companion paper:}
+\begin{itemize}
+    \item "The 2023 follow-up analyzes network topology. Who should connect to whom?"
+    \item "Turns out: hub-and-spoke is often optimal. A few well-capitalized hubs, many spokes."
+\end{itemize}
+
+\textbf{Transition:} "How would we test this empirically?"
+
+\section*{Slide 19: Empirical Questions}
+
+\textbf{Duration: 2-3 minutes}
+
+\textbf{Key talking points:}
+\begin{itemize}
+    \item "This is tricky because Lightning values privacy."
+    \item Go through each testable implication: "We could look at channel sizes over time as $r$ changes..."
+    \item Acknowledge challenges: "But payment rates are unobservable. Channel balances are hidden."
+    \item Suggest creative approaches: "Maybe use routing fees as a proxy for payment rates?"
+\end{itemize}
+
+\textbf{Discussion prompt:}
+\begin{itemize}
+    \item "How would you design a test of this theory? What data would you need?"
+    \item Let 1-2 students propose approaches
+    \item Gently point out challenges: "Good idea, but remember balances are private..."
+\end{itemize}
+
+\textbf{Broader point:}
+\begin{itemize}
+    \item "Theory is valuable even without empirical testing. It disciplines our thinking."
+    \item "But empirical work would be very valuable here."
+\end{itemize}
+
+\textbf{Transition:} "Let's open this up to broader discussion."
+
+\section*{Slide 20: Discussion Questions}
+
+\textbf{Duration: 5-7 minutes}
+
+\textbf{How to handle this:}
+\begin{itemize}
+    \item "I've prepared four questions. Let's take them one at a time."
+    \item For each question, read it aloud, then pause for 10-15 seconds.
+    \item Call on 2-3 students for each question.
+    \item Don't feel obligated to "resolve" each question. The goal is thoughtful discussion.
+\end{itemize}
+
+\textbf{Question 1 (Endogenous $\lambda$):}
+\begin{itemize}
+    \item Possible answers: "Positive feedback loop. Cheaper channels → more transactions → more benefit. Could get multiple equilibria."
+    \item Your response: "Exactly. And this might explain Lightning's slow adoption—chicken and egg problem."
+\end{itemize}
+
+\textbf{Question 2 (Feedback through congestion):}
+\begin{itemize}
+    \item Possible answers: "Model $C$ as decreasing in aggregate Lightning usage. Creates a commons problem."
+    \item Your response: "Yes! And this is related to the Huberman et al. papers on Bitcoin congestion."
+\end{itemize}
+
+\textbf{Question 3 (Asymmetric realism):}
+\begin{itemize}
+    \item Possible answers: "Maybe not realistic. Payee has less skin in the game. Incentive to defect?"
+    \item Your response: "Good point. This assumes perfect commitment. In practice, might need more symmetric arrangements."
+\end{itemize}
+
+\textbf{Question 4 (Topology):}
+\begin{itemize}
+    \item Possible answers: "If everyone has bidirectional channels, network becomes dense. That's good for routing but expensive."
+    \item Your response: "Right. The companion paper addresses this. Turns out hub-and-spoke is often optimal."
+\end{itemize}
+
+\textbf{If time permits:}
+\begin{itemize}
+    \item Ask if anyone has other questions or observations
+    \item Reference the reading questions: "Did anyone notice anything we haven't discussed?"
+\end{itemize}
+
+\textbf{Transition:} "Let me briefly mention broader applications."
+
+\section*{Slide 21: Broader Implications}
+
+\textbf{Duration: 2 minutes}
+
+\textbf{Key talking points:}
+\begin{itemize}
+    \item "This analysis isn't Bitcoin-specific."
+    \item Go through examples: Ethereum channels, traditional settlement systems
+    \item General principle: "Whenever you have frequent bilateral transactions with per-transaction costs, consider a channel."
+    \item Modern relevance: "Layer-2 solutions are hot in crypto right now. This paper provides a framework."
+\end{itemize}
+
+\textbf{Broader impact:}
+\begin{itemize}
+    \item "This could influence design of future payment systems."
+    \item "The scaling laws are universal. Can't be circumvented, only optimized."
+\end{itemize}
+
+\textbf{Transition:} "Let me wrap up."
+
+\section*{Slide 22: Summary}
+
+\textbf{Duration: 2 minutes}
+
+\textbf{Key talking points:}
+\begin{itemize}
+    \item Read through the key takeaways, but don't just read the slide.
+    \item Emphasize: "The most important contribution is the scaling laws. $r^{-1/2}$ vs $r^{-1/3}$ characterizes fundamental differences."
+    \item Reiterate: "Bidirectional channels are much better when flows are symmetric."
+    \item Broader point: "This paper provides a rigorous economic foundation for Lightning."
+\end{itemize}
+
+\textbf{Final thought:}
+\begin{itemize}
+    \item "Lightning is still early. But papers like this help us understand when and how it will succeed."
+    \item "The theory is elegant, the implications are practical."
+\end{itemize}
+
+\textbf{Closing:}
+\begin{itemize}
+    \item "Thank you. I'm happy to take any final questions."
+    \item Be prepared for questions about anything in the paper
+\end{itemize}
+
+\section*{General Presentation Tips}
+
+\textbf{Pacing:}
+\begin{itemize}
+    \item Total time should be 40-45 minutes including discussion
+    \item Budget more time for technical slides (7, 8, 10, 15, 16)
+    \item Budget less time for motivation slides (1-3)
+    \item Leave 5-7 minutes for discussion questions
+\end{itemize}
+
+\textbf{Handling questions:}
+\begin{itemize}
+    \item Welcome questions throughout. Don't wait until the end.
+    \item If you don't know: "Great question. I don't know, but here's my guess..." or "Let's think through this together."
+    \item If off-topic: "Interesting point. Let's table that and I'll come back to it."
+    \item If already covered: "Good question. We'll actually see that in a few slides."
+\end{itemize}
+
+\textbf{Board work:}
+\begin{itemize}
+    \item Write key formulas on the board, especially:
+    \begin{itemize}
+        \item Unidirectional: $l^* = \sqrt{B\lambda/r}$, $c^* = 2\sqrt{B\lambda/r}$
+        \item Bidirectional: $l^* = (2B\lambda/r)^{1/3}$, $c^* = 3(2B\lambda/r)^{1/3}$
+    \end{itemize}
+    \item Use board for examples and ad-hoc derivations
+    \item Draw diagrams if it helps
+\end{itemize}
+
+\textbf{Eye contact:}
+\begin{itemize}
+    \item Look at audience, not slides
+    \item Scan the room, don't fixate on one person
+    \item Watch for confused faces and adjust
+\end{itemize}
+
+\textbf{Energy:}
+\begin{itemize}
+    \item Show enthusiasm for the material
+    \item Vary your tone and pace
+    \item Use gestures to emphasize points
+\end{itemize}
+
+\textbf{Backup material:}
+\begin{itemize}
+    \item Have full Theorem 1 statement ready
+    \item Have Figure 4 (exact vs asymptotic costs) available
+    \item Be ready to explain Poisson processes
+    \item Be ready to explain difference equations
+    \item Know the Miller-Orr and Baumol-Tobin models
+\end{itemize}
+
+\textbf{If running short on time:}
+\begin{itemize}
+    \item Skip or abbreviate slides 14-16 (technical innovation and proof sketches)
+    \item These are interesting but not essential
+    \item Preserve time for discussion questions (slide 20)
+\end{itemize}
+
+\textbf{If running long:}
+\begin{itemize}
+    \item Cut short the discussion questions
+    \item Move through slides 18-19 quickly
+    \item But don't rush the main results (slides 7-13)
+\end{itemize}
+
+\end{document}
